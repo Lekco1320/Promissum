@@ -1,0 +1,27 @@
+﻿<Application x:Class="Lekco.Promissum.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Exit="Exiting"
+             ShutdownMode="OnExplicitShutdown"
+             Startup="StartUp">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Style/Manu.xaml" />
+                <ResourceDictionary Source="/Style/Text.xaml" />
+                <ResourceDictionary Source="/Style/Button.xaml" />
+                <ResourceDictionary Source="/Style/ProgressBar.xaml" />
+                <ResourceDictionary Source="/Style/RadioButton.xaml" />
+                <ResourceDictionary Source="/Style/CheckBox.xaml" />
+                <ResourceDictionary Source="/Style/NumericUpDown.xaml" />
+                <ResourceDictionary Source="/Style/ComboBox.xaml" />
+                <ResourceDictionary Source="/Style/Scroll.xaml" />
+                <ResourceDictionary Source="/Style/DataGrid.xaml" />
+                <ResourceDictionary Source="/Style/Border.xaml" />
+                <ResourceDictionary Source="/Style/Image.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

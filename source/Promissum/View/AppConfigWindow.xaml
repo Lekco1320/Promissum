@@ -1,0 +1,121 @@
+﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.AppConfigWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     x:Name="window"
+                     Title="AppConfigWindow"
+                     Width="330"
+                     Height="190"
+                     ShowInTaskbar="False"
+                     Topmost="True"
+                     WindowStartupLocation="CenterScreen"
+                     mc:Ignorable="d">
+
+    <Border Style="{StaticResource WindowBorderStyle}">
+
+        <Grid>
+
+            <Grid Height="25"
+                  VerticalAlignment="Top"
+                  MouseLeftButtonDown="DragWindow">
+
+                <Image Style="{StaticResource IconImage}" />
+
+                <TextBlock Style="{StaticResource WindowTitleStyle}"
+                           Text="首选项" />
+
+                <Button Command="{Binding CancelCommand}"
+                        CommandParameter="{Binding ElementName=window}"
+                        Style="{StaticResource CloseButtonStyle}" />
+
+                <Border Style="{StaticResource SplitterStyle}" />
+
+            </Grid>
+
+            <StackPanel Margin="20,40,20,30"
+                        Orientation="Vertical">
+
+                <StackPanel Orientation="Horizontal">
+
+                    <CheckBox Content="开机自启动"
+                              IsChecked="{Binding AutoStartUp}" />
+
+                </StackPanel>
+
+                <CheckBox Margin="0,10,0,0"
+                          Content="删除文件时总是告知我"
+                          IsChecked="{Binding AlwaysTellsMeWhenDeleteFiles}" />
+
+                <StackPanel Margin="0,10,0,0"
+                            Orientation="Horizontal">
+
+                    <TextBlock Text="对话框倒计时时长：　" />
+
+                    <Slider Maximum="3600"
+                            Minimum="1"
+                            Style="{StaticResource NumericUpDownStyle}"
+                            Value="{Binding MessageWindowWaitingSeconds}" />
+
+                    <TextBlock Margin="5,0,0,0"
+                               Text="秒" />
+
+                </StackPanel>
+
+                <StackPanel Margin="0,10,0,0"
+                            Orientation="Horizontal">
+
+                    <TextBlock Text="最大同时备份文件数：" />
+
+                    <Slider Maximum="10"
+                            Minimum="1"
+                            Style="{StaticResource NumericUpDownStyle}"
+                            Value="{Binding MaxParallelCopyCounts}" />
+
+                    <TextBlock Margin="5,0,0,0"
+                               Text="份" />
+
+                </StackPanel>
+
+            </StackPanel>
+
+            <StackPanel Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="0,0,20,15"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal">
+
+                <Button Width="70"
+                        Command="{Binding OKCommand}"
+                        CommandParameter="{Binding ElementName=window}"
+                        Content="确定(_O)">
+
+                    <Button.InputBindings>
+                        <KeyBinding Command="{Binding OKCommand}"
+                                    Gesture="Alt+O" />
+                    </Button.InputBindings>
+
+                </Button>
+
+                <Button Width="70"
+                        Margin="10,0,0,0"
+                        Command="{Binding CancelCommand}"
+                        CommandParameter="{Binding ElementName=window}"
+                        Content="取消(_C)">
+
+                    <Button.InputBindings>
+                        <KeyBinding Command="{Binding CancelCommand}"
+                                    CommandParameter="{Binding ElementName=window}"
+                                    Gesture="Alt+C" />
+                    </Button.InputBindings>
+
+                </Button>
+
+            </StackPanel>
+
+        </Grid>
+
+    </Border>
+</ctrl:AnimatedWindow>

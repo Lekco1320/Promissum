@@ -1,0 +1,79 @@
+﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.SyncTaskExecutingWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                     xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     Title="Lekco Promissum SyncEngine"
+                     Width="330"
+                     Height="135"
+                     Loaded="WindowLoaded"
+                     ShowInTaskbar="False"
+                     Topmost="True"
+                     mc:Ignorable="d">
+
+    <Window.Resources>
+        <cvt:EnumDiscriptionHelper x:Key="EnumDiscriptionHelper" />
+    </Window.Resources>
+
+    <Border Style="{StaticResource WindowBorderStyle}">
+
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid MouseLeftButtonDown="DragWindow">
+
+                <Image Style="{StaticResource IconImage}" />
+
+                <TextBlock VerticalAlignment="Center"
+                           Style="{StaticResource WindowTitleStyle}">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} - {1}">
+                            <Binding Converter="{StaticResource EnumDiscriptionHelper}"
+                                     Path="Trigger" />
+                            <Binding Path="TaskName" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+
+                <Border Style="{StaticResource SplitterStyle}" />
+
+            </Grid>
+
+            <StackPanel Grid.Row="1"
+                        Margin="15">
+
+                <TextBlock Margin="2,0"
+                           VerticalAlignment="Center"
+                           Text="{Binding Description1, Mode=OneWay}"
+                           TextTrimming="CharacterEllipsis" />
+
+                <ProgressBar Height="10"
+                             Margin="0,3,0,0"
+                             IsIndeterminate="False"
+                             Style="{StaticResource DianogalProgressBarStyle}"
+                             Value="{Binding Value1, Mode=OneWay}" />
+
+                <TextBlock Margin="2,12,2,0"
+                           VerticalAlignment="Center"
+                           Text="{Binding Description2, Mode=OneWay, BindsDirectlyToSource=True}"
+                           TextTrimming="CharacterEllipsis" />
+
+                <ProgressBar Height="10"
+                             Margin="0,3,0,0"
+                             IsIndeterminate="{Binding IsIndeterminate}"
+                             Style="{StaticResource DianogalProgressBarStyle}"
+                             Value="{Binding Value2, Mode=OneWay}" />
+
+            </StackPanel>
+
+        </Grid>
+
+    </Border>
+
+</ctrl:AnimatedWindow>
