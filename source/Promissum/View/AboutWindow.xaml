@@ -1,0 +1,42 @@
+﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.AboutWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     Title="AboutWindow"
+                     Width="400"
+                     Height="230"
+                     Deactivated="CloseWindow"
+                     WindowStartupLocation="CenterScreen"
+                     mc:Ignorable="d">
+
+    <Border Style="{StaticResource WindowBorderStyle}">
+
+        <StackPanel Margin="0,15"
+                    Orientation="Vertical">
+
+            <Image Width="350"
+                   Height="90"
+                   Source="/Resources/About_Logo.png" />
+
+            <TextBlock Margin="25,7.5,0,0"
+                       Text="{Binding Version, StringFormat='{}版本：{0}'}" />
+
+            <TextBlock Margin="25,4,0,0"
+                       Text="作者：Lukas Zhang" />
+
+            <TextBlock Margin="25,4,0,0"
+                       Text="邮箱：Lekco_1320@qq.com" />
+
+            <TextBlock Margin="25,4,0,0"
+                       Text="仓库：https://github.com/Lekco1320/Promissum" />
+
+            <TextBlock Margin="25,4,0,0"
+                       Text="© 2023-2024 Lekco. All Rights Reserved." />
+
+        </StackPanel>
+
+    </Border>
+
+</ctrl:AnimatedWindow>
