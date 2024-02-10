@@ -74,7 +74,7 @@ namespace Lekco.Promissum.ViewModel
                     buttonStyle: MessageWindowButtonStyle.OK
                 );
             }
-            catch (SubTaskIsRunningException ex)
+            catch (SubTaskIsBusyException ex)
             {
                 MessageWindow.ShowDialog(
                     message: $"项目“{ex.ParentProject}”的任务“{ex.SubTask.Name}”正在执行，请稍后保存。",

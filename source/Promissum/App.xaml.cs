@@ -1,10 +1,8 @@
 ﻿using Lekco.Promissum.Apps;
 using Lekco.Promissum.Control;
-using Lekco.Promissum.Sync;
 using Lekco.Promissum.View;
 using Lekco.Promissum.ViewModel;
 using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;

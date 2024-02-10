@@ -161,14 +161,14 @@
                     HorizontalAlignment="Left"
                     Command="{Binding ShowSyncFileRecordsCommand}"
                     Content="备份记录..."
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
             <Button Width="80"
                     Margin="15,0,0,0"
                     HorizontalAlignment="Left"
                     Command="{Binding ShowSyncRecordsCommand}"
                     Content="执行记录..."
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
         </StackPanel>
 
@@ -396,7 +396,7 @@
                     HorizontalAlignment="Left"
                     Command="{Binding ShowDeletionRecordsCommand}"
                     Content="移动记录..."
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
         </StackPanel>
 
@@ -832,19 +832,19 @@
             <Button Width="70"
                     Command="{Binding SaveTaskCommand}"
                     Content="保存(_S)"
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
             <Button Width="70"
                     Margin="15,0,0,0"
                     Command="{Binding RestoreTaskCommand}"
                     Content="还原(_R)"
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
             <Button Width="100"
                     Margin="15,0,0,0"
                     Command="{Binding SaveAndExecuteCommand}"
                     Content="保存并执行(_E)"
-                    IsEnabled="{Binding OriginTask.IsExecuting, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
+                    IsEnabled="{Binding OriginTask.IsBusy, Converter={StaticResource NOTConverter}, Mode=OneWay}" />
 
         </StackPanel>
 

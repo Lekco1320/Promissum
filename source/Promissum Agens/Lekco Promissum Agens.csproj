@@ -2,13 +2,19 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.18362.0</TargetFramework>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
     <RootNamespace>Promissum.Agens</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>Lekco.Promissum.Agens</AssemblyName>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Copyright>© 2023-2024 Lekco</Copyright>
+    <AssemblyVersion>1.0.0.47</AssemblyVersion>
+    <FileVersion>1.0.0.47</FileVersion>
+    <Company>Lekco</Company>
+    <Authors>Lukas Zhang</Authors>
+    <Title>Lekco Promissum Agens</Title>
   </PropertyGroup>
 
 </Project>

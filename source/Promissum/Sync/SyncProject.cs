@@ -5,14 +5,19 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Lekco.Promissum.Sync
 {
+    /// <summary>
+    /// The project specified for syncing files, composed of multiple tasks.
+    /// </summary>
     [DataContract]
     public class SyncProject : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Name of the project.
+        /// </summary>
         [DataMember]
         public string Name
         {
@@ -25,6 +30,9 @@ namespace Lekco.Promissum.Sync
         }
         private string _name;
 
+        /// <summary>
+        /// Specifies whether the project will run automatically.
+        /// </summary>
         [DataMember]
         public bool AutoRun
         {
@@ -37,24 +45,52 @@ namespace Lekco.Promissum.Sync
         }
         private bool _autoRun;
 
+        /// <summary>
+        /// A collection of sub tasks.
+        /// </summary>
         [DataMember]
         public ObservableCollection<SyncTask> Tasks { get; protected set; }
 
+        /// <summary>
+        /// Version of current application.
+        /// </summary>
         [DataMember]
         public Version Version { get; protected set; }
 
+        /// <summary>
+        /// Filename of the project.
+        /// </summary>
         public string FileName { get; protected set; }
 
+        /// <summary>
+        /// Temporary working directory of the task.
+        /// </summary>
         public string TempDirectory { get; protected set; }
 
+        /// <summary>
+        /// Temporary working filename of the task.
+        /// </summary>
         protected string _tempFileName;
 
+        /// <summary>
+        /// Event discribes a property value of this class changed.
+        /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Occurs when a property value changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
         protected internal virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        /// Create an instance of this type.
+        /// </summary>
+        /// <param name="name">The name of the project.</param>
+        /// <param name="fileName">Filename of the project.</param>
         public SyncProject(string name, string fileName)
         {
             _name = name;
@@ -66,6 +102,10 @@ namespace Lekco.Promissum.Sync
             TempDirectory = string.Empty;
         }
 
+        /// <summary>
+        /// Delete a specified task which belongs to the project.
+        /// </summary>
+        /// <param name="task">Specified deleting task.</param>
         public void DeleteTask(SyncTask task)
         {
             SyncEngine.UnloadSpyedTask(task);
@@ -77,6 +117,11 @@ namespace Lekco.Promissum.Sync
             Tasks.Remove(task);
         }
 
+        /// <summary>
+        /// Get an instance data from a file.
+        /// </summary>
+        /// <param name="oriFileName">The name of the file.</param>
+        /// <returns>An instance specified by the file.</returns>
         public static SyncProject ReadFromFile(string oriFileName)
         {
             string tempDirectory = App.TempDir + $"\\{DateTime.Now.GetHashCode()}";
@@ -88,18 +133,22 @@ namespace Lekco.Promissum.Sync
             result.TempDirectory = tempDirectory;
             foreach (var task in result.Tasks)
             {
-                task.CanMatchPaths();
+                task.TryMatchPaths();
             }
             return result;
         }
 
+        /// <summary>
+        /// Save the project as a file.
+        /// </summary>
+        /// <exception cref="SubTaskIsBusyException"></exception>
         public void Save()
         {
             foreach (var task in Tasks)
             {
-                if (task.IsExecuting)
+                if (task.IsBusy)
                 {
-                    throw new SubTaskIsRunningException(this, task);
+                    throw new SubTaskIsBusyException(this, task);
                 }
             }
             Functions.SaveAsFile(this, _tempFileName);
@@ -119,6 +168,9 @@ namespace Lekco.Promissum.Sync
             }
         }
 
+        /// <summary>
+        /// Create a file for <see cref="SyncProject"/>.
+        /// </summary>
         public void Create()
         {
             TempDirectory = App.TempDir + $"\\{DateTime.Now.GetHashCode()}";
@@ -131,12 +183,27 @@ namespace Lekco.Promissum.Sync
         }
     }
 
-    public class SubTaskIsRunningException : Exception
+    /// <summary>
+    /// The exception that is thrown when doing something with a project whose sub task is busy.
+    /// </summary>
+    public class SubTaskIsBusyException : Exception
     {
+        /// <summary>
+        /// The parent project of the task.
+        /// </summary>
         public SyncProject ParentProject { get; }
+
+        /// <summary>
+        /// The sub task of the project.
+        /// </summary>
         public SyncTask SubTask { get; }
 
-        public SubTaskIsRunningException(SyncProject parentProject, SyncTask subTask)
+        /// <summary>
+        /// Create an instance of this type.
+        /// </summary>
+        /// <param name="parentProject">The parent project of the task.</param>
+        /// <param name="subTask">The sub task of the project.</param>
+        public SubTaskIsBusyException(SyncProject parentProject, SyncTask subTask)
             : base($"Task \"{subTask.Name}\" of the project \"{parentProject.Name}\" is executing.")
         {
             ParentProject = parentProject;
