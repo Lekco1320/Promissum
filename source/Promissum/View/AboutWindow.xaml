@@ -33,7 +33,7 @@
                        Text="仓库：https://github.com/Lekco1320/Promissum" />
 
             <TextBlock Margin="25,4,0,0"
-                       Text="© 2023-2024 Lekco. All Rights Reserved." />
+                       Text="© 2023-2024 Lekco. Available under the Apache-2.0 License." />
 
         </StackPanel>
 

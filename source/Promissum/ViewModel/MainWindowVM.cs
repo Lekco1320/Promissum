@@ -5,6 +5,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -52,6 +53,7 @@ namespace Lekco.Promissum.ViewModel
         public DelegateCommand ShowSyncEngineWindowCommand { get; set; }
         public DelegateCommand SetAppConfigCommand { get; set; }
         public DelegateCommand ShowAboutWindowCommand { get; set; }
+        public DelegateCommand OpenReposCommand { get; set; }
 
         public MainWindowVM()
         {
@@ -70,6 +72,7 @@ namespace Lekco.Promissum.ViewModel
             ShowAboutWindowCommand = new DelegateCommand(AboutWindow.ShowAbout);
             CloseWindowCommand = new DelegateCommand<Window>(window => window.Close());
             MinimizeWindowCommand = new DelegateCommand<Window>(window => window.WindowState = WindowState.Minimized);
+            OpenReposCommand = new DelegateCommand(() => Process.Start("explorer.exe", "https://github.com/Lekco1320/Promissum"));
         }
 
         private void SaveProject()
