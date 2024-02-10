@@ -101,7 +101,8 @@
                         <MenuItem Command="{Binding ShowAboutWindowCommand}"
                                   Header="关于 Lekco Promissum (_A)..." />
 
-                        <MenuItem Header="项目链接(_L)..." />
+                        <MenuItem Command="{Binding OpenReposCommand}"
+                                  Header="Github 仓库(_L)..." />
 
                     </MenuItem>
 
