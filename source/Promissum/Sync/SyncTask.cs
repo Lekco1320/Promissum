@@ -10,9 +10,15 @@ using System.Threading.Tasks;
 
 namespace Lekco.Promissum.Sync
 {
+    /// <summary>
+    /// The task specified for syncing files, the smallest executable unit of Lekco Promissum.
+    /// </summary>
     [DataContract]
     public class SyncTask : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Name of the task.
+        /// </summary>
         [DataMember]
         public string Name
         {
@@ -25,6 +31,9 @@ namespace Lekco.Promissum.Sync
         }
         private string _name;
 
+        /// <summary>
+        /// Source directory's path of the task.
+        /// </summary>
         [DataMember]
         public SyncPath OriginPath
         {
@@ -37,6 +46,9 @@ namespace Lekco.Promissum.Sync
         }
         private SyncPath _originPath;
 
+        /// <summary>
+        /// Destination directory's path of the task.
+        /// </summary>
         [DataMember]
         public SyncPath DestinationPath
         {
@@ -49,6 +61,9 @@ namespace Lekco.Promissum.Sync
         }
         private SyncPath _destinationPath;
 
+        /// <summary>
+        /// Mode to specify how to judge files should be synced.
+        /// </summary>
         [DataMember]
         public CompareMode CompareMode
         {
@@ -61,6 +76,9 @@ namespace Lekco.Promissum.Sync
         }
         private CompareMode _compareMode;
 
+        /// <summary>
+        /// Last time the task was executed.
+        /// </summary>
         [DataMember]
         public DateTime LastExecuteTime
         {
@@ -73,6 +91,9 @@ namespace Lekco.Promissum.Sync
         }
         private DateTime _lastExecuteTime;
 
+        /// <summary>
+        /// Creation time of the task.
+        /// </summary>
         [DataMember]
         public DateTime CreationTime { get; private set; }
 
@@ -88,6 +109,9 @@ namespace Lekco.Promissum.Sync
         }
         private SyncPlan _syncPlan;
 
+        /// <summary>
+        /// Behavior specifies how to cope with the files which need deleting.
+        /// </summary>
         [DataMember]
         public DeletionBehavior DeletionBehavior
         {
@@ -100,6 +124,9 @@ namespace Lekco.Promissum.Sync
         }
         private DeletionBehavior _deletionBehavior;
 
+        /// <summary>
+        /// Behavior specifies rules to exclude designative files.
+        /// </summary>
         [DataMember]
         public ExclusionBehavior ExclusionBehavior
         {
@@ -112,39 +139,72 @@ namespace Lekco.Promissum.Sync
         }
         private ExclusionBehavior _exclusionBehavior;
 
-        [DataMember]
-        public int DataSetCode { get; protected set; }
-
+        /// <summary>
+        /// Whether the database of the task has <see cref="SyncFileRecord"/>.
+        /// </summary>
         [DataMember]
         public bool HasSyncFileRecord { get; protected set; }
 
+        /// <summary>
+        /// Whether the database of the task has <see cref="DeletionFileRecord"/>.
+        /// </summary>
         [DataMember]
         public bool HasDeletionFileRecord { get; protected set; }
 
+        /// <summary>
+        /// Whether the database of the task has <see cref="SyncRecord"/>.
+        /// </summary>
         [DataMember]
         public bool HasSyncRecord { get; protected set; }
 
+        /// <summary>
+        /// A dynamically connected dataset storaging all kinds of records of the task.
+        /// </summary>
         public SyncDataSet? SyncDataSet { get; protected set; }
 
-        public Version Version { get; protected set; }
-
-        public bool IsExecuting
+        /// <summary>
+        /// Specifies whether the task is occupied for something.
+        /// </summary>
+        public bool IsBusy
         {
-            get => _isExecuting;
+            get => _isBusy;
             protected set
             {
-                _isExecuting = value;
-                OnPropertyChanged(nameof(IsExecuting));
+                _isBusy = value;
+                OnPropertyChanged(nameof(IsBusy));
             }
         }
-        private bool _isExecuting;
+        private bool _isBusy;
 
+        /// <summary>
+        /// The file name of the dataset of the task.
+        /// </summary>
         public string DataSetName { get => $"{DataSetCode}.dat"; }
 
+        /// <summary>
+        /// Unique code for each task's database.
+        /// </summary>
+        [DataMember]
+        protected int DataSetCode;
+
+        /// <summary>
+        /// Event discribes a property value of this class changed.
+        /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Occurs when a property value changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
         protected internal virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        /// <summary>
+        /// Create an instance of this type.
+        /// </summary>
+        /// <param name="name">The name of the task.</param>
+        /// <param name="originPath">Source directory's path of the task.</param>
+        /// <param name="destinationPath">Destination directory's path of the task.</param>
         public SyncTask(string name, SyncPath originPath, SyncPath destinationPath)
         {
             _name = name;
@@ -154,15 +214,18 @@ namespace Lekco.Promissum.Sync
             _deletionBehavior = new DeletionBehavior();
             _syncPlan = new SyncPlan();
             DataSetCode = 0;
-            IsExecuting = false;
+            IsBusy = false;
             HasSyncFileRecord = false;
             HasDeletionFileRecord = false;
             HasSyncRecord = false;
             CreationTime = DateTime.Now;
-            Version = (Version)App.Version.Clone();
         }
 
-        public bool CanMatchPaths()
+        /// <summary>
+        /// Try to match the paths of the task.
+        /// </summary>
+        /// <returns><see langword="true"/> if all paths match; otherwise, returns <see langword="false"/>.</returns>
+        public bool TryMatchPaths()
         {
             return OriginPath.TryMatch() && DestinationPath.TryMatch() &&
                 (!DeletionBehavior.ReserveFiles ||
@@ -176,24 +239,24 @@ namespace Lekco.Promissum.Sync
         /// <param name="parentProject">The parent project of the task.</param>
         /// <param name="trigger">The execution trigger of the task.</param>
         /// <param name="syncController">The controller of the task execution progress.</param>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
         public void Execute(SyncProject parentProject, ExecutionTrigger trigger, SyncController syncController)
         {
             // Lock the instance to ensure this task can only be executed once in the same time.
             lock (this)
             {
-                if (IsExecuting)
+                if (IsBusy)
                 {
                     return;
                 }
-                IsExecuting = true;
+                IsBusy = true;
             }
 
             // Try matching the drives.
-            if (!CanMatchPaths())
+            if (!TryMatchPaths())
             {
                 // If not, this task cannot be executed.
-                IsExecuting = false;
+                IsBusy = false;
                 throw new DirectoryNotFoundException();
             }
 
@@ -221,30 +284,28 @@ namespace Lekco.Promissum.Sync
 
                 // Tell the controller the task starts syncing files.
                 syncController.SetCopyingState();
-                CopyFilesAndUpdateSyncFileRecords(data, syncController);
+                SyncFiles(data, syncController);
 
                 // Tell the controller the task starts managing deletion files.
                 syncController.SetManagingDeletingFilesState();
-                ManageDeletingFiles(LastExecuteTime, data, syncController);
+                ManageDeletingFiles(data, syncController);
             }
             catch
             {
                 // End syncing and throw the exception back to SyncEngine to show message.
                 SaveAndDisconnectDataSet();
-                IsExecuting = false;
+                IsBusy = false;
                 throw;
             }
 
             // Add a sync record into dataset.
             SyncDataSet!.AddSyncRecord(trigger, LastExecuteTime, DateTime.Now, data);
 
-            HasSyncRecord = SyncDataSet.SyncRecords.Count > 0;
-            HasSyncFileRecord = !SyncDataSet.SyncFileDictionary.IsEmpty;
-            HasDeletionFileRecord = !SyncDataSet.DeletionFileDictionary.IsEmpty;
+            // Update information of the records, save and disconnect the dataset.
             SaveAndDisconnectDataSet();
-            IsExecuting = false;
 
             // Tell the controller the task has ended.
+            IsBusy = false;
             syncController.Success(data.FailedSyncRecords);
         }
 
@@ -319,6 +380,10 @@ namespace Lekco.Promissum.Sync
                 }
             }
 
+            // Now we should find out whether the sub directories of current directory whether should be synced.
+            // Initialize a HashSet of directories from destinationDir to optimize querying performance. With this
+            // HashSet function can quickly find out whether a directory of the same name exists in destinationDir.
+            // The directory with same name should be queryed recursively and parallelly.
             var subOriDirectories = originDir.GetDirectories();
             var unexpectedDirSet = destinationDir.Exists ?
                 new HashSet<DirectoryInfo>(destinationDir.GetDirectories(), new WeakFileInfoComparer()) :
@@ -334,10 +399,14 @@ namespace Lekco.Promissum.Sync
                     Query(subOriDir, subDestinationDir, syncData, syncController)
                 );
             }
+
+            // If need to find unexpected files and directories,
             if (DeletionBehavior.NeedFindUnexpectedOnes)
             {
+                // all the unexpected directories in destinationDir and its sub files should be added.
                 foreach (var unexpectedDir in unexpectedDirSet)
                 {
+                    // If deleting files need moving to DeletionPath, check the unexpected directory whether is the DeletionPath.
                     if (!DeletionBehavior.MoveToDeletionPath || unexpectedDir.FullName != DeletionBehavior.DeletionPath.FullPath)
                     {
                         syncData.UnexpectedDirectories.Add(unexpectedDir);
@@ -349,15 +418,28 @@ namespace Lekco.Promissum.Sync
                     }
                 }
             }
+
+            // Wait all the sub tasks end querying.
             Task.WaitAll(tasks);
+
+            // If destinationDir doesn't exist but it should have sub files to be synced, add it into new diectories.
             int addSubDirFiles = originFiles.Count + tasks.Sum(task => task.Result);
             if (!destinationDir.Exists && addSubDirFiles > 0)
             {
                 syncData.NewDirectories.Add(destinationDir);
             }
+
+            // Return amount of sub files of oriDir which should be synced.
             return addSubDirFiles;
         }
 
+        /// <summary>
+        /// Judge files whether should be synced.
+        /// </summary>
+        /// <param name="originFile">The file in source directory.</param>
+        /// <param name="destinationFile">The file in destination directory.</param>
+        /// <returns><see langword="true"/> when the file need synced; otherwise, returns <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentException"></exception>
         protected bool Compare(FileInfo originFile, FileInfo destinationFile)
         {
             if (CompareMode == CompareMode.ByTime)
@@ -378,6 +460,11 @@ namespace Lekco.Promissum.Sync
             throw new ArgumentException("Unknown compare mode.");
         }
 
+        /// <summary>
+        /// Get the sub filtered files of specified source directory.
+        /// </summary>
+        /// <param name="originDir">Source directory.</param>
+        /// <returns>A collection of filtered files.</returns>
         protected ICollection<FileInfo> GetOriginFiles(DirectoryInfo originDir)
         {
             var comparer = new WeakFileInfoComparer();
@@ -392,19 +479,29 @@ namespace Lekco.Promissum.Sync
             return oriFiles;
         }
 
+        /// <summary>
+        /// Deal with unexpected files.
+        /// </summary>
+        /// <param name="syncData">Syncing data.</param>
+        /// <param name="syncController">Controller of syncing progress.</param>
         protected void DealWithUnexpectedFiles(SyncData syncData, SyncController syncController)
         {
+            // If cannot deal with unexpected files, returns.
             if (!syncController.CanDealWithUnexpectedFiles)
             {
                 return;
             }
 
+            // Deal with all the unexpected files by DeletionBehavior.
             string? deletionFolder = DeletionBehavior.ReserveFiles ? DeletionBehavior.DeletionPath.FullPath : null;
             var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.MaxParallelCopyCounts };
             Parallel.ForEach(syncData.UnexpectedFiles, option, file =>
             {
+                // Add a DeletionRecord into dataset.
                 if (SyncDataSet!.AddDeletionRecord(file, deletionFolder, DeletionBehavior.MarkVersion, out string? newFileName))
+                // If uses DeletionPath,
                 {
+                    // try to move the file to DeletionPath.
                     if (SyncHelper.MoveTo(file, newFileName, true, out FailedSyncRecord? record))
                     {
                         syncData.MovedFiles.Add(file);
@@ -415,8 +512,10 @@ namespace Lekco.Promissum.Sync
                         syncData.FailedSyncRecords.Add(record);
                     }
                 }
+                // If desen't use DeletionPath,
                 else
                 {
+                    // try to delete it directly.
                     if (SyncHelper.Delete(file, out FailedSyncRecord? record))
                     {
                         syncData.DeletedFiles.Add(file);
@@ -429,6 +528,7 @@ namespace Lekco.Promissum.Sync
                 }
             });
 
+            // Try to delete all the unexpected directories eventually.
             foreach (var dir in syncData.UnexpectedDirectories)
             {
                 if (SyncHelper.Delete(dir, out FailedSyncRecord? record))
@@ -442,12 +542,14 @@ namespace Lekco.Promissum.Sync
             }
         }
 
-        protected void CopyFilesAndUpdateSyncFileRecords(SyncData syncData, SyncController syncController)
+        /// <summary>
+        /// Sync Files.
+        /// </summary>
+        /// <param name="syncData">Syncing data.</param>
+        /// <param name="syncController">Controller of syncing progress.</param>
+        protected void SyncFiles(SyncData syncData, SyncController syncController)
         {
-            if (SyncDataSet == null)
-            {
-                throw new InvalidOperationException(nameof(SyncDataSet));
-            }
+            // First, create new directories.
             foreach (var dir in syncData.NewDirectories)
             {
                 if (!SyncHelper.Create(dir, out FailedSyncRecord? record))
@@ -455,12 +557,14 @@ namespace Lekco.Promissum.Sync
                     syncData.FailedSyncRecords.Add(record);
                 }
             }
+
+            // Then try to sync the files.
             var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.MaxParallelCopyCounts };
             Parallel.ForEach(syncData.NewFiles, option, pair =>
             {
                 if (SyncHelper.CopyTo(pair.Key, pair.Value, out FileInfo? newFile, out FailedSyncRecord? record))
                 {
-                    SyncDataSet.UpdateOrAddSyncFileRecord(newFile);
+                    SyncDataSet!.UpdateOrAddSyncFileRecord(newFile);
                     syncController.AddCopiedSyncFile();
                 }
                 else
@@ -470,13 +574,20 @@ namespace Lekco.Promissum.Sync
             });
         }
 
-        protected void ManageDeletingFiles(DateTime startTime, SyncData syncData, SyncController syncController)
+        /// <summary>
+        /// Manage deleting files.
+        /// </summary>
+        /// <param name="syncData">Syncing data.</param>
+        /// <param name="syncController">Controller of syncing progress.</param>
+        protected void ManageDeletingFiles(SyncData syncData, SyncController syncController)
         {
+            // If doesn't need to manage, returns.
             if (!DeletionBehavior.ReserveFiles || !DeletionBehavior.MoveToDeletionPath)
             {
                 return;
             }
 
+            // Find all deleting files.
             Parallel.ForEach(SyncDataSet!.DeletionFileDictionary, pair =>
             {
                 var deletedFileName = pair.Value.Values.First().FileName;
@@ -489,16 +600,19 @@ namespace Lekco.Promissum.Sync
                 }
                 if (DeletionBehavior.UseReserveTerm)
                 {
-                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByTime(deletedFileName, DeletionBehavior.ReserveTerm, startTime))
+                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByTime(deletedFileName, DeletionBehavior.ReserveTerm, LastExecuteTime))
                     {
                         syncData.DeletingFiles.Add(file);
                     }
                 }
             });
 
+            // If can manage deleting files,
             if (syncController.CanManageDeletingFiles(syncData.DeletingFiles))
             {
-                Parallel.ForEach(syncData.DeletingFiles, file =>
+                // delete files parallelly.
+                var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.MaxParallelCopyCounts };
+                Parallel.ForEach(syncData.DeletingFiles, option, file =>
                 {
                     if (SyncHelper.Delete(file, out FailedSyncRecord? record))
                     {
@@ -513,6 +627,11 @@ namespace Lekco.Promissum.Sync
             }
         }
 
+        /// <summary>
+        /// Connect the dataset.
+        /// </summary>
+        /// <param name="parentProject">Parent project of the task.</param>
+        /// <exception cref="FileNotFoundException"></exception>
         protected void ConnectDataSet(SyncProject parentProject)
         {
             if (!parentProject.Tasks.Contains(this))
@@ -531,6 +650,11 @@ namespace Lekco.Promissum.Sync
             }
         }
 
+        /// <summary>
+        /// Get the dataset and do something.
+        /// </summary>
+        /// <param name="project">Parent project of the task.</param>
+        /// <param name="action">Action to do with the dataset.</param>
         public void GetDataSet(SyncProject project, Action<SyncDataSet> action)
         {
             try
@@ -545,18 +669,29 @@ namespace Lekco.Promissum.Sync
             SaveAndDisconnectDataSet();
         }
 
+        /// <summary>
+        /// Save and disconnect the dataset.
+        /// </summary>
         protected void SaveAndDisconnectDataSet()
         {
+            HasSyncRecord = SyncDataSet!.SyncRecords.Count > 0;
             HasSyncFileRecord = !SyncDataSet!.SyncFileDictionary.IsEmpty;
             HasDeletionFileRecord = !SyncDataSet!.DeletionFileDictionary.IsEmpty;
             SyncDataSet!.Save();
             SyncDataSet = null;
         }
 
+        /// <summary>
+        /// Set the OriginPath a new value.
+        /// </summary>
+        /// <param name="parentProject">Parent project of the task.</param>
+        /// <param name="newPath">New value.</param>
         public void SetOriginPath(SyncProject parentProject, SyncPath newPath)
         {
+            // If new value is not same as the old one,
             if (OriginPath != newPath)
             {
+                // clear all records in the dataset.
                 GetDataSet(parentProject, dataset => dataset.ClearAllRecords());
                 HasSyncFileRecord = false;
                 HasDeletionFileRecord = false;
@@ -565,10 +700,17 @@ namespace Lekco.Promissum.Sync
             }
         }
 
+        /// <summary>
+        /// Set the DestinationPath a new value.
+        /// </summary>
+        /// <param name="parentProject">Parent project of the task.</param>
+        /// <param name="newPath">New value.</param>
         public void SetDestinationPath(SyncProject parentProject, SyncPath newPath)
         {
+            // If new value is not same as the old one,
             if (DestinationPath != newPath)
             {
+                // clear all records in the dataset.
                 GetDataSet(parentProject, dataset => dataset.ClearAllRecords());
                 HasSyncFileRecord = false;
                 HasDeletionFileRecord = false;
@@ -577,31 +719,45 @@ namespace Lekco.Promissum.Sync
             }
         }
 
+        /// <summary>
+        /// Set the DeletionPath a new value.
+        /// </summary>
+        /// <param name="parentProject">Parent project of the task.</param>
+        /// <param name="newPath">New value.</param>
         public void SetDeletionPath(SyncProject parentProject, SyncPath newPath)
         {
+            // If new value is not same as the old one,
             if (DeletionBehavior.DeletionPath != newPath)
             {
+                // clear all DeletionRecord in the dataset.
                 GetDataSet(parentProject, dataset => dataset.ClearDeletionRecords());
                 HasDeletionFileRecord = false;
                 DeletionBehavior.DeletionPath = newPath;
             }
         }
 
+        /// <summary>
+        /// Occupy this task and do something may spend long time.
+        /// </summary>
+        /// <param name="action">Action to do with the task.</param>
         public void BusyAction(Action<SyncTask> action)
         {
             lock (this)
             {
-                if (IsExecuting)
+                if (IsBusy)
                 {
                     return;
                 }
-                IsExecuting = true;
+                IsBusy = true;
             }
             action(this);
-            IsExecuting = false;
+            IsBusy = false;
         }
     }
 
+    /// <summary>
+    /// Mode to specify how to judge files should be synced.
+    /// </summary>
     public enum CompareMode
     {
         ByTime,

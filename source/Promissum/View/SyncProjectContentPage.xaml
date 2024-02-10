@@ -173,7 +173,7 @@
 
                                                 </Trigger>
 
-                                                <DataTrigger Binding="{Binding IsExecuting}"
+                                                <DataTrigger Binding="{Binding IsBusy}"
                                                              Value="True">
 
                                                     <Setter TargetName="icon"

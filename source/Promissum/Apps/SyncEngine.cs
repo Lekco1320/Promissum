@@ -175,7 +175,7 @@ namespace Lekco.Promissum.Apps
             {
                 foreach (var pair in ConnectDiskTasks)
                 {
-                    if (pair.Key.CanMatchPaths())
+                    if (pair.Key.TryMatchPaths())
                     {
                         EnqueueTask(pair.Value, pair.Key, ExecutionTrigger.ConnectDisk);
                     }

@@ -9,6 +9,15 @@
     <RootNamespace>Lekco.Promissum</RootNamespace>
     <AssemblyName>Lekco.Promissum</AssemblyName>
     <ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <SignAssembly>False</SignAssembly>
+    <Title>Lekco Promissum</Title>
+    <Authors>Lukas Zhang</Authors>
+    <Company>Lekco</Company>
+    <Version>$(VersionPrefix)</Version>
+    <Copyright>© 2023-2024 Lekco</Copyright>
+    <FileVersion>1.0.0.47</FileVersion>
+    <AssemblyVersion>1.0.0.47</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,6 +59,10 @@
     <Resource Include="Resources\Start_Logo.png" />
     <Resource Include="Resources\Success.png" />
     <Resource Include="Resources\Warning.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
