@@ -126,7 +126,7 @@ namespace Lekco.Promissum.Sync
             }
             catch (IOException)
             {
-                record = new FailedSyncRecord(file, SyncAction.Copy, SyncFailedFlag.FileAlreadyExists);
+                record = new FailedSyncRecord(file, SyncAction.Copy, SyncFailedFlag.FileOccupied);
             }
             catch (UnauthorizedAccessException)
             {

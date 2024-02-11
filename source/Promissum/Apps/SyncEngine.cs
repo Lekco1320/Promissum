@@ -9,28 +9,85 @@ using System.Threading;
 
 namespace Lekco.Promissum.Apps
 {
+    /// <summary>
+    /// The core engine of Lekco Promissum for managing projects, executing tasks and automatic actions. 
+    /// This is a singleton class.
+    /// </summary>
     public sealed class SyncEngine
     {
+        /// <summary>
+        /// The dictionary storing tasks whose execution is triggered by disk connection and their parent projects.
+        /// </summary>
         public static Dictionary<SyncTask, SyncProject> ConnectDiskTasks { get; }
+
+        /// <summary>
+        /// The dictionary storing tasks with periodic plans and theirs parent projects.
+        /// </summary>
         public static Dictionary<SyncTask, SyncProject> PeriodicTasks { get; }
+
+        /// <summary>
+        /// The dictionary storing interval tasks and their parent projects.
+        /// </summary>
         public static Dictionary<SyncTask, SyncProject> IntervalTasks { get; }
+
+        /// <summary>
+        /// The dictionary storing pairs of projects and their files' name.
+        /// </summary>
         public static Dictionary<string, SyncProject> OpenProjectDictionary { get; }
+
+        /// <summary>
+        /// The queue storing executing tasks.
+        /// </summary>
         public static ConcurrentQueue<LoadedTask> QueuedTasks { get; }
+
+        /// <summary>
+        /// The set storing tasks in the <see cref="QueuedTasks"/>.
+        /// </summary>
         public static HashSet<SyncTask> TasksInQueue { get; }
+
+        /// <summary>
+        /// The set storing auto-run projects.
+        /// </summary>
         public static HashSet<SyncProject> AutoRunProjects { get; }
+
+        /// <summary>
+        /// The timer used to trigger periodic tasks.
+        /// </summary>
         public static Timer PeriodicTimer { get; }
+
+        /// <summary>
+        /// The timer used to trigger interval tasks.
+        /// </summary>
         public static Timer IntervalTimer { get; }
+
+        /// <summary>
+        /// Specifies whether the engine is executing tasks.
+        /// </summary>
         public static bool IsRunning { get => _executionThread != null; }
+
+        /// <summary>
+        /// The only instance of this type.
+        /// </summary>
         public static SyncEngine Instance { get => _instance; }
 
-        public static event EventHandler? LoadedChanged;
-        public static event EventHandler? QueuedChanged;
+        /// <summary>
+        /// Occurs when loaded projects changed.
+        /// </summary>
+        public static event EventHandler? LoadedProjectsChanged;
+
+        /// <summary>
+        /// Occurs when queued tasks changed.
+        /// </summary>
+        public static event EventHandler? QueuedTasksChanged;
 
         private static Thread? _executionThread;
         private static readonly object _runningLock;
         private static readonly SyncEngine _instance;
         private static readonly ManagementEventWatcher _watcher;
 
+        /// <summary>
+        /// The static constructor of this type.
+        /// </summary>
         static SyncEngine()
         {
             ConnectDiskTasks = new Dictionary<SyncTask, SyncProject>();
@@ -63,6 +120,9 @@ namespace Lekco.Promissum.Apps
         {
         }
 
+        /// <summary>
+        /// Load auto-run projects from <see cref="Config"/>.
+        /// </summary>
         public static void LoadAutoRunProjects()
         {
             foreach (var path in Config.AutoRunProjects)
@@ -100,6 +160,10 @@ namespace Lekco.Promissum.Apps
             }
         }
 
+        /// <summary>
+        /// Checks and loads a specified auto-run project.
+        /// </summary>
+        /// <param name="project">Specified project.</param>
         public static void LoadAutoRunProject(SyncProject project)
         {
             if (project.AutoRun && project.Tasks != null)
@@ -107,15 +171,20 @@ namespace Lekco.Promissum.Apps
                 Config.AutoRunProjects.Add(project.FileName);
                 foreach (var task in project.Tasks)
                 {
-                    LoadSpyedTask(project, task);
+                    LoadPlannedTask(project, task);
                 }
                 ExecuteQueuedTasks();
                 Config.SaveAsFile();
-                LoadedChanged?.Invoke(null, new EventArgs());
+                LoadedProjectsChanged?.Invoke(null, new EventArgs());
             }
         }
 
-        private static void LoadSpyedTask(SyncProject parentProject, SyncTask task)
+        /// <summary>
+        /// Checks and loads a specified planned task.
+        /// </summary>
+        /// <param name="parentProject">The parent project of the task.</param>
+        /// <param name="task">The sub task of the project.</param>
+        private static void LoadPlannedTask(SyncProject parentProject, SyncTask task)
         {
             if (!task.SyncPlan.UsePlan)
             {
@@ -137,23 +206,29 @@ namespace Lekco.Promissum.Apps
             ExecuteQueuedTasks();
         }
 
-        private static void EnqueueTask(SyncProject parentProject, SyncTask task, ExecutionTrigger trigger)
-        {
-            QueuedTasks.Enqueue(new LoadedTask(parentProject, task, trigger));
-            QueuedChanged?.Invoke(null, new EventArgs());
-        }
-
+        /// <summary>
+        /// Enqueue a task into the executing queue.
+        /// </summary>
+        /// <param name="parentProject">The parent project of the task.</param>
+        /// <param name="task">The sub task of the project.</param>
+        /// <param name="trigger">The execution trigger of the task.</param>
+        /// <returns><see langword="true"/> if adds it into executing queue successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryExecuteTask(SyncProject parentProject, SyncTask task, ExecutionTrigger trigger)
         {
             if (!TasksInQueue.Add(task))
             {
-                return false;
+                QueuedTasks.Enqueue(new LoadedTask(parentProject, task, trigger));
+                QueuedTasksChanged?.Invoke(null, new EventArgs());
+                ExecuteQueuedTasks();
+                return true;
             }
-            EnqueueTask(parentProject, task, trigger);
-            ExecuteQueuedTasks();
-            return true;
+            return false;
         }
 
+        /// <summary>
+        /// Triggers all interval tasks.
+        /// </summary>
+        /// <param name="obj">The parameter.</param>
         private static void TriggerIntervalTasks(object? obj)
         {
             foreach (var pair in IntervalTasks)
@@ -162,13 +237,15 @@ namespace Lekco.Promissum.Apps
                 {
                     if (TasksInQueue.Add(pair.Key))
                     {
-                        EnqueueTask(pair.Value, pair.Key, ExecutionTrigger.Interval);
+                        TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.Interval);
                     }
                 }
             }
-            ExecuteQueuedTasks();
         }
 
+        /// <summary>
+        /// Triggers tasks whose execution is triggered by disk connection.
+        /// </summary>
         private static void TriggerDriveTasks(object sender, EventArrivedEventArgs e)
         {
             if (e.NewEvent.ClassPath.ClassName == "__InstanceCreationEvent")
@@ -177,13 +254,17 @@ namespace Lekco.Promissum.Apps
                 {
                     if (pair.Key.TryMatchPaths())
                     {
-                        EnqueueTask(pair.Value, pair.Key, ExecutionTrigger.ConnectDisk);
+                        TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.ConnectDisk);
                     }
                 }
             }
             ExecuteQueuedTasks();
         }
 
+        /// <summary>
+        /// Triggers periodic tasks.
+        /// </summary>
+        /// <param name="obj">The parameter.</param>
         private static void TriggerPeriodicTasks(object? obj)
         {
             PeriodicTimer.Change(RemainSecondsOfToday() * 1000, Timeout.Infinite);
@@ -198,11 +279,14 @@ namespace Lekco.Promissum.Apps
                     task.SyncPlan.SyncPeriod == SyncPeriod.Quarter && now.Month % 3 == 1 && now.Day == 1 ||
                     task.SyncPlan.SyncPeriod == SyncPeriod.Year && now.Month == 1 && now.Day == 1))
                 {
-                    EnqueueTask(project, task, ExecutionTrigger.Period);
+                    TryExecuteTask(project, task, ExecutionTrigger.Period);
                 }
             }
         }
 
+        /// <summary>
+        /// Executes all tasks in the executing queue.
+        /// </summary>
         private static void ExecuteQueuedTasks()
         {
             lock (_runningLock)
@@ -220,7 +304,7 @@ namespace Lekco.Promissum.Apps
                     if (QueuedTasks.TryDequeue(out var item))
                     {
                         ExecuteTask(item.ParentProject, item.Task, item.ExecutionTrigger);
-                        QueuedChanged?.Invoke(null, new EventArgs());
+                        QueuedTasksChanged?.Invoke(null, new EventArgs());
                     }
                 }
                 _executionThread = null;
@@ -229,6 +313,12 @@ namespace Lekco.Promissum.Apps
             _executionThread.Start();
         }
 
+        /// <summary>
+        /// Executes a specified task.
+        /// </summary>
+        /// <param name="parentProject">The parent project of the task.</param>
+        /// <param name="task">The sub task of the project.</param>
+        /// <param name="trigger">The execution trigger of the task.</param>
         private static void ExecuteTask(SyncProject parentProject, SyncTask task, ExecutionTrigger trigger)
         {
             var controller = new SyncController(task, trigger);
@@ -260,6 +350,11 @@ namespace Lekco.Promissum.Apps
             TasksInQueue.Remove(task);
         }
 
+        /// <summary>
+        /// Opens a project by given path.
+        /// </summary>
+        /// <param name="path">The file path of the project.</param>
+        /// <returns>The project user wants to open.</returns>
         public static SyncProject OpenProject(string path)
         {
             if (OpenProjectDictionary.TryGetValue(path, out SyncProject? project))
@@ -272,13 +367,21 @@ namespace Lekco.Promissum.Apps
             return project;
         }
 
-        public static void UnloadSpyedTask(SyncTask task)
+        /// <summary>
+        /// Unloads a specified planned task.
+        /// </summary>
+        /// <param name="task">The specified task.</param>
+        public static void UnloadPlannedTask(SyncTask task)
         {
             IntervalTasks.Remove(task);
             ConnectDiskTasks.Remove(task);
-            LoadedChanged?.Invoke(null, new EventArgs());
+            LoadedProjectsChanged?.Invoke(null, new EventArgs());
         }
 
+        /// <summary>
+        /// Unloads a specified auto-run project.
+        /// </summary>
+        /// <param name="project">The specified project.</param>
         public static void UnloadAutoRunProject(SyncProject project)
         {
             if (!project.AutoRun && project.Tasks != null)
@@ -286,13 +389,17 @@ namespace Lekco.Promissum.Apps
                 Config.AutoRunProjects.Remove(project.FileName);
                 foreach (var task in project.Tasks)
                 {
-                    UnloadSpyedTask(task);
+                    UnloadPlannedTask(task);
                 }
                 Config.SaveAsFile();
-                LoadedChanged?.Invoke(null, new EventArgs());
+                LoadedProjectsChanged?.Invoke(null, new EventArgs());
             }
         }
 
+        /// <summary>
+        /// Close an open project.
+        /// </summary>
+        /// <param name="project">The specified project.</param>
         public static void CloseProject(SyncProject project)
         {
             if (!AutoRunProjects.Contains(project))
@@ -301,12 +408,19 @@ namespace Lekco.Promissum.Apps
             }
         }
 
+        /// <summary>
+        /// Calculates remain seconds of today.
+        /// </summary>
+        /// <returns>Remain seconds of today.</returns>
         private static int RemainSecondsOfToday()
         {
             var now = DateTime.Now;
             return 3600 * 24 - now.Hour * 3600 - now.Minute * 60 - now.Second;
         }
 
+        /// <summary>
+        /// Shuts down and releases resources used by engine.
+        /// </summary>
         public static void Dispose()
         {
             IntervalTimer.Dispose();

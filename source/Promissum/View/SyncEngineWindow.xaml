@@ -6,7 +6,7 @@
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      x:Name="window"
-                     Title="SyncEngineWindow"
+                     Title="备份引擎"
                      Width="450"
                      Height="530"
                      WindowStartupLocation="CenterScreen"

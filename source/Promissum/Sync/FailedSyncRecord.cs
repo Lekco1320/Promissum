@@ -48,5 +48,7 @@ namespace Lekco.Promissum.Sync
         DirectoryNotFound,
         [Description("路径过长")]
         PathTooLong,
+        [Description("文件被占用")]
+        FileOccupied,
     }
 }

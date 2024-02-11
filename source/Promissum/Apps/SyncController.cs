@@ -5,6 +5,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Lekco.Promissum.Apps
@@ -171,11 +172,12 @@ namespace Lekco.Promissum.Apps
             UpdateDescription();
         }
 
-        public bool CanManageDeletingFiles(IReadOnlyCollection<FileInfo> deletingFiles)
+        public bool CanManageDeletingFileRecords(IReadOnlyCollection<DeletionFileRecord> deletingFileRecords)
         {
-            _foundDeletingFilesCount = deletingFiles.Count;
+            _foundDeletingFilesCount = deletingFileRecords.Count;
             IsIndeterminate = false;
             UpdateDescription();
+            var filesList = deletingFileRecords.Select(record => new FileInfo(record.NewFileName!));
             return _foundDeletingFilesCount > 0 && (!Config.AlwaysTellsMeWhenDeleteFiles ||
                  MessageWindow.ShowDialog(
                      message: $"本次备份将删除{_foundDeletingFilesCount}份过期文件，是否删除？",
@@ -185,7 +187,7 @@ namespace Lekco.Promissum.Apps
                      autoCountDown: true,
                      mandatoryTopMost: true,
                      link: "查看待删除文件",
-                     linkAction: new Action(() => FilesListWindow.ShowFilesList(deletingFiles))
+                     linkAction: new Action(() => FilesListWindow.ShowFilesList(filesList))
                 ));
         }
 

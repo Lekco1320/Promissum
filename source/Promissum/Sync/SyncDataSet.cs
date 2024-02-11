@@ -145,9 +145,9 @@ namespace Lekco.Promissum.Sync
             return newFileName != null;
         }
 
-        public IEnumerable<FileInfo> UpdateDeletionRecordsByVersion(string deletedFileName, int maxVersion)
+        public IEnumerable<DeletionFileRecord> UpdateDeletionRecordsByVersion(string deletedFileName, int maxVersion)
         {
-            var result = new List<FileInfo>();
+            var result = new List<DeletionFileRecord>();
             if (!TryGetDeletionRecords(deletedFileName, out SortedDictionary<int, DeletionFileRecord>? deletionRecords))
             {
                 return result;
@@ -156,27 +156,22 @@ namespace Lekco.Promissum.Sync
             foreach (var deletionPair in deletionRecords)
             {
                 var record = deletionPair.Value;
-                if (record.NewFileName != null && !record.IsDeleted)
+                if (record.NewFileName != null)
                 {
-                    var info = new FileInfo(record.NewFileName);
-                    record.IsDeleted = !info.Exists;
-                    if (!record.IsDeleted)
+                    record.IsDeleted = !File.Exists(record.NewFileName);
+                    if (++deletedNum <= endNum && !record.IsDeleted)
                     {
-                        result.Add(info);
+                        result.Add(record);
                     }
-                }
-                if (++deletedNum >= endNum)
-                {
-                    break;
                 }
             }
             UpdateWriteTime();
             return result;
         }
 
-        public IEnumerable<FileInfo> UpdateDeletionRecordsByTime(string deletedFileName, TimeSpan maxDuration, DateTime refTime)
+        public IEnumerable<DeletionFileRecord> UpdateDeletionRecordsByTime(string deletedFileName, TimeSpan maxDuration, DateTime refTime)
         {
-            var result = new List<FileInfo>();
+            var result = new List<DeletionFileRecord>();
             if (!TryGetDeletionRecords(deletedFileName, out SortedDictionary<int, DeletionFileRecord>? deletionRecords))
             {
                 return result;
@@ -188,9 +183,9 @@ namespace Lekco.Promissum.Sync
                 {
                     var info = new FileInfo(record.NewFileName);
                     record.IsDeleted = !info.Exists;
-                    if (!record.IsDeleted && refTime - record.LastWriteTime > maxDuration)
+                    if (refTime - record.LastWriteTime > maxDuration)
                     {
-                        result.Add(info);
+                        result.Add(record);
                     }
                 }
             }

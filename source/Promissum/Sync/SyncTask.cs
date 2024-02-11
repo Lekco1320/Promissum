@@ -595,33 +595,35 @@ namespace Lekco.Promissum.Sync
                 {
                     foreach (var file in SyncDataSet.UpdateDeletionRecordsByVersion(deletedFileName, DeletionBehavior.MaxVersion))
                     {
-                        syncData.DeletingFiles.Add(file);
+                        syncData.DeletingFileRecords.Add(file);
                     }
                 }
                 if (DeletionBehavior.UseReserveTerm)
                 {
                     foreach (var file in SyncDataSet.UpdateDeletionRecordsByTime(deletedFileName, DeletionBehavior.ReserveTerm, LastExecuteTime))
                     {
-                        syncData.DeletingFiles.Add(file);
+                        syncData.DeletingFileRecords.Add(file);
                     }
                 }
             });
 
             // If can manage deleting files,
-            if (syncController.CanManageDeletingFiles(syncData.DeletingFiles))
+            if (syncController.CanManageDeletingFileRecords(syncData.DeletingFileRecords))
             {
                 // delete files parallelly.
                 var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.MaxParallelCopyCounts };
-                Parallel.ForEach(syncData.DeletingFiles, option, file =>
+                Parallel.ForEach(syncData.DeletingFileRecords, option, deletionRecord =>
                 {
-                    if (SyncHelper.Delete(file, out FailedSyncRecord? record))
+                    var file = new FileInfo(deletionRecord.NewFileName!);
+                    if (SyncHelper.Delete(file, out FailedSyncRecord? failedRecord))
                     {
                         syncData.DeletedFiles.Add(file);
+                        deletionRecord.IsDeleted = true;
                         syncController.AddManagedDeletionFile();
                     }
                     else
                     {
-                        syncData.FailedSyncRecords.Add(record);
+                        syncData.FailedSyncRecords.Add(failedRecord);
                     }
                 });
             }
@@ -760,8 +762,19 @@ namespace Lekco.Promissum.Sync
     /// </summary>
     public enum CompareMode
     {
+        /// <summary>
+        /// Syncs newer files.
+        /// </summary>
         ByTime,
+
+        /// <summary>
+        /// Syncs larger files.
+        /// </summary>
         BySize,
+
+        /// <summary>
+        /// Syncs MD5-different files.
+        /// </summary>
         ByMD5,
     }
 }

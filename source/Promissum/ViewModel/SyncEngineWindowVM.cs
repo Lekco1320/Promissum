@@ -24,8 +24,8 @@ namespace Lekco.Promissum.ViewModel
 
             CloseCommand = new DelegateCommand<Window>(window => window.Close());
 
-            SyncEngine.LoadedChanged += SyncEngineLoadedChanged;
-            SyncEngine.QueuedChanged += SyncEngineQueuedChanged;
+            SyncEngine.LoadedProjectsChanged += SyncEngineLoadedChanged;
+            SyncEngine.QueuedTasksChanged += SyncEngineQueuedChanged;
 
             RefreshLoadedList();
             RefreshQueuedList();
