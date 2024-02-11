@@ -1,5 +1,6 @@
 ﻿using Lekco.Promissum.Control;
 using Lekco.Promissum.ViewModel;
+using System;
 
 namespace Lekco.Promissum.View
 {
@@ -24,9 +25,10 @@ namespace Lekco.Promissum.View
             DataContext = _vm;
         }
 
-        public new void Close()
+        protected override void OnClosed(EventArgs e)
         {
             _hasShown = false;
+            base.OnClosed(e);
         }
 
         private void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)

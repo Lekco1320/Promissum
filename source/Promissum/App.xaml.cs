@@ -3,6 +3,7 @@ using Lekco.Promissum.Control;
 using Lekco.Promissum.View;
 using Lekco.Promissum.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -13,22 +14,51 @@ using System.Windows;
 namespace Lekco.Promissum
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// The class of application Lekco Promissum.
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// The directory of Lekco Promissum in AppData folder.
+        /// </summary>
         public static readonly string AppDir;
+
+        /// <summary>
+        /// The temporary work directory.
+        /// </summary>
         public static readonly string TempDir;
+
+        /// <summary>
+        /// The path of Lekco Promissum Agens.
+        /// </summary>
         public static readonly string AgensPath;
+
+        /// <summary>
+        /// The name of application.
+        /// </summary>
         public static readonly string Name;
+
+        /// <summary>
+        /// The list of command arguments of Lekco Promissum.
+        /// </summary>
         public static readonly string[] Args;
+
+        /// <summary>
+        /// The version of current application.
+        /// </summary>
         public static readonly Version Version;
 
         private static readonly MainWindowVM _mainWindowVM;
         private static readonly CancellationTokenSource _taskCancellation;
 
+        /// <summary>
+        /// The notify icon in task bar.
+        /// </summary>
         public readonly NotifyIcon NotifyIcon;
 
+        /// <summary>
+        /// Create an instance of this type.
+        /// </summary>
         public App()
         {
             InitializeComponent();
@@ -38,6 +68,9 @@ namespace Lekco.Promissum
             NotifyIcon = new NotifyIcon(this);
         }
 
+        /// <summary>
+        /// The static constructor of this type.
+        /// </summary>
         static App()
         {
             Name = "Lekco Promissum";
@@ -59,24 +92,27 @@ namespace Lekco.Promissum
             MenuLeftDisplay();
         }
 
+        /// <summary>
+        /// Send arguments to open processes.
+        /// </summary>
         private static void SendArgs()
         {
-            var client = new PipeClient(".", "Lekco Promissum");
-            foreach (string s in Args)
+            var client = new PipeClient(".", Name);
+            for (int i = 1; i < Args.Length; i++)
             {
-                if (File.Exists(s))
-                {
-                    client.DoRequest(s);
-                }
+                client.DoRequest(Args[i]);
             }
             client.CloseServer();
         }
 
+        /// <summary>
+        /// Set up a new server to receive messages sent from other processes.
+        /// </summary>
         private void SetupServer()
         {
             var serverTask = new Task(() =>
             {
-                var server = new PipeServer("Lekco Promissum");
+                var server = new PipeServer(Name);
                 server.Received += Receiving;
                 server.BeginReceive();
                 server.Close();
@@ -85,24 +121,44 @@ namespace Lekco.Promissum
             serverTask.Start();
         }
 
+        /// <summary>
+        /// Receive message from other processes.
+        /// </summary>
+        /// <param name="message">Message sent from other processes.</param>
         private void Receiving(string message)
         {
-            _mainWindowVM.OpenProject(message);
+            var files = new List<string>();
+            if (File.Exists(message))
+            {
+                files.Add(message);
+            }
             Current.Dispatcher.BeginInvoke(() =>
             {
+                foreach (var file in files)
+                {
+                    _mainWindowVM.OpenProject(file);
+                }
                 MainWindow ??= new MainWindow(_mainWindowVM);
                 MainWindow.Show();
             });
         }
 
+        /// <summary>
+        /// The method to do after application started up completely.
+        /// </summary>
         private void StartUp(object sender, StartupEventArgs e)
         {
             bool runBackground = false;
-            foreach (string s in Args)
+            for (int i = 1; i < Args.Length; i++)
             {
-                if (s == "-background")
+                var arg = Args[i];
+                if (arg == "-background")
                 {
                     runBackground = true;
+                }
+                if (File.Exists(arg))
+                {
+                    _mainWindowVM.OpenProject(arg);
                 }
             }
 
@@ -113,6 +169,9 @@ namespace Lekco.Promissum
             }
         }
 
+        /// <summary>
+        /// Quit Lekco Promissum.
+        /// </summary>
         public static void Quit()
         {
             SyncEngine.Dispose();
@@ -121,6 +180,9 @@ namespace Lekco.Promissum
             Current.Shutdown();
         }
 
+        /// <summary>
+        /// Show main window.
+        /// </summary>
         public void ShowMainWindow()
         {
             if (MainWindow is not View.MainWindow)
@@ -130,6 +192,9 @@ namespace Lekco.Promissum
             MainWindow.Show();
         }
 
+        /// <summary>
+        /// Checks the temporary work directory's existence and delete all remain files.
+        /// </summary>
         private static void CheckAppTempDir()
         {
             var dirInfo = new DirectoryInfo(TempDir);
@@ -162,6 +227,9 @@ namespace Lekco.Promissum
             }
         }
 
+        /// <summary>
+        /// Occurs when quit Lekco Promissum.
+        /// </summary>
         private void Exiting(object sender, ExitEventArgs e)
         {
             SyncEngine.Dispose();
@@ -169,6 +237,9 @@ namespace Lekco.Promissum
             _taskCancellation.Cancel();
         }
 
+        /// <summary>
+        /// A helper method to make MenuItem show left.
+        /// </summary>
         private static void MenuLeftDisplay()
         {
             var ifLeft = SystemParameters.MenuDropAlignment;

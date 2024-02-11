@@ -29,11 +29,6 @@ namespace Lekco.Promissum.Sync
         public ConcurrentBag<FileInfo> UnexpectedFiles { get; set; }
 
         /// <summary>
-        /// The bag storing information of out-dated files.
-        /// </summary>
-        public ConcurrentBag<FileInfo> DeletingFiles { get; set; }
-
-        /// <summary>
         /// The bag storing information of files which have been moved.
         /// </summary>
         public ConcurrentBag<FileInfo> MovedFiles { get; set; }
@@ -42,6 +37,11 @@ namespace Lekco.Promissum.Sync
         /// The bag storing information of files which have been deleted.
         /// </summary>
         public ConcurrentBag<FileInfo> DeletedFiles { get; set; }
+
+        /// <summary>
+        /// The bag storing information of out-dated files' records.
+        /// </summary>
+        public ConcurrentBag<DeletionFileRecord> DeletingFileRecords { get; set; }
 
         /// <summary>
         /// The bag storing information of directories which have been deleted.
@@ -62,7 +62,7 @@ namespace Lekco.Promissum.Sync
             NewDirectories = new ConcurrentBag<DirectoryInfo>();
             UnexpectedDirectories = new ConcurrentBag<DirectoryInfo>();
             UnexpectedFiles = new ConcurrentBag<FileInfo>();
-            DeletingFiles = new ConcurrentBag<FileInfo>();
+            DeletingFileRecords = new ConcurrentBag<DeletionFileRecord>();
             MovedFiles = new ConcurrentBag<FileInfo>();
             DeletedFiles = new ConcurrentBag<FileInfo>();
             DeletedDirectories = new ConcurrentBag<DirectoryInfo>();

@@ -108,7 +108,7 @@ namespace Lekco.Promissum.Sync
         /// <param name="task">Specified deleting task.</param>
         public void DeleteTask(SyncTask task)
         {
-            SyncEngine.UnloadSpyedTask(task);
+            SyncEngine.UnloadPlannedTask(task);
             var dsFile = new FileInfo(TempDirectory + '\\' + task.DataSetName);
             if (dsFile.Exists)
             {
