@@ -65,7 +65,7 @@
 
                 <TextBlock Margin="0,10,0,0"
                            HorizontalAlignment="Center"
-                           Text="加载列表" />
+                           Text="加载任务" />
 
                 <DataGrid Height="250"
                           Margin="0,2,0,0"

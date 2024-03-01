@@ -12,6 +12,7 @@ namespace Lekco.Promissum.Apps
         public static HashSet<string> AutoRunProjects { get; protected set; }
         public static bool AutoStartUp { get; set; }
         public static bool AlwaysTellsMeWhenDeleteFiles { get; set; }
+        public static bool TryExecuteRepeatedlyAfterFail { get; set; }
         public static int MessageWindowWaitingSeconds { get; set; }
         public static int MaxParallelCopyCounts { get; set; }
         public static Version AppVersion { get; set; }
@@ -27,6 +28,7 @@ namespace Lekco.Promissum.Apps
                 AutoRunProjects = config._autoRunProjects;
                 AutoStartUp = config._autoStartUp;
                 AlwaysTellsMeWhenDeleteFiles = config._alwaysTellsMeWhenDeleteFiles;
+                TryExecuteRepeatedlyAfterFail = config._tryExecuteRepeatedlyAfterFail;
                 MessageWindowWaitingSeconds = config._messageWindowWaitingSeconds;
                 MaxParallelCopyCounts = config._maxParallelCopyCounts;
                 AppVersion = config._appVersion;
@@ -35,6 +37,7 @@ namespace Lekco.Promissum.Apps
             AutoRunProjects = new HashSet<string>();
             AutoStartUp = true;
             AlwaysTellsMeWhenDeleteFiles = true;
+            TryExecuteRepeatedlyAfterFail = true;
             MessageWindowWaitingSeconds = 30;
             MaxParallelCopyCounts = 3;
             AppVersion = App.Version;
@@ -50,6 +53,9 @@ namespace Lekco.Promissum.Apps
         private bool _alwaysTellsMeWhenDeleteFiles;
 
         [DataMember]
+        private bool _tryExecuteRepeatedlyAfterFail;
+
+        [DataMember]
         private int _messageWindowWaitingSeconds;
 
         [DataMember]
@@ -63,6 +69,7 @@ namespace Lekco.Promissum.Apps
             _autoRunProjects = AutoRunProjects;
             _autoStartUp = AutoStartUp;
             _alwaysTellsMeWhenDeleteFiles = AlwaysTellsMeWhenDeleteFiles;
+            _tryExecuteRepeatedlyAfterFail = TryExecuteRepeatedlyAfterFail;
             _messageWindowWaitingSeconds = MessageWindowWaitingSeconds;
             _maxParallelCopyCounts = MaxParallelCopyCounts;
             _appVersion = AppVersion;

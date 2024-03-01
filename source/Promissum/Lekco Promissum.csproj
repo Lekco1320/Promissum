@@ -16,8 +16,8 @@
     <Company>Lekco</Company>
     <Version>$(VersionPrefix)</Version>
     <Copyright>© 2023-2024 Lekco</Copyright>
-    <FileVersion>1.0.1.48</FileVersion>
-    <AssemblyVersion>1.0.1.48</AssemblyVersion>
+    <FileVersion>1.0.2.67</FileVersion>
+    <AssemblyVersion>1.0.2.67</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

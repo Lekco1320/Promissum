@@ -89,6 +89,8 @@ namespace Lekco.Promissum.Apps
         private int _dealedUnexpectedFilesCount;
         private int _managedDeletingFilesCount;
         private int _foundDeletingFilesCount;
+        private SyncTaskExecutingWindow? _window;
+        private Thread? _windowThread;
 
         public SyncController(SyncTask syncTask, ExecutionTrigger trigger)
         {
@@ -98,8 +100,25 @@ namespace Lekco.Promissum.Apps
             _description2 = "";
         }
 
+        public void Start()
+        {
+            _windowThread = new Thread(() =>
+            {
+                _window = new SyncTaskExecutingWindow(this);
+                _window.ShowDialog();
+            });
+            _windowThread.SetApartmentState(ApartmentState.STA);
+            _windowThread.Start();
+        }
+
+        public void Interrupt()
+        {
+            _window?.Dispatcher.Invoke(_window.Close);
+        }
+
         public void Success(IReadOnlyCollection<FailedSyncRecord> failedRecords)
         {
+            _window?.Dispatcher.Invoke(_window.Close);
             string message = $"由{Functions.GetEnumDescription(Trigger)}触发的任务“{TaskName}”已执行完毕。";
             string? link = null;
             Action? linkAction = null;

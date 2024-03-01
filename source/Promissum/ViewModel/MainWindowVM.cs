@@ -92,7 +92,7 @@ namespace Lekco.Promissum.ViewModel
             catch (SubTaskIsBusyException ex)
             {
                 MessageWindow.ShowDialog(
-                    message: $"项目“{ex.ParentProject}”的任务“{ex.SubTask.Name}”正在执行，请稍后保存。",
+                    message: $"项目“{ex.ParentProject.Name}”的任务“{ex.SubTask.Name}”正在执行，请稍后保存。",
                     icon: MessageWindowIcon.Error,
                     buttonStyle: MessageWindowButtonStyle.OK
                 );

@@ -31,6 +31,11 @@ namespace Lekco.Promissum.Apps
         public static Dictionary<SyncTask, SyncProject> IntervalTasks { get; }
 
         /// <summary>
+        /// The dictionary storing tasks whose execution is triggered by disk connection and whether their paths match.
+        /// </summary>
+        private static Dictionary<SyncTask, bool> TasksCanMatchPaths { get; }
+
+        /// <summary>
         /// The dictionary storing pairs of projects and their files' name.
         /// </summary>
         public static Dictionary<string, SyncProject> OpenProjectDictionary { get; }
@@ -53,12 +58,12 @@ namespace Lekco.Promissum.Apps
         /// <summary>
         /// The timer used to trigger periodic tasks.
         /// </summary>
-        public static Timer PeriodicTimer { get; }
+        private static Timer PeriodicTimer { get; }
 
         /// <summary>
         /// The timer used to trigger interval tasks.
         /// </summary>
-        public static Timer IntervalTimer { get; }
+        private static Timer IntervalTimer { get; }
 
         /// <summary>
         /// Specifies whether the engine is executing tasks.
@@ -81,9 +86,12 @@ namespace Lekco.Promissum.Apps
         public static event EventHandler? QueuedTasksChanged;
 
         private static Thread? _executionThread;
+        private static CancellationTokenSource _threadCTS;
+
         private static readonly object _runningLock;
         private static readonly SyncEngine _instance;
-        private static readonly ManagementEventWatcher _watcher;
+        private static readonly ManagementEventWatcher _insertionWatcher;
+        private static readonly ManagementEventWatcher _deletionWatcher;
 
         /// <summary>
         /// The static constructor of this type.
@@ -93,14 +101,15 @@ namespace Lekco.Promissum.Apps
             ConnectDiskTasks = new Dictionary<SyncTask, SyncProject>();
             PeriodicTasks = new Dictionary<SyncTask, SyncProject>();
             IntervalTasks = new Dictionary<SyncTask, SyncProject>();
+            TasksCanMatchPaths = new Dictionary<SyncTask, bool>();
             QueuedTasks = new ConcurrentQueue<LoadedTask>();
             TasksInQueue = new HashSet<SyncTask>();
             AutoRunProjects = new HashSet<SyncProject>();
             OpenProjectDictionary = new Dictionary<string, SyncProject>();
             _runningLock = new object();
             _instance = new SyncEngine();
+            _threadCTS = new CancellationTokenSource();
 
-            var query = new WqlEventQuery("__InstanceCreationEvent", new TimeSpan(0, 0, 1), @"TargetInstance ISA 'Win32_LogicalDisk'");
             var opt = new ConnectionOptions()
             {
                 EnablePrivileges = true,
@@ -108,9 +117,16 @@ namespace Lekco.Promissum.Apps
                 Authentication = AuthenticationLevel.Default
             };
             var scope = new ManagementScope(@"\root\CIMV2", opt);
-            _watcher = new ManagementEventWatcher(scope, query);
-            _watcher.EventArrived += TriggerDriveTasks;
-            _watcher.Start();
+
+            var insertionQuery = new WqlEventQuery("__InstanceCreationEvent", new TimeSpan(0, 0, 0, 0, 100), @"TargetInstance ISA 'Win32_LogicalDisk'");
+            _insertionWatcher = new ManagementEventWatcher(scope, insertionQuery);
+            _insertionWatcher.EventArrived += TriggerDriveTasks;
+            _insertionWatcher.Start();
+
+            var deletionQuery = new WqlEventQuery("__InstanceDeletionEvent", new TimeSpan(0, 0, 0, 0, 100), @"TargetInstance ISA 'Win32_LogicalDisk'");
+            _deletionWatcher = new ManagementEventWatcher(scope, deletionQuery);
+            _deletionWatcher.EventArrived += TriggerDriveTasks;
+            _deletionWatcher.Start();
 
             PeriodicTimer = new Timer(new TimerCallback(TriggerPeriodicTasks), null, RemainSecondsOfToday() * 1000, Timeout.Infinite);
             IntervalTimer = new Timer(new TimerCallback(TriggerIntervalTasks), null, 0, 30 * 1000);
@@ -194,13 +210,14 @@ namespace Lekco.Promissum.Apps
             {
                 PeriodicTasks.TryAdd(task, parentProject);
             }
-            if (task.SyncPlan.IntervalSync && !IntervalTasks.ContainsKey(task))
+            if (task.SyncPlan.IntervalSync)
             {
                 IntervalTasks.TryAdd(task, parentProject);
             }
-            if (task.SyncPlan.WhenConnectDisk && !ConnectDiskTasks.ContainsKey(task))
+            if (task.SyncPlan.WhenConnectDisk)
             {
                 ConnectDiskTasks.TryAdd(task, parentProject);
+                TasksCanMatchPaths.TryAdd(task, task.TryMatchPaths());
             }
             TriggerPeriodicTasks(null);
             ExecuteQueuedTasks();
@@ -215,7 +232,7 @@ namespace Lekco.Promissum.Apps
         /// <returns><see langword="true"/> if adds it into executing queue successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryExecuteTask(SyncProject parentProject, SyncTask task, ExecutionTrigger trigger)
         {
-            if (!TasksInQueue.Add(task))
+            if (TasksInQueue.Add(task))
             {
                 QueuedTasks.Enqueue(new LoadedTask(parentProject, task, trigger));
                 QueuedTasksChanged?.Invoke(null, new EventArgs());
@@ -235,10 +252,7 @@ namespace Lekco.Promissum.Apps
             {
                 if (DateTime.Now - pair.Key.LastExecuteTime > pair.Key.SyncPlan.IntervalSpan)
                 {
-                    if (TasksInQueue.Add(pair.Key))
-                    {
-                        TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.Interval);
-                    }
+                    TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.Interval);
                 }
             }
         }
@@ -248,17 +262,16 @@ namespace Lekco.Promissum.Apps
         /// </summary>
         private static void TriggerDriveTasks(object sender, EventArrivedEventArgs e)
         {
-            if (e.NewEvent.ClassPath.ClassName == "__InstanceCreationEvent")
+            foreach (var pair in ConnectDiskTasks)
             {
-                foreach (var pair in ConnectDiskTasks)
+                bool pre = TasksCanMatchPaths[pair.Key];
+                bool now = pair.Key.TryMatchPaths();
+                if (pre == false && now == true)
                 {
-                    if (pair.Key.TryMatchPaths())
-                    {
-                        TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.ConnectDisk);
-                    }
+                    TryExecuteTask(pair.Value, pair.Key, ExecutionTrigger.ConnectDisk);
                 }
+                TasksCanMatchPaths[pair.Key] = now;
             }
-            ExecuteQueuedTasks();
         }
 
         /// <summary>
@@ -299,13 +312,11 @@ namespace Lekco.Promissum.Apps
 
             _executionThread = new Thread(() =>
             {
-                while (!QueuedTasks.IsEmpty)
+                while (!_threadCTS.Token.IsCancellationRequested && QueuedTasks.TryDequeue(out var item))
                 {
-                    if (QueuedTasks.TryDequeue(out var item))
-                    {
-                        ExecuteTask(item.ParentProject, item.Task, item.ExecutionTrigger);
-                        QueuedTasksChanged?.Invoke(null, new EventArgs());
-                    }
+                    TasksInQueue.Remove(item.Task);
+                    ExecuteTask(item.ParentProject, item.Task, item.ExecutionTrigger);
+                    QueuedTasksChanged?.Invoke(null, new EventArgs());
                 }
                 _executionThread = null;
             });
@@ -322,14 +333,6 @@ namespace Lekco.Promissum.Apps
         private static void ExecuteTask(SyncProject parentProject, SyncTask task, ExecutionTrigger trigger)
         {
             var controller = new SyncController(task, trigger);
-            SyncTaskExecutingWindow? window = null;
-            var thread = new Thread(() =>
-            {
-                window = new SyncTaskExecutingWindow(controller);
-                window.ShowDialog();
-            });
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
 
             try
             {
@@ -343,11 +346,15 @@ namespace Lekco.Promissum.Apps
                     buttonStyle: MessageWindowButtonStyle.OK,
                     location: MessageWindowLocation.RightBottom
                 );
+                if (Config.TryExecuteRepeatedlyAfterFail)
+                {
+                    TryExecuteTask(parentProject, task, trigger);
+                }
             }
-
-            window?.Dispatcher.Invoke(window.Close);
-            parentProject.Save();
-            TasksInQueue.Remove(task);
+            finally
+            {
+                parentProject.Save();
+            }
         }
 
         /// <summary>
@@ -373,8 +380,10 @@ namespace Lekco.Promissum.Apps
         /// <param name="task">The specified task.</param>
         public static void UnloadPlannedTask(SyncTask task)
         {
-            IntervalTasks.Remove(task);
             ConnectDiskTasks.Remove(task);
+            PeriodicTasks.Remove(task);
+            IntervalTasks.Remove(task);
+            TasksCanMatchPaths.Remove(task);
             LoadedProjectsChanged?.Invoke(null, new EventArgs());
         }
 
@@ -424,7 +433,8 @@ namespace Lekco.Promissum.Apps
         public static void Dispose()
         {
             IntervalTimer.Dispose();
-            _watcher.Dispose();
+            _insertionWatcher.Dispose();
+            _threadCTS.Cancel();
             _executionThread?.Join();
         }
     }
