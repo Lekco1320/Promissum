@@ -3,6 +3,8 @@
                     xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <cvt:WidthVisibilityConverter x:Key="WidthVisibilityConverter" />
+
     <Style TargetType="{x:Type ProgressBar}">
 
         <Setter Property="Background">
@@ -78,20 +80,22 @@
                                             </TransformGroup>
                                         </Grid.RenderTransform>
 
-                                        <Border Background="{TemplateBinding Background}"
+                                        <Border Name="border"
+                                                Background="{TemplateBinding Background}"
                                                 CornerRadius="3">
 
                                             <Viewbox Margin="{TemplateBinding Padding}"
                                                      HorizontalAlignment="Left"
                                                      SnapsToDevicePixels="True"
-                                                     StretchDirection="DownOnly">
+                                                     Stretch="None">
 
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="{TemplateBinding FontSize}"
                                                            Foreground="White"
                                                            RenderTransformOrigin="0.5,0.5"
                                                            SnapsToDevicePixels="True"
-                                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, StringFormat={}{0:0}%}">
+                                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, StringFormat={}{0:0}%}"
+                                                           TextWrapping="WrapWithOverflow">
 
                                                     <TextBlock.RenderTransform>
                                                         <TransformGroup>

@@ -11,6 +11,7 @@ namespace Lekco.Promissum.ViewModel
     {
         public bool AutoStartUp { get; set; }
         public bool AlwaysTellsMeWhenDeleteFiles { get; set; }
+        public bool TryExecuteRepeatedlyAfterFail { get; set; }
         public int MessageWindowWaitingSeconds { get; set; }
         public int MaxParallelCopyCounts { get; set; }
 
@@ -21,6 +22,7 @@ namespace Lekco.Promissum.ViewModel
         {
             AutoStartUp = Config.AutoStartUp;
             AlwaysTellsMeWhenDeleteFiles = Config.AlwaysTellsMeWhenDeleteFiles;
+            TryExecuteRepeatedlyAfterFail = Config.TryExecuteRepeatedlyAfterFail;
             MessageWindowWaitingSeconds = Config.MessageWindowWaitingSeconds;
             MaxParallelCopyCounts = Config.MaxParallelCopyCounts;
 
@@ -35,6 +37,7 @@ namespace Lekco.Promissum.ViewModel
                 SwitchAutoStart();
             }
             Config.AlwaysTellsMeWhenDeleteFiles = AlwaysTellsMeWhenDeleteFiles;
+            Config.TryExecuteRepeatedlyAfterFail = TryExecuteRepeatedlyAfterFail;
             Config.MessageWindowWaitingSeconds = MessageWindowWaitingSeconds;
             Config.MaxParallelCopyCounts = MaxParallelCopyCounts;
             Config.SaveAsFile();

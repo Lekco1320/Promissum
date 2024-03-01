@@ -1,4 +1,5 @@
-﻿using Lekco.Promissum.Apps;
+﻿// Lekco Promissum. 2023/12/25.
+using Lekco.Promissum.Apps;
 using Lekco.Promissum.Control;
 using Lekco.Promissum.View;
 using Lekco.Promissum.ViewModel;

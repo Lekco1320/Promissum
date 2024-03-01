@@ -7,7 +7,7 @@
                      x:Name="window"
                      Title="AppConfigWindow"
                      Width="330"
-                     Height="190"
+                     Height="215"
                      ShowInTaskbar="False"
                      Topmost="True"
                      WindowStartupLocation="CenterScreen"
@@ -47,6 +47,10 @@
                 <CheckBox Margin="0,10,0,0"
                           Content="删除文件时总是告知我"
                           IsChecked="{Binding AlwaysTellsMeWhenDeleteFiles}" />
+
+                <CheckBox Margin="0,10,0,0"
+                          Content="任务执行失败后自动重复尝试"
+                          IsChecked="{Binding TryExecuteRepeatedlyAfterFail}" />
 
                 <StackPanel Margin="0,10,0,0"
                             Orientation="Horizontal">

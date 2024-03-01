@@ -260,6 +260,9 @@ namespace Lekco.Promissum.Sync
                 throw new DirectoryNotFoundException();
             }
 
+            // Start the controller.
+            syncController.Start();
+
             // Set the last execute-time.
             LastExecuteTime = DateTime.Now;
 
@@ -294,6 +297,7 @@ namespace Lekco.Promissum.Sync
             {
                 // End syncing and throw the exception back to SyncEngine to show message.
                 SaveAndDisconnectDataSet();
+                syncController.Interrupt();
                 IsBusy = false;
                 throw;
             }
@@ -493,12 +497,11 @@ namespace Lekco.Promissum.Sync
             }
 
             // Deal with all the unexpected files by DeletionBehavior.
-            string? deletionFolder = DeletionBehavior.ReserveFiles ? DeletionBehavior.DeletionPath.FullPath : null;
             var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.MaxParallelCopyCounts };
             Parallel.ForEach(syncData.UnexpectedFiles, option, file =>
             {
                 // Add a DeletionRecord into dataset.
-                if (SyncDataSet!.AddDeletionRecord(file, deletionFolder, DeletionBehavior.MarkVersion, out string? newFileName))
+                if (SyncDataSet!.AddDeletionRecord(file, DeletionBehavior, out string? newFileName))
                 // If uses DeletionPath,
                 {
                     // try to move the file to DeletionPath.
@@ -593,14 +596,14 @@ namespace Lekco.Promissum.Sync
                 var deletedFileName = pair.Value.Values.First().FileName;
                 if (DeletionBehavior.SetMaxVersion)
                 {
-                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByVersion(deletedFileName, DeletionBehavior.MaxVersion))
+                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByVersion(deletedFileName, DeletionBehavior))
                     {
                         syncData.DeletingFileRecords.Add(file);
                     }
                 }
                 if (DeletionBehavior.UseReserveTerm)
                 {
-                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByTime(deletedFileName, DeletionBehavior.ReserveTerm, LastExecuteTime))
+                    foreach (var file in SyncDataSet.UpdateDeletionRecordsByTime(deletedFileName, DeletionBehavior, LastExecuteTime))
                     {
                         syncData.DeletingFileRecords.Add(file);
                     }
@@ -754,6 +757,15 @@ namespace Lekco.Promissum.Sync
             }
             action(this);
             IsBusy = false;
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return Name;
         }
     }
 
