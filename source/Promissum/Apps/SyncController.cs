@@ -105,7 +105,8 @@ namespace Lekco.Promissum.Apps
             _windowThread = new Thread(() =>
             {
                 _window = new SyncTaskExecutingWindow(this);
-                _window.ShowDialog();
+                _window.Show();
+                System.Windows.Threading.Dispatcher.Run();
             });
             _windowThread.SetApartmentState(ApartmentState.STA);
             _windowThread.Start();
@@ -173,7 +174,7 @@ namespace Lekco.Promissum.Apps
                 ));
         }
 
-        public void SetCopyingState()
+        public void SetSyncingFilesState()
         {
             _syncProgressState = SyncProgressState.Copying;
             Description1 = "(3/4) 正在备份文件...";

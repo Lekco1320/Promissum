@@ -62,6 +62,7 @@ namespace Lekco.Promissum
         /// </summary>
         public App()
         {
+            DispatcherUnhandledException += CopeWithUnhandledException;
             InitializeComponent();
             SetupServer();
             CheckAppTempDir();
@@ -236,6 +237,22 @@ namespace Lekco.Promissum
             SyncEngine.Dispose();
             Config.SaveAsFile();
             _taskCancellation.Cancel();
+        }
+
+        /// <summary>
+        /// Cope with unhandled exception.
+        /// </summary>
+        private void CopeWithUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            string message = $"发生了未经处理的异常：{Environment.NewLine}{e.Exception.Message}{Environment.NewLine}{e.Exception.StackTrace}";
+            e.Handled = MessageWindow.ShowDialog(
+                message: message,
+                icon: MessageWindowIcon.Error,
+                buttonStyle: MessageWindowButtonStyle.OKCancel,
+                location: MessageWindowLocation.CenterWindow,
+                width: 550,
+                height: 300
+            );
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace Lekco.Promissum.Utility
 
         public static void AutoFitColumnWidth(this ISheet sheet, int col, int row_start, int row_end)
         {
-            int columnWidth = sheet.GetColumnWidth(col) / 256;
+            double columnWidth = sheet.GetColumnWidth(col) / 256;
             for (int row_ptr = row_start; row_ptr < row_end; row_ptr++)
             {
                 var row = sheet.GetRow(row_ptr);

@@ -191,16 +191,36 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Border Name="border"
-                                Width="{TemplateBinding Width}"
+                        <Border Width="{TemplateBinding Width}"
                                 Height="{TemplateBinding Height}"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="0,0,0,0">
 
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                            <StackPanel HorizontalAlignment="Center"
+                                        Orientation="Horizontal">
+
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+
+                                <Path x:Name="SortUPArrow"
+                                      Width="8"
+                                      Margin="2,2,0,0"
+                                      VerticalAlignment="Center"
+                                      Data="M0,3.34 L0,3.34 8,3.34 4,-3.34 0,3.34 Z"
+                                      Fill="#3F3F3F"
+                                      Visibility="Collapsed" />
+
+                                <Path x:Name="SortDownArrow"
+                                      Width="8"
+                                      Margin="2,2,0,0"
+                                      VerticalAlignment="Center"
+                                      Data="M0,-3.34 L0,-3.34 8,-3.34 4,3.34 0,-3.34 Z"
+                                      Fill="#3F3F3F"
+                                      Visibility="Collapsed" />
+
+                            </StackPanel>
 
                         </Border>
 
@@ -215,6 +235,26 @@
                                Cursor="SizeWE" />
 
                     </Grid>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="SortDirection" Value="Ascending">
+
+                            <Setter TargetName="SortUPArrow"
+                                    Property="Visibility"
+                                    Value="Visible" />
+
+                        </Trigger>
+
+                        <Trigger Property="SortDirection" Value="Descending">
+
+                            <Setter TargetName="SortDownArrow"
+                                    Property="Visibility"
+                                    Value="Visible" />
+
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
 
                 </ControlTemplate>
             </Setter.Value>

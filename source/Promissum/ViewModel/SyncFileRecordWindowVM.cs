@@ -9,6 +9,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Lekco.Promissum.ViewModel
@@ -21,21 +22,10 @@ namespace Lekco.Promissum.ViewModel
         public DateTime SyncDataSetLastWriteTime { get; set; }
         public int RecordsCount { get => ((ICollection)SyncFileRecords.Source).Count; }
         public CollectionViewSource SyncFileRecords { get; set; }
-        public DelegateCommand FilterCommand { get; set; }
+        public DelegateCommand<TextBox> FilterCommand { get; set; }
         public DelegateCommand ClearCommand { get; set; }
         public DelegateCommand OutputCommand { get; set; }
         public DelegateCommand<Window> CloseCommand { get; set; }
-
-        public string FilteredPath
-        {
-            get => _filteredPath;
-            set
-            {
-                _filteredPath = value;
-                FilterPath();
-            }
-        }
-        private string _filteredPath;
 
         public SyncFileRecordWindowVM(SyncProject parentProject, SyncTask syncTask)
         {
@@ -49,21 +39,20 @@ namespace Lekco.Promissum.ViewModel
                 SyncFileRecords.Source = dataset.SyncFileDictionary.Values;
             });
 
-            _filteredPath = "";
             SyncFileRecords.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
 
-            FilterCommand = new DelegateCommand(FilterPath);
+            FilterCommand = new DelegateCommand<TextBox>(box => FilterPath(box));
             ClearCommand = new DelegateCommand(ClearData);
             OutputCommand = new DelegateCommand(OutputData);
             CloseCommand = new DelegateCommand<Window>(window => window.Close());
         }
 
-        private void FilterPath()
+        private void FilterPath(TextBox box)
         {
-            SyncFileRecords.View.Filter = record => ((SyncFileRecord)record).FileName.Contains(_filteredPath);
+            SyncFileRecords.View.Filter = record => ((SyncFileRecord)record).FileName.Contains(box.Text);
             SyncFileRecords.View.Refresh();
         }
-
+        
         private void ClearData()
         {
             if (MessageWindow.ShowDialog(

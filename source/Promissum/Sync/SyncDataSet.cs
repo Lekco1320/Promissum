@@ -124,10 +124,26 @@ namespace Lekco.Promissum.Sync
             {
                 syncFileRecord.Update(fileInfo);
                 UpdateWriteTime();
-                return;
             }
-            AddSyncRecord(fileInfo);
-            UpdateWriteTime();
+            else
+            {
+                AddSyncRecord(fileInfo);
+                UpdateWriteTime();
+            }
+        }
+
+        /// <summary>
+        /// Check sync file record whether exists.
+        /// </summary>
+        /// <param name="fileInfo">The specified file's info.</param>
+        public void CheckSyncFileRecordExists(FileInfo fileInfo)
+        {
+            string removedName = Functions.RemoveDiskName(fileInfo.FullName);
+            if (!SyncFileDictionary.ContainsKey(removedName))
+            {
+                int id = Interlocked.Increment(ref _syncFileRecordIdPtr);
+                SyncFileDictionary.TryAdd(removedName, new SyncFileRecord(id, fileInfo));
+            }
         }
 
         /// <summary>

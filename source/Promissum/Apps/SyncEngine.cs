@@ -346,7 +346,7 @@ namespace Lekco.Promissum.Apps
                     buttonStyle: MessageWindowButtonStyle.OK,
                     location: MessageWindowLocation.RightBottom
                 );
-                if (Config.TryExecuteRepeatedlyAfterFail)
+                if (Config.TryExecuteRepeatedlyAfterFail && trigger != ExecutionTrigger.Manual)
                 {
                     TryExecuteTask(parentProject, task, trigger);
                 }

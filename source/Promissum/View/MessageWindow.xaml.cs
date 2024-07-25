@@ -6,7 +6,6 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace Lekco.Promissum.View
@@ -14,7 +13,7 @@ namespace Lekco.Promissum.View
     /// <summary>
     /// MessageWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MessageWindow : AnimatedWindow, INotifyPropertyChanged
+    public partial class MessageWindow : CustomWindow, INotifyPropertyChanged
     {
         public string Caption { get; set; }
         public string Message { get; set; }
@@ -52,9 +51,18 @@ namespace Lekco.Promissum.View
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private MessageWindow(string message, MessageWindowIcon icon, MessageWindowButtonStyle buttonStyle,
-            string? caption, MessageWindowLocation location, bool autoCountDown, bool mandatoryTopMost,
-            string? link, Action? linkAction)
+        private MessageWindow(
+            string message,
+            MessageWindowIcon icon,
+            MessageWindowButtonStyle buttonStyle,
+            string? caption,
+            MessageWindowLocation location,
+            bool autoCountDown,
+            bool mandatoryTopMost,
+            double width,
+            double height,
+            string? link,
+            Action? linkAction)
         {
             Message = message;
             WindowIcon = icon;
@@ -63,6 +71,8 @@ namespace Lekco.Promissum.View
             AutoCountDown = autoCountDown;
             _mandatoryTopMost = mandatoryTopMost;
             _countDownString = "";
+            Width = width;
+            Height = height;
             CountDownVisibility = AutoCountDown ? Visibility.Visible : Visibility.Collapsed;
 
             if (caption != null)
@@ -140,11 +150,6 @@ namespace Lekco.Promissum.View
             Close();
         }
 
-        private void DragWindow(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
         public new void Close()
         {
             Dispatcher.BeginInvoke(() =>
@@ -209,19 +214,37 @@ namespace Lekco.Promissum.View
             }
         }
 
-        public static void Show(string message, MessageWindowIcon icon, MessageWindowButtonStyle buttonStyle,
-            string? caption = null, MessageWindowLocation location = MessageWindowLocation.CenterWindow, bool autoCountDown = false,
-            bool mandatoryTopMost = false, string? link = null, Action? linkAction = null)
+        public static void Show(
+            string message,
+            MessageWindowIcon icon,
+            MessageWindowButtonStyle buttonStyle,
+            string? caption = null,
+            MessageWindowLocation location = MessageWindowLocation.CenterWindow,
+            bool autoCountDown = false,
+            bool mandatoryTopMost = false,
+            double width = 330,
+            double height = 150,
+            string? link = null,
+            Action? linkAction = null)
         {
-            var window = new MessageWindow(message, icon, buttonStyle, caption, location, autoCountDown, mandatoryTopMost, link, linkAction);
+            var window = new MessageWindow(message, icon, buttonStyle, caption, location, autoCountDown, mandatoryTopMost, width, height, link, linkAction);
             window.Show();
         }
 
-        public static bool ShowDialog(string message, MessageWindowIcon icon, MessageWindowButtonStyle buttonStyle,
-            string? caption = null, MessageWindowLocation location = MessageWindowLocation.CenterWindow, bool autoCountDown = false,
-            bool mandatoryTopMost = false, string? link = null, Action? linkAction = null)
+        public static bool ShowDialog(
+            string message,
+            MessageWindowIcon icon,
+            MessageWindowButtonStyle buttonStyle,
+            string? caption = null,
+            MessageWindowLocation location = MessageWindowLocation.CenterWindow,
+            bool autoCountDown = false,
+            bool mandatoryTopMost = false,
+            double width = 330,
+            double height = 150,
+            string? link = null,
+            Action? linkAction = null)
         {
-            var window = new MessageWindow(message, icon, buttonStyle, caption, location, autoCountDown, mandatoryTopMost, link, linkAction);
+            var window = new MessageWindow(message, icon, buttonStyle, caption, location, autoCountDown, mandatoryTopMost, width, height, link, linkAction);
             window.ShowDialog();
             return window.ReturnValue;
         }

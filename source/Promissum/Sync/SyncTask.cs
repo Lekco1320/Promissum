@@ -286,7 +286,7 @@ namespace Lekco.Promissum.Sync
                 DealWithUnexpectedFiles(data, syncController);
 
                 // Tell the controller the task starts syncing files.
-                syncController.SetCopyingState();
+                syncController.SetSyncingFilesState();
                 SyncFiles(data, syncController);
 
                 // Tell the controller the task starts managing deletion files.
@@ -371,6 +371,8 @@ namespace Lekco.Promissum.Sync
                     }
                     else
                     {
+                        // Deal with the same files.
+                        syncData.SameFiles.Add(originFile);
                         destinationFilesSet.Remove(originFile);
                     }
                 }
@@ -575,6 +577,12 @@ namespace Lekco.Promissum.Sync
                     syncData.FailedSyncRecords.Add(record);
                 }
             });
+
+            // At last, check records of files which don't need syncing whether exist in the data set.
+            Parallel.ForEach(syncData.SameFiles, file =>
+            {
+                SyncDataSet!.CheckSyncFileRecordExists(file);
+            });
         }
 
         /// <summary>
@@ -775,17 +783,17 @@ namespace Lekco.Promissum.Sync
     public enum CompareMode
     {
         /// <summary>
-        /// Syncs newer files.
+        /// Sync newer files.
         /// </summary>
         ByTime,
 
         /// <summary>
-        /// Syncs larger files.
+        /// Sync larger files.
         /// </summary>
         BySize,
 
         /// <summary>
-        /// Syncs MD5-different files.
+        /// Sync MD5-different files.
         /// </summary>
         ByMD5,
     }

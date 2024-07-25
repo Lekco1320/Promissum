@@ -7,7 +7,7 @@ namespace Lekco.Promissum.View
     /// <summary>
     /// SyncEngineWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class SyncEngineWindow : AnimatedWindow
+    public partial class SyncEngineWindow : CustomWindow
     {
         private static bool _hasShown;
         private static readonly SyncEngineWindowVM _vm;
@@ -29,11 +29,6 @@ namespace Lekco.Promissum.View
         {
             _hasShown = false;
             base.OnClosed(e);
-        }
-
-        private void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            DragMove();
         }
 
         public static void ShowSyncEngineWindow()

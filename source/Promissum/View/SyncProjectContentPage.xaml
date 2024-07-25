@@ -6,9 +6,10 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:icp="https://iconpark.oceanengine.com"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      Name="ProjectContentPage"
       Title="ProjectContentPage"
-      Width="800"
-      Height="530"
+      MinWidth="800"
+      MinHeight="530"
       mc:Ignorable="d">
 
     <Page.Resources>
@@ -16,297 +17,291 @@
         <cvt:DateTimeStringConverter x:Key="DateTimeStringConverter" />
     </Page.Resources>
 
-    <Border ClipToBounds="True"
-            CornerRadius="0,0,6,6">
+    <Grid Background="White">
 
-        <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="230" />
+            <ColumnDefinition MinWidth="600" />
+        </Grid.ColumnDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
+        <DockPanel Name="LeftDock"
+                   Grid.Column="0"
+                   Background="White"
+                   LastChildFill="True">
 
-            <Border Grid.Column="0"
-                    BorderBrush="#278EFB"
-                    BorderThickness="0,0,1.2,0"
-                    ClipToBounds="True">
+            <Grid Margin="10,10,0,2"
+                  DockPanel.Dock="Top">
 
-                <StackPanel Orientation="Vertical">
+                <TextBlock FontSize="15"
+                           Style="{StaticResource BoldStyle}"
+                           Text="任务列表" />
 
-                    <Grid Margin="10,10,0,2">
+                <CheckBox Margin="70,0,0,0"
+                          Command="{Binding ChangeAutoRunCommand}"
+                          Content="启用计划任务"
+                          IsChecked="{Binding Project.AutoRun}"
+                          Style="{StaticResource SliderCheckBox}" />
 
-                        <TextBlock FontSize="15"
-                                   Style="{StaticResource BoldStyle}"
-                                   Text="任务列表" />
+            </Grid>
 
-                        <CheckBox Margin="70,0,0,0"
-                                  Command="{Binding ChangeAutoRunCommand}"
-                                  Content="启用计划任务"
-                                  IsChecked="{Binding Project.AutoRun}"
-                                  Style="{StaticResource SliderCheckBox}" />
+            <Border BorderBrush="#B5B5B5"
+                    BorderThickness="0.5"
+                    DockPanel.Dock="Top" />
 
-                    </Grid>
+            <Grid Height="30"
+                  Margin="30,0"
+                  DockPanel.Dock="Bottom">
 
-                    <Border BorderBrush="#B5B5B5"
-                            BorderThickness="0.5" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
 
-                    <ListView Name="TasksListView"
-                              Height="465"
-                              MaxWidth="200"
-                              BorderThickness="0"
-                              ItemsSource="{Binding Project.Tasks}"
-                              SelectedItem="{Binding ThisTask}">
+                <ctrl:IconButton Grid.Column="0"
+                                 Height="19"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Command="{Binding NewTaskCommand}"
+                                 Kind="AddOne"
+                                 StrokeThickness="4" />
 
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}">
+                <ctrl:IconButton Grid.Column="1"
+                                 Height="19"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Command="{Binding DeleteTaskCommand}"
+                                 IsEnabled="{Binding ElementName=TasksListView, Path=SelectedItem, Converter={StaticResource NullableBoolConverter}}"
+                                 Kind="Delete"
+                                 StrokeThickness="4" />
 
-                                <Setter Property="MaxWidth"
-                                        Value="195" />
+                <ctrl:IconButton Grid.Column="2"
+                                 Height="19"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Command="{Binding ProjectSettingCommand}"
+                                 Kind="SettingTwo"
+                                 StrokeThickness="4" />
 
-                                <Setter Property="Template">
-                                    <Setter.Value>
+            </Grid>
 
-                                        <ControlTemplate TargetType="{x:Type ListViewItem}">
+            <Border BorderBrush="#B5B5B5"
+                    BorderThickness="0.3"
+                    DockPanel.Dock="Bottom" />
 
-                                            <Border Name="border"
-                                                    Width="{TemplateBinding Width}"
-                                                    Padding="0,2,0,5"
-                                                    CornerRadius="5">
+            <ListView Name="TasksListView"
+                      Width="{Binding ElementName=LeftDock, Path=Width}"
+                      BorderThickness="0"
+                      DockPanel.Dock="Top"
+                      ItemsSource="{Binding Project.Tasks}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      SelectedItem="{Binding ThisTask}">
 
-                                                <StackPanel Margin="9,2,0,0"
-                                                            Orientation="Vertical">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
 
-                                                    <StackPanel Orientation="Horizontal">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
 
-                                                        <TextBlock Name="caption"
-                                                                   FontSize="14.5"
-                                                                   Style="{StaticResource BoldStyle}"
-                                                                   Text="{Binding Name}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
 
-                                                        <icp:Icon Name="icon"
-                                                                  Width="13"
-                                                                  Height="13"
-                                                                  Margin="4,0,0,0"
-                                                                  VerticalAlignment="Center"
-                                                                  Foreground="DimGray"
-                                                                  Kind="Setting"
-                                                                  StrokeThickness="5"
-                                                                  Visibility="Collapsed">
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
 
-                                                            <icp:Icon.RenderTransform>
-                                                                <RotateTransform x:Name="iconTransform" Angle="90" CenterX="6.5" CenterY="6.5" />
-                                                            </icp:Icon.RenderTransform>
+                                    <Border Name="border"
+                                            Width="{TemplateBinding Width}"
+                                            Padding="0,2,0,5"
+                                            CornerRadius="5">
 
-                                                        </icp:Icon>
+                                        <StackPanel Margin="9,2,0,0"
+                                                    Orientation="Vertical">
 
-                                                    </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
 
-                                                    <TextBlock Name="origin"
-                                                               FontSize="11.5"
-                                                               Foreground="DimGray"
-                                                               Text="{Binding OriginPath.FullPath, Mode=OneWay}"
-                                                               TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Name="caption"
+                                                           FontSize="14.5"
+                                                           Style="{StaticResource BoldStyle}"
+                                                           Text="{Binding Name}" />
 
-                                                    <TextBlock Name="destination"
-                                                               FontSize="11.5"
-                                                               Foreground="DimGray"
-                                                               Text="{Binding DestinationPath.FullPath, Mode=OneWay}"
-                                                               TextTrimming="CharacterEllipsis" />
+                                                <icp:Icon Name="icon"
+                                                          Width="13"
+                                                          Height="13"
+                                                          Margin="4,0,0,0"
+                                                          VerticalAlignment="Center"
+                                                          Foreground="DimGray"
+                                                          Kind="Setting"
+                                                          StrokeThickness="5"
+                                                          Visibility="Collapsed">
 
-                                                    <TextBlock Name="datetime"
-                                                               FontSize="11.5"
-                                                               Foreground="DimGray"
-                                                               Text="{Binding LastExecuteTime, Converter={StaticResource DateTimeStringConverter}}" />
+                                                    <icp:Icon.RenderTransform>
+                                                        <RotateTransform x:Name="iconTransform" Angle="90" CenterX="6.5" CenterY="6.5" />
+                                                    </icp:Icon.RenderTransform>
 
-                                                </StackPanel>
+                                                </icp:Icon>
 
-                                            </Border>
+                                            </StackPanel>
 
-                                            <ControlTemplate.Triggers>
+                                            <TextBlock Name="origin"
+                                                       FontSize="11.5"
+                                                       Foreground="DimGray"
+                                                       Text="{Binding OriginPath.FullPath, Mode=OneWay}"
+                                                       TextTrimming="CharacterEllipsis" />
 
-                                                <Trigger Property="IsMouseOver" Value="True">
+                                            <TextBlock Name="destination"
+                                                       FontSize="11.5"
+                                                       Foreground="DimGray"
+                                                       Text="{Binding DestinationPath.FullPath, Mode=OneWay}"
+                                                       TextTrimming="CharacterEllipsis" />
 
-                                                    <Setter TargetName="border"
-                                                            Property="Background">
-                                                        <Setter.Value>
-                                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                                <GradientStop Offset="0.3" Color="#F2F2F2" />
-                                                                <GradientStop Offset="1" Color="#EDEDED" />
-                                                            </LinearGradientBrush>
-                                                        </Setter.Value>
+                                            <TextBlock Name="datetime"
+                                                       FontSize="11.5"
+                                                       Foreground="DimGray"
+                                                       Text="{Binding LastExecuteTime, Converter={StaticResource DateTimeStringConverter}}" />
 
-                                                    </Setter>
+                                        </StackPanel>
 
-                                                </Trigger>
+                                    </Border>
 
-                                                <Trigger Property="Selector.IsSelected" Value="True">
+                                    <ControlTemplate.Triggers>
 
-                                                    <Setter TargetName="border"
-                                                            Property="Background">
-                                                        <Setter.Value>
-                                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                                <GradientStop Offset="0.3" Color="#278EFB" />
-                                                                <GradientStop Offset="1" Color="#007AFF" />
-                                                            </LinearGradientBrush>
-                                                        </Setter.Value>
-                                                    </Setter>
+                                        <Trigger Property="IsMouseOver" Value="True">
 
-                                                    <Setter TargetName="caption"
-                                                            Property="Foreground"
-                                                            Value="White" />
+                                            <Setter TargetName="border"
+                                                    Property="Background">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                        <GradientStop Offset="0.3" Color="#F2F2F2" />
+                                                        <GradientStop Offset="1" Color="#EDEDED" />
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
 
-                                                    <Setter TargetName="origin"
-                                                            Property="Foreground"
-                                                            Value="#EAEAEA" />
+                                            </Setter>
 
-                                                    <Setter TargetName="destination"
-                                                            Property="Foreground"
-                                                            Value="#EAEAEA" />
+                                        </Trigger>
 
-                                                    <Setter TargetName="datetime"
-                                                            Property="Foreground"
-                                                            Value="#EAEAEA" />
+                                        <Trigger Property="Selector.IsSelected" Value="True">
 
-                                                    <Setter TargetName="icon"
-                                                            Property="Foreground"
-                                                            Value="#EAEAEA" />
+                                            <Setter TargetName="border"
+                                                    Property="Background">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                        <GradientStop Offset="0.3" Color="#278EFB" />
+                                                        <GradientStop Offset="1" Color="#007AFF" />
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+                                            </Setter>
 
-                                                </Trigger>
+                                            <Setter TargetName="caption"
+                                                    Property="Foreground"
+                                                    Value="White" />
 
-                                                <DataTrigger Binding="{Binding IsBusy}"
-                                                             Value="True">
+                                            <Setter TargetName="origin"
+                                                    Property="Foreground"
+                                                    Value="#EAEAEA" />
 
-                                                    <Setter TargetName="icon"
-                                                            Property="Visibility"
-                                                            Value="Visible" />
+                                            <Setter TargetName="destination"
+                                                    Property="Foreground"
+                                                    Value="#EAEAEA" />
 
-                                                </DataTrigger>
+                                            <Setter TargetName="datetime"
+                                                    Property="Foreground"
+                                                    Value="#EAEAEA" />
 
-                                                <EventTrigger RoutedEvent="UserControl.Loaded"
-                                                              SourceName="icon">
-                                                    <BeginStoryboard>
-                                                        <Storyboard RepeatBehavior="Forever"
-                                                                    SpeedRatio="0.7">
-                                                            <DoubleAnimation Storyboard.TargetName="iconTransform"
-                                                                             Storyboard.TargetProperty="Angle"
-                                                                             From="0"
-                                                                             To="360"
-                                                                             Duration="0:0:1" />
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </EventTrigger>
+                                            <Setter TargetName="icon"
+                                                    Property="Foreground"
+                                                    Value="#EAEAEA" />
 
-                                            </ControlTemplate.Triggers>
+                                        </Trigger>
 
-                                        </ControlTemplate>
+                                        <DataTrigger Binding="{Binding IsBusy}"
+                                                     Value="True">
 
-                                    </Setter.Value>
+                                            <Setter TargetName="icon"
+                                                    Property="Visibility"
+                                                    Value="Visible" />
 
-                                </Setter>
+                                        </DataTrigger>
 
-                            </Style>
-                        </ListView.ItemContainerStyle>
+                                        <EventTrigger RoutedEvent="UserControl.Loaded"
+                                                      SourceName="icon">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever"
+                                                            SpeedRatio="0.7">
+                                                    <DoubleAnimation Storyboard.TargetName="iconTransform"
+                                                                     Storyboard.TargetProperty="Angle"
+                                                                     From="0"
+                                                                     To="360"
+                                                                     Duration="0:0:1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
 
-                    </ListView>
+                                    </ControlTemplate.Triggers>
 
-                    <Border BorderBrush="#B5B5B5"
-                            BorderThickness="0.3" />
+                                </ControlTemplate>
 
-                    <Grid Width="170"
-                          Height="30"
-                          HorizontalAlignment="Center">
+                            </Setter.Value>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+                        </Setter>
 
-                        <ctrl:IconButton Grid.Column="0"
-                                         Height="19"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         Command="{Binding NewTaskCommand}"
-                                         Kind="AddOne"
-                                         StrokeThickness="4" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-                        <ctrl:IconButton Grid.Column="1"
-                                         Height="19"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         Command="{Binding DeleteTaskCommand}"
-                                         IsEnabled="{Binding ElementName=TasksListView, Path=SelectedItem, Converter={StaticResource NullableBoolConverter}}"
-                                         Kind="Delete"
-                                         StrokeThickness="4" />
+            </ListView>
 
-                        <ctrl:IconButton Grid.Column="2"
-                                         Height="19"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         Command="{Binding ProjectSettingCommand}"
-                                         Kind="SettingTwo"
-                                         StrokeThickness="4" />
+        </DockPanel>
 
-                    </Grid>
+        <GridSplitter Grid.Column="0"
+                      Width="1"
+                      Background="#278EFB"
+                      ShowsPreview="True" />
 
-                </StackPanel>
+        <StackPanel Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Orientation="Vertical">
 
-            </Border>
+            <icp:Icon Width="50"
+                      Height="50"
+                      HorizontalAlignment="Center"
+                      Foreground="Gray"
+                      Kind="FileAdditionOne"
+                      StrokeLineCap="Square"
+                      StrokeThickness="2" />
 
-            <StackPanel Grid.Column="1"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Orientation="Vertical">
+            <StackPanel Margin="0,10,0,0"
+                        Orientation="Horizontal">
 
-                <icp:Icon Width="50"
-                          Height="50"
-                          HorizontalAlignment="Center"
+                <TextBlock FontSize="13"
+                           Foreground="Gray"
+                           Text="单击左下侧" />
+
+                <icp:Icon Width="15"
+                          Margin="2,0"
                           Foreground="Gray"
-                          Kind="FileAdditionOne"
-                          StrokeLineCap="Square"
-                          StrokeThickness="2" />
+                          Kind="AddOne"
+                          StrokeThickness="3.5" />
 
-                <StackPanel Margin="0,10,0,0"
-                            Orientation="Horizontal">
-
-                    <TextBlock FontSize="13"
-                               Foreground="Gray"
-                               Text="单击左下侧" />
-
-                    <icp:Icon Width="15"
-                              Margin="2,0"
-                              Foreground="Gray"
-                              Kind="AddOne"
-                              StrokeThickness="3.5" />
-
-                    <TextBlock FontSize="13"
-                               Foreground="Gray"
-                               Text="以添加任务。" />
-
-                </StackPanel>
+                <TextBlock FontSize="13"
+                           Foreground="Gray"
+                           Text="以添加任务。" />
 
             </StackPanel>
 
-            <ScrollViewer Name="Scrollviewer"
-                          Grid.Column="1"
-                          HorizontalScrollBarVisibility="Hidden"
-                          VerticalScrollBarVisibility="Auto">
+        </StackPanel>
 
-                <Border BorderThickness="0"
-                        ClipToBounds="True"
-                        CornerRadius="0,0,0,10">
+        <ScrollViewer Name="Scrollviewer"
+                      Grid.Column="1"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
 
-                    <Frame Content="{Binding ThisPage}"
-                           ContentRendered="ContentRendering"
-                           NavigationUIVisibility="Hidden"
-                           ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <Frame Content="{Binding ThisPage}"
+                   ContentRendered="ContentRendering"
+                   NavigationUIVisibility="Hidden"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
-                </Border>
+        </ScrollViewer>
 
-            </ScrollViewer>
-
-        </Grid>
-
-    </Border>
+    </Grid>
 
 </Page>

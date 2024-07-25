@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Lekco.Promissum.ViewModel
@@ -21,27 +22,15 @@ namespace Lekco.Promissum.ViewModel
         public DateTime SyncDataSetLastWriteTime { get; set; }
         public int RecordsCount { get => ((ICollection)DeletionRecords.Source).Count; }
         public CollectionViewSource DeletionRecords { get; set; }
-        public DelegateCommand FilterCommand { get; set; }
+        public DelegateCommand<TextBox> FilterCommand { get; set; }
         public DelegateCommand ClearCommand { get; set; }
         public DelegateCommand OutputCommand { get; set; }
         public DelegateCommand<Window> CloseCommand { get; set; }
-
-        public string FilteredPath
-        {
-            get => _filteredPath;
-            set
-            {
-                _filteredPath = value;
-                FilterPath();
-            }
-        }
-        private string _filteredPath;
 
         public DeletionRecordWindowVM(SyncProject parentProject, SyncTask syncTask)
         {
             Project = parentProject;
             Task = syncTask;
-            _filteredPath = "";
 
             var deletionFileRecords = new ObservableCollection<DeletionFileRecord>();
             Task.GetDataSet(parentProject, dataset =>
@@ -60,16 +49,17 @@ namespace Lekco.Promissum.ViewModel
             };
             DeletionRecords.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
 
-            FilterCommand = new DelegateCommand(FilterPath);
+            FilterCommand = new DelegateCommand<TextBox>(box => FilterPath(box));
             ClearCommand = new DelegateCommand(ClearData);
             OutputCommand = new DelegateCommand(OutputData);
             CloseCommand = new DelegateCommand<Window>(window => window.Close());
         }
 
-        private void FilterPath()
+        private void FilterPath(TextBox box)
         {
-            DeletionRecords.View.Filter = record => ((DeletionFileRecord)record).FileName.Contains(_filteredPath)
-                 || (((DeletionFileRecord)record).NewFileName ?? "").Contains(_filteredPath);
+            string path = box.Text;
+            DeletionRecords.View.Filter = record => ((DeletionFileRecord)record).FileName.Contains(path)
+                 || (((DeletionFileRecord)record).NewFileName ?? "").Contains(path);
             DeletionRecords.View.Refresh();
         }
 

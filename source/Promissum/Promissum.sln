@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco Promissum", "Lekco Promissum.csproj", "{92095988-B756-4631-A4A3-5200BB60F0FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lekco Promissum Agens", "..\Promissum Agens\Lekco Promissum Agens.csproj", "{90BCDEFD-A9C2-45AB-8992-F95AD479A42A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco Promissum Agens", "..\Promissum Agens\Lekco Promissum Agens.csproj", "{90BCDEFD-A9C2-45AB-8992-F95AD479A42A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
