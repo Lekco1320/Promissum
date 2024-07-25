@@ -1,190 +1,190 @@
-﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.SyncFileRecordWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
-                     xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     x:Name="window"
-                     Title="备份记录"
-                     Width="700"
-                     Height="550"
-                     WindowStartupLocation="CenterScreen"
-                     mc:Ignorable="d">
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.SyncFileRecordWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                   xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   x:Name="window"
+                   Title="备份记录"
+                   Width="750"
+                   Height="600"
+                   MinWidth="750"
+                   MinHeight="600"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="CanResize"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
 
     <Window.Resources>
         <cvt:DiskLengthConverter x:Key="DiskLengthConverter" />
     </Window.Resources>
 
-    <Border Style="{StaticResource WindowBorderStyle}">
+    <Grid>
 
-        <Grid>
+        <DockPanel Margin="30,20"
+                   LastChildFill="True">
 
-            <Grid Height="25"
-                  VerticalAlignment="Top"
-                  MouseLeftButtonDown="DragWindow">
+            <Grid DockPanel.Dock="Top">
 
-                <Image Style="{StaticResource IconImage}" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
 
-                <TextBlock Style="{StaticResource WindowTitleStyle}"
-                           Text="备份记录" />
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="5" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
 
-                <Button Command="{Binding CloseCommand}"
-                        CommandParameter="{Binding ElementName=window}"
-                        Style="{StaticResource CloseButtonStyle}" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="{Binding Task.Name, StringFormat='{}任务名：{0}', Mode=OneWay}" />
 
-                <Border Style="{StaticResource SplitterStyle}" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           Text="{Binding SyncDataSetCreationTime, StringFormat='{}创建时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="2"
+                           Text="{Binding Task.LastExecuteTime, StringFormat='{}最后执行时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="{Binding SyncDataSetLastWriteTime, StringFormat='{}修改时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="1"
+                           Text="{Binding RecordsCount, StringFormat='{}记录总数：{0}', Mode=OneWay}" />
+
+                <DockPanel Grid.Row="2"
+                           Grid.Column="2"
+                           LastChildFill="True">
+
+                    <TextBlock DockPanel.Dock="Left"
+                               Text="路径过滤：" />
+
+                    <Grid DockPanel.Dock="Left">
+
+                        <TextBox x:Name="KeyWordBox"
+                                 MinWidth="150"
+                                 Text="{Binding FilteredPath}">
+
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter"
+                                            Command="{Binding FilterCommand}"
+                                            CommandParameter="{Binding ElementName=KeyWordBox}" />
+                            </TextBox.InputBindings>
+
+                        </TextBox>
+
+                        <Button Margin="0,0,5,0"
+                                HorizontalAlignment="Right"
+                                Command="{Binding FilterCommand}"
+                                CommandParameter="{Binding ElementName=KeyWordBox}"
+                                Style="{StaticResource CheckMarkButton}" />
+
+                    </Grid>
+
+                </DockPanel>
 
             </Grid>
 
-            <StackPanel Margin="20,40,20,20"
-                        Orientation="Vertical">
+            <Grid Margin="0,15,0,0"
+                  DockPanel.Dock="Bottom">
 
-                <Grid>
+                <Button Width="90"
+                        Margin="0,0,115,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding ClearCommand}"
+                        Content="清空数据(_C)">
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
+                    <Button.InputBindings>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition Height="5" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
+                        <KeyBinding Command="{Binding ClearCommand}"
+                                    Gesture="Alt+C" />
 
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="0"
-                               Text="{Binding Task.Name, StringFormat='{}任务名：{0}', Mode=OneWay}" />
+                    </Button.InputBindings>
 
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="1"
-                               Text="{Binding SyncDataSetCreationTime, StringFormat='{}创建时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+                </Button>
 
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="2"
-                               Text="{Binding Task.LastExecuteTime, StringFormat='{}最后执行时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+                <Button Width="90"
+                        Margin="0,0,5,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding OutputCommand}"
+                        Content="导出数据(_O)">
 
-                    <TextBlock Grid.Row="2"
-                               Grid.Column="0"
-                               Text="{Binding SyncDataSetLastWriteTime, StringFormat='{}修改时间：{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}" />
+                    <Button.InputBindings>
 
-                    <TextBlock Grid.Row="2"
-                               Grid.Column="1"
-                               Text="{Binding RecordsCount, StringFormat='{}记录总数：{0}', Mode=OneWay}" />
+                        <KeyBinding Command="{Binding OutputCommand}"
+                                    Gesture="Alt+O" />
 
-                    <StackPanel Grid.Row="2"
-                                Grid.Column="2"
-                                Orientation="Horizontal">
+                    </Button.InputBindings>
 
-                        <TextBlock Text="路径过滤：" />
+                </Button>
 
-                        <Grid>
+            </Grid>
 
-                            <TextBox Width="155"
-                                     Text="{Binding FilteredPath}" />
+            <DataGrid MinHeight="300"
+                      Margin="0,15,0,0"
+                      CanUserReorderColumns="True"
+                      CanUserResizeColumns="True"
+                      DockPanel.Dock="Top"
+                      ItemsSource="{Binding SyncFileRecords.View}"
+                      RowHeaderWidth="0">
 
-                            <Button Margin="0,0,5,0"
-                                    HorizontalAlignment="Right"
-                                    Command="{Binding FilterCommand}"
-                                    Style="{StaticResource CheckMarkButton}" />
+                <DataGrid.Columns>
 
-                        </Grid>
+                    <DataGridTextColumn Width="50"
+                                        Binding="{Binding Id, Mode=OneWay}"
+                                        Header="序号"
+                                        SortDirection="Ascending" />
 
-                    </StackPanel>
+                    <DataGridTextColumn Width="350"
+                                        CellStyle="{StaticResource LeftAlignmentDataGridCellStyle}"
+                                        Header="备份文件路径">
 
-                </Grid>
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Mode="OneWay"
+                                          StringFormat="{}{0}{1}">
+                                <Binding ElementName="window"
+                                         Path="DataContext.Task.DestinationPath.DriveName" />
+                                <Binding Path="FileName" />
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
 
-                <DataGrid Height="410"
-                          Margin="0,10,0,0"
-                          CanUserReorderColumns="True"
-                          CanUserResizeColumns="True"
-                          ItemsSource="{Binding SyncFileRecords.View}"
-                          RowHeaderWidth="0">
+                    </DataGridTextColumn>
 
-                    <DataGrid.Columns>
+                    <DataGridTextColumn Width="70"
+                                        Binding="{Binding FileSize, Converter={StaticResource DiskLengthConverter}, Mode=OneWay}"
+                                        Header="文件大小" />
 
-                        <DataGridTextColumn Width="50"
-                                            Binding="{Binding Id, Mode=OneWay}"
-                                            Header="序号"
-                                            SortDirection="Ascending" />
+                    <DataGridTextColumn Width="140"
+                                        Binding="{Binding CreationTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
+                                        Header="创建时间" />
 
-                        <DataGridTextColumn Width="250"
-                                            CellStyle="{StaticResource LeftAlignmentDataGridCellStyle}"
-                                            Header="备份文件路径">
+                    <DataGridTextColumn Width="140"
+                                        Binding="{Binding LastWriteTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
+                                        Header="修改时间" />
 
-                            <DataGridTextColumn.Binding>
-                                <MultiBinding Mode="OneWay"
-                                              StringFormat="{}{0}{1}">
-                                    <Binding ElementName="window"
-                                             Path="DataContext.Task.DestinationPath.DriveName" />
-                                    <Binding Path="FileName" />
-                                </MultiBinding>
-                            </DataGridTextColumn.Binding>
+                    <DataGridTextColumn Width="140"
+                                        Binding="{Binding LastUpdateTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
+                                        Header="最后同步时间" />
 
-                        </DataGridTextColumn>
+                    <DataGridTextColumn Width="60"
+                                        Binding="{Binding Version, Mode=OneWay}"
+                                        Header="备份次数" />
 
-                        <DataGridTextColumn Width="70"
-                                            Binding="{Binding FileSize, Converter={StaticResource DiskLengthConverter}, Mode=OneWay}"
-                                            Header="文件大小" />
+                </DataGrid.Columns>
 
-                        <DataGridTextColumn Width="140"
-                                            Binding="{Binding CreationTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
-                                            Header="创建时间" />
+            </DataGrid>
 
-                        <DataGridTextColumn Width="140"
-                                            Binding="{Binding LastWriteTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
-                                            Header="修改时间" />
+        </DockPanel>
 
-                        <DataGridTextColumn Width="140"
-                                            Binding="{Binding LastUpdateTime, StringFormat='{}{0:yyyy/MM/dd HH:mm:ss}', Mode=OneWay}"
-                                            Header="最后同步时间" />
+    </Grid>
 
-                        <DataGridTextColumn Width="60"
-                                            Binding="{Binding Version, Mode=OneWay}"
-                                            Header="备份次数" />
-
-                    </DataGrid.Columns>
-
-                </DataGrid>
-
-            </StackPanel>
-
-            <Button Width="90"
-                    Margin="0,0,130,15"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Command="{Binding ClearCommand}"
-                    Content="清空数据(_C)">
-
-                <Button.InputBindings>
-
-                    <KeyBinding Command="{Binding ClearCommand}"
-                                Gesture="Alt+C" />
-
-                </Button.InputBindings>
-
-            </Button>
-
-            <Button Width="90"
-                    Margin="0,0,20,15"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Command="{Binding OutputCommand}"
-                    Content="导出数据(_O)">
-
-                <Button.InputBindings>
-
-                    <KeyBinding Command="{Binding OutputCommand}"
-                                Gesture="Alt+O" />
-
-                </Button.InputBindings>
-
-            </Button>
-
-        </Grid>
-
-    </Border>
-
-</ctrl:AnimatedWindow>
+</ctrl:CustomWindow>

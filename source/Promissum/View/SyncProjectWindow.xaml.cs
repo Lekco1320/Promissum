@@ -8,7 +8,7 @@ namespace Lekco.Promissum.View
     /// <summary>
     /// SyncProjectWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class SyncProjectWindow : AnimatedWindow
+    public partial class SyncProjectWindow : CustomWindow
     {
         public SyncProjectWindowVM _vm;
         private SyncProjectWindow(SyncProjectWindowVM vm)

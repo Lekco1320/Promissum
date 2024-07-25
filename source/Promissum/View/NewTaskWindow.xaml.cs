@@ -1,14 +1,13 @@
 ﻿using Lekco.Promissum.Control;
 using Lekco.Promissum.Sync;
 using Lekco.Promissum.ViewModel;
-using System.Windows.Input;
 
 namespace Lekco.Promissum.View
 {
     /// <summary>
     /// NewTaskWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class NewTaskWindow : AnimatedWindow
+    public partial class NewTaskWindow : CustomWindow
     {
         private NewTaskWindowVM _vm;
         private NewTaskWindow(NewTaskWindowVM vm)
@@ -17,11 +16,6 @@ namespace Lekco.Promissum.View
 
             _vm = vm;
             DataContext = _vm;
-        }
-
-        private void DragWindow(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
         }
 
         public static SyncTask? NewTask()

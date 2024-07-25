@@ -1,12 +1,12 @@
-﻿using Lekco.Promissum.Control;
-using System;
+﻿using System;
+using System.Windows;
 
 namespace Lekco.Promissum.View
 {
     /// <summary>
     /// AboutWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class AboutWindow : AnimatedWindow
+    public partial class AboutWindow : Window
     {
         public static string Version { get => App.Version.ToString(); }
         public AboutWindow()

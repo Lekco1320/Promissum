@@ -7,7 +7,7 @@ namespace Lekco.Promissum.View
     /// <summary>
     /// SyncRecordWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class SyncFileRecordWindow : AnimatedWindow
+    public partial class SyncFileRecordWindow : CustomWindow
     {
         private SyncFileRecordWindowVM _vm;
         public SyncFileRecordWindow(SyncFileRecordWindowVM vm)

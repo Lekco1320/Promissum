@@ -1,16 +1,20 @@
-﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.MainWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
-                     xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     x:Name="window"
-                     Title="Lekco Promissum"
-                     Width="800"
-                     Height="600"
-                     WindowStartupLocation="CenterScreen"
-                     mc:Ignorable="d">
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.MainWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                   xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   x:Name="window"
+                   Title="Lekco Promissum"
+                   Width="800"
+                   Height="600"
+                   MinWidth="800"
+                   MinHeight="600"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="CanResize"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
 
     <Window.Resources>
         <cvt:NullableBoolConverter x:Key="NullableBoolConverter" />
@@ -26,105 +30,74 @@
 
     </Window.InputBindings>
 
-    <Border Style="{StaticResource WindowBorderStyle}">
+    <DockPanel LastChildFill="True">
 
-        <Grid>
+        <Menu HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              DockPanel.Dock="Top">
 
-            <Grid Height="25"
-                  VerticalAlignment="Top"
-                  MouseLeftButtonDown="DragWindow">
+            <MenuItem Header="文件(_F)">
 
-                <Image Style="{StaticResource IconImage}" />
+                <MenuItem Command="{Binding NewProjectCommand}"
+                          Header="新建(_N)"
+                          InputGestureText="Ctrl+N" />
 
-                <TextBlock Style="{StaticResource WindowTitleStyle}"
-                           Text="Lekco Promissum" />
+                <MenuItem Command="{Binding OpenProjectCommand}"
+                          Header="打开(_O)"
+                          InputGestureText="Ctrl+O" />
 
-                <Button Command="{Binding CloseWindowCommand}"
-                        CommandParameter="{Binding ElementName=window}"
-                        Style="{StaticResource CloseButtonStyle}" />
+                <MenuItem Command="{Binding SaveCommand}"
+                          Header="保存(_S)"
+                          InputGestureText="Ctrl+S"
+                          IsEnabled="{Binding ElementName=Navigation, Path=SelectedProject, Converter={StaticResource NullableBoolConverter}}" />
 
-                <Button Margin="0,0,40,0"
-                        Command="{Binding MinimizeWindowCommand}"
-                        CommandParameter="{Binding ElementName=window}"
-                        Style="{StaticResource MinimizeButtonStyle}" />
+                <Separator />
 
-            </Grid>
+                <MenuItem Command="{Binding QuitCommand}"
+                          Header="退出(_X)"
+                          InputGestureText="Ctrl+Q" />
 
-            <StackPanel Margin="0,25,0,0"
-                        Orientation="Vertical">
+            </MenuItem>
 
-                <Menu Width="300"
-                      HorizontalAlignment="Left"
-                      VerticalAlignment="Top">
+            <MenuItem Header="设置(_S)">
 
-                    <MenuItem Header="文件(_F)">
+                <MenuItem Command="{Binding ProjectSettingCommand}"
+                          Header="项目设置(_S)..."
+                          IsEnabled="{Binding ElementName=Navigation, Path=SelectedProject, Converter={StaticResource NullableBoolConverter}}" />
 
-                        <MenuItem Command="{Binding NewProjectCommand}"
-                                  Header="新建(_N)"
-                                  InputGestureText="Ctrl+N" />
+                <Separator />
 
-                        <MenuItem Command="{Binding OpenProjectCommand}"
-                                  Header="打开(_O)"
-                                  InputGestureText="Ctrl+O" />
+                <MenuItem Command="{Binding ShowSyncEngineWindowCommand}"
+                          Header="备份引擎(_E)..." />
 
-                        <MenuItem Command="{Binding SaveCommand}"
-                                  Header="保存(_S)"
-                                  InputGestureText="Ctrl+S"
-                                  IsEnabled="{Binding ElementName=Navigation, Path=SelectedProject, Converter={StaticResource NullableBoolConverter}}" />
+                <MenuItem Command="{Binding SetAppConfigCommand}"
+                          Header="首选项(_N)..." />
 
-                        <Separator />
+            </MenuItem>
 
-                        <MenuItem Command="{Binding QuitCommand}"
-                                  Header="退出(_X)"
-                                  InputGestureText="Ctrl+Q" />
+            <MenuItem Header="关于(_A)">
 
-                    </MenuItem>
+                <MenuItem Command="{Binding ShowAboutWindowCommand}"
+                          Header="关于 Lekco Promissum (_A)..." />
 
-                    <MenuItem Header="设置(_S)">
+                <MenuItem Command="{Binding OpenReposCommand}"
+                          Header="Github 仓库(_L)..." />
 
-                        <MenuItem Command="{Binding ProjectSettingCommand}"
-                                  Header="项目设置(_S)..."
-                                  IsEnabled="{Binding ElementName=Navigation, Path=SelectedProject, Converter={StaticResource NullableBoolConverter}}" />
+            </MenuItem>
 
-                        <Separator />
+        </Menu>
 
-                        <MenuItem Command="{Binding ShowSyncEngineWindowCommand}"
-                                  Header="备份引擎(_E)..." />
+        <ctrl:Navigation x:Name="Navigation"
+                         Margin="0,2,0,0"
+                         DockPanel.Dock="Top"
+                         ItemsSource="{Binding OpenProjects, Mode=TwoWay}"
+                         RemoveCommand="{Binding RemovePageCommand}"
+                         SelectedProject="{Binding ThisProject, Mode=TwoWay}" />
 
-                        <MenuItem Command="{Binding SetAppConfigCommand}"
-                                  Header="首选项(_N)..." />
+        <Frame Content="{Binding ThisPage}"
+               DockPanel.Dock="Top"
+               NavigationUIVisibility="Hidden" />
 
-                    </MenuItem>
+    </DockPanel>
 
-                    <MenuItem Header="关于(_A)">
-
-                        <MenuItem Command="{Binding ShowAboutWindowCommand}"
-                                  Header="关于 Lekco Promissum (_A)..." />
-
-                        <MenuItem Command="{Binding OpenReposCommand}"
-                                  Header="Github 仓库(_L)..." />
-
-                    </MenuItem>
-
-                </Menu>
-
-                <StackPanel Orientation="Vertical">
-
-                    <ctrl:Navigation x:Name="Navigation"
-                                     Margin="0,2,0,0"
-                                     ItemsSource="{Binding OpenProjects, Mode=TwoWay}"
-                                     RemoveCommand="{Binding RemovePageCommand}"
-                                     SelectedProject="{Binding ThisProject, Mode=TwoWay}" />
-
-                    <Frame Content="{Binding ThisPage}"
-                           NavigationUIVisibility="Hidden" />
-
-                </StackPanel>
-
-            </StackPanel>
-
-        </Grid>
-
-    </Border>
-
-</ctrl:AnimatedWindow>
+</ctrl:CustomWindow>

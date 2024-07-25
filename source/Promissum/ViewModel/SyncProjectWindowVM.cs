@@ -52,7 +52,7 @@ namespace Lekco.Promissum.ViewModel
 
             SetProjectPathCommand = new DelegateCommand(SetProjectPath);
             OKCommand = new DelegateCommand<Window>(window => OK(window));
-            CancelCommand = new DelegateCommand<Window>(window => Cancel(window));
+            CancelCommand = new DelegateCommand<Window>(window => window.Close());
         }
 
         private void SetProjectPath()
@@ -123,11 +123,6 @@ namespace Lekco.Promissum.ViewModel
                     );
                 }
             }
-            window.Close();
-        }
-
-        private static void Cancel(Window window)
-        {
             window.Close();
         }
     }

@@ -90,8 +90,8 @@ namespace Lekco.Promissum.Sync
             var driveInfo = new DriveInfo(oriDiskName);
             _driveId = Functions.HardDiskId(driveInfo.Name);
             _driveName = driveInfo.Name;
-            _totalSpace = driveInfo.TotalSize;
-            _freeSpace = driveInfo.TotalFreeSpace;
+            _totalSpace = driveInfo.IsReady ? driveInfo.TotalSize : 0L;
+            _freeSpace = driveInfo.IsReady ? driveInfo.TotalFreeSpace : 0L;
         }
 
         public bool TryMatch()
@@ -129,7 +129,7 @@ namespace Lekco.Promissum.Sync
             {
                 return true;
             }
-            return pathA!.DriveId == pathB!.DriveId && pathA.FullPath == pathB.FullPath;
+            return pathA!.FullPath == pathB!.FullPath && (pathA.DriveId == pathB.DriveId || pathA.DriveId * pathB.DriveId == 0);
         }
 
         public static bool operator !=(SyncPath? pathA, SyncPath? pathB)
@@ -142,7 +142,7 @@ namespace Lekco.Promissum.Sync
             {
                 return false;
             }
-            return pathA!.DriveId != pathB!.DriveId || pathA.FullPath != pathB.FullPath;
+            return pathA!.FullPath != pathB!.FullPath || (pathA.DriveId != pathB.DriveId && pathA.DriveId * pathB.DriveId != 0);
         }
 
         public override bool Equals(object? obj)

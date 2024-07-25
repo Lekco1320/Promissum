@@ -7,7 +7,7 @@ namespace Lekco.Promissum.View
     /// <summary>
     /// AppConfigWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class AppConfigWindow : AnimatedWindow
+    public partial class AppConfigWindow : CustomWindow
     {
         private readonly AppConfigWindowVM _vm;
         private AppConfigWindow(AppConfigWindowVM vm)
@@ -16,11 +16,6 @@ namespace Lekco.Promissum.View
 
             _vm = vm;
             DataContext = _vm;
-        }
-
-        private void DragWindow(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
         }
 
         public static void SetAppConfig()

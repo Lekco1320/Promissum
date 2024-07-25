@@ -1,14 +1,13 @@
 ﻿using Lekco.Promissum.Control;
 using Lekco.Promissum.Sync;
 using Lekco.Promissum.ViewModel;
-using System.Windows.Input;
 
 namespace Lekco.Promissum.View
 {
     /// <summary>
     /// SyncExclusionWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class SyncExclusionWindow : AnimatedWindow
+    public partial class SyncExclusionWindow : CustomWindow
     {
         private SyncExclusionWindowVM _vm;
         public SyncExclusionWindow(SyncExclusionWindowVM vm)
@@ -17,11 +16,6 @@ namespace Lekco.Promissum.View
 
             DataContext = vm;
             _vm = vm;
-        }
-
-        private void DragWindow(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
         }
 
         public static SyncExclusion? NewOrModifySyncExclusion(SyncExclusion? syncExclusion)

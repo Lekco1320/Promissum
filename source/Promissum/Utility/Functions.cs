@@ -10,7 +10,6 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Xml;
 

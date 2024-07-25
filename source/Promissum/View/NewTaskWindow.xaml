@@ -1,153 +1,132 @@
-﻿<ctrl:AnimatedWindow x:Class="Lekco.Promissum.View.NewTaskWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     x:Name="window"
-                     Title="NewTaskWindow"
-                     Width="440"
-                     Height="190"
-                     ShowInTaskbar="False"
-                     Topmost="True"
-                     WindowStartupLocation="CenterScreen"
-                     mc:Ignorable="d">
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.NewTaskWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Promissum.Control"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   x:Name="window"
+                   Title="新建任务"
+                   Width="435"
+                   Height="200"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="NoResize"
+                   ShowInTaskbar="False"
+                   ShowMaximizeRestoreWindowButton="False"
+                   ShowMinimizeWindowButton="False"
+                   Topmost="True"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
 
-    <Border Style="{StaticResource WindowBorderStyle}">
+    <StackPanel Margin="10,20,10,0"
+                Orientation="Vertical">
 
-        <Grid>
+        <StackPanel Margin="20,0,0,0"
+                    Orientation="Horizontal">
 
-            <Grid Height="25"
-                  VerticalAlignment="Top"
-                  MouseLeftButtonDown="DragWindow">
+            <TextBlock Text="任务名：　" />
 
-                <Image Style="{StaticResource IconImage}" />
+            <TextBox Width="280"
+                     Text="{Binding Name}" />
 
-                <TextBlock Style="{StaticResource WindowTitleStyle}"
-                           Text="新建任务" />
+        </StackPanel>
 
-                <Button Command="{Binding CancelCommand}"
-                        CommandParameter="{Binding ElementName=window}"
-                        Style="{StaticResource CloseButtonStyle}" />
+        <StackPanel Margin="20,10,0,0"
+                    Orientation="Horizontal">
 
-                <Border Style="{StaticResource SplitterStyle}" />
+            <TextBlock Text="源目录：　" />
+
+            <TextBox Width="280"
+                     IsReadOnly="True"
+                     Text="{Binding OriginPath, Mode=OneWay}" />
+
+            <Button Width="22"
+                    Margin="7,0,0,0"
+                    Command="{Binding SetOriginPathCommand}"
+                    Content="..." />
+
+        </StackPanel>
+
+        <StackPanel Margin="20,10,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock Text="目标目录：" />
+
+            <TextBox Width="280"
+                     IsReadOnly="True"
+                     Text="{Binding DestinationPath, Mode=OneWay}" />
+
+            <Button Width="22"
+                    Margin="7,0,0,0"
+                    Command="{Binding SetDestinationPathCommand}"
+                    Content="..." />
+
+        </StackPanel>
+
+        <StackPanel Margin="20,10,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock Text="文件比对：" />
+
+            <Grid Width="300">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <RadioButton Grid.Column="0"
+                             HorizontalAlignment="Center"
+                             Content="修改日期"
+                             IsChecked="{Binding IsByTimeChecked}" />
+
+                <RadioButton Grid.Column="1"
+                             HorizontalAlignment="Center"
+                             Content="文件大小"
+                             IsChecked="{Binding IsBySizeChecked}" />
+
+                <RadioButton Grid.Column="2"
+                             HorizontalAlignment="Center"
+                             Content="MD5值"
+                             IsChecked="{Binding IsByMD5Checked}" />
 
             </Grid>
 
-            <StackPanel Margin="0,40,0,0"
-                        Orientation="Vertical">
+        </StackPanel>
 
-                <StackPanel Margin="20,0,0,0"
-                            Orientation="Horizontal">
+        <StackPanel Margin="0,15,30,15"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal">
 
-                    <TextBlock Text="任务名：　" />
+            <Button Width="70"
+                    Command="{Binding OKCommand}"
+                    CommandParameter="{Binding ElementName=window}"
+                    Content="确定(_O)">
 
-                    <TextBox Width="300"
-                             Text="{Binding Name}" />
+                <Button.InputBindings>
+                    <KeyBinding Command="{Binding OKCommand}"
+                                Gesture="Alt+O" />
+                </Button.InputBindings>
 
-                </StackPanel>
+            </Button>
 
-                <StackPanel Margin="20,10,0,0"
-                            Orientation="Horizontal">
+            <Button Width="70"
+                    Margin="20,0,0,0"
+                    Command="{Binding CancelCommand}"
+                    CommandParameter="{Binding ElementName=window}"
+                    Content="取消(_C)">
 
-                    <TextBlock Text="源目录：　" />
+                <Button.InputBindings>
+                    <KeyBinding Command="{Binding CancelCommand}"
+                                CommandParameter="{Binding ElementName=window}"
+                                Gesture="Alt+C" />
+                </Button.InputBindings>
 
-                    <TextBox Width="300"
-                             IsReadOnly="True"
-                             Text="{Binding OriginPath, Mode=OneWay}" />
+            </Button>
 
-                    <Button Width="22"
-                            Margin="7,0,0,0"
-                            Command="{Binding SetOriginPathCommand}"
-                            Content="..." />
+        </StackPanel>
 
-                </StackPanel>
+    </StackPanel>
 
-                <StackPanel Margin="20,10,0,0"
-                            Orientation="Horizontal">
-
-                    <TextBlock Text="目标目录：" />
-
-                    <TextBox Width="300"
-                             IsReadOnly="True"
-                             Text="{Binding DestinationPath, Mode=OneWay}" />
-
-                    <Button Width="22"
-                            Margin="7,0,0,0"
-                            Command="{Binding SetDestinationPathCommand}"
-                            Content="..." />
-
-                </StackPanel>
-
-                <StackPanel Margin="20,10,0,0"
-                            Orientation="Horizontal">
-
-                    <TextBlock Text="文件比对：" />
-
-                    <Grid Width="300">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <RadioButton Grid.Column="0"
-                                     HorizontalAlignment="Center"
-                                     Content="修改日期"
-                                     IsChecked="{Binding IsByTimeChecked}" />
-
-                        <RadioButton Grid.Column="1"
-                                     HorizontalAlignment="Center"
-                                     Content="文件大小"
-                                     IsChecked="{Binding IsBySizeChecked}" />
-
-                        <RadioButton Grid.Column="2"
-                                     HorizontalAlignment="Center"
-                                     Content="MD5值"
-                                     IsChecked="{Binding IsByMD5Checked}" />
-
-                    </Grid>
-
-                </StackPanel>
-
-                <StackPanel Margin="0,15,30,15"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Orientation="Horizontal">
-
-                    <Button Width="70"
-                            Command="{Binding OKCommand}"
-                            CommandParameter="{Binding ElementName=window}"
-                            Content="确定(_O)">
-
-                        <Button.InputBindings>
-                            <KeyBinding Command="{Binding OKCommand}"
-                                        Gesture="Alt+O" />
-                        </Button.InputBindings>
-
-                    </Button>
-
-                    <Button Width="70"
-                            Margin="20,0,0,0"
-                            Command="{Binding CancelCommand}"
-                            CommandParameter="{Binding ElementName=window}"
-                            Content="取消(_C)">
-
-                        <Button.InputBindings>
-                            <KeyBinding Command="{Binding CancelCommand}"
-                                        CommandParameter="{Binding ElementName=window}"
-                                        Gesture="Alt+C" />
-                        </Button.InputBindings>
-
-                    </Button>
-
-                </StackPanel>
-
-            </StackPanel>
-
-        </Grid>
-
-    </Border>
-
-</ctrl:AnimatedWindow>
+</ctrl:CustomWindow>

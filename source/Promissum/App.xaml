@@ -20,6 +20,7 @@
                 <ResourceDictionary Source="/Style/DataGrid.xaml" />
                 <ResourceDictionary Source="/Style/Border.xaml" />
                 <ResourceDictionary Source="/Style/Image.xaml" />
+                <ResourceDictionary Source="/Control/CustomWindowStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
