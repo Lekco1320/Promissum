@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctrl="clr-namespace:Lekco.Wpf.Control">
+
+    <Style TargetType="{x:Type ctrl:NavigatedFrame}">
+
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <ItemContainerTemplate>
+                    <ContentControl Content="{Binding}" />
+                </ItemContainerTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+</ResourceDictionary>

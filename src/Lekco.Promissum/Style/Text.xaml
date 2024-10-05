@@ -1,0 +1,135 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter">
+
+    <Style TargetType="{x:Type TextElement}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="TextBlock.FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style BasedOn="{StaticResource {x:Type TextBlock}}"
+           TargetType="{x:Type TextBlock}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="TextBlock.FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style x:Key="CustomHyperLinkStyle"
+           BasedOn="{StaticResource HyperLinkTextBlockStyle}"
+           TargetType="{x:Type TextBlock}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style TargetType="{x:Type ContentPresenter}">
+
+        <Setter Property="TextBlock.FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="TextBlock.FontWeight" Value="Bold">
+
+                <Setter Property="TextBlock.FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style BasedOn="{StaticResource {x:Type TextBox}}"
+           TargetType="{x:Type TextBox}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style TargetType="{x:Type Label}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style TargetType="{x:Type DataGridCellsPresenter}">
+
+        <Setter Property="FontFamily"
+                Value="{DynamicResource Normal}" />
+
+        <Style.Triggers>
+
+            <Trigger Property="FontWeight" Value="Bold">
+
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource Bold}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,142 @@
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.Sync.NewSyncTaskDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   x:Name="window"
+                   Title="新建任务"
+                   Width="300"
+                   Height="345"
+                   EnableMaximize="False"
+                   EnableMinimize="False"
+                   EnableRestore="False"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="NoResize"
+                   ShowInTaskbar="False"
+                   Topmost="True"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
+
+    <StackPanel Margin="20,15,20,10"
+                Orientation="Vertical">
+
+        <StackPanel Orientation="Horizontal">
+
+            <TextBlock Text="任务名：" />
+
+            <TextBox Width="200"
+                     Text="{Binding TaskName, Mode=TwoWay}" />
+
+        </StackPanel>
+
+        <StackPanel Margin="0,10,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock Text="同步模式：" />
+
+            <ComboBox Width="90"
+                      SelectedIndex="{Binding FileSyncModeIndex, Mode=TwoWay}">
+
+                <ComboBoxItem Content="总是同步" />
+                <ComboBoxItem Content="同步较新的" />
+                <ComboBoxItem Content="同步较旧的" />
+                <ComboBoxItem Content="同步较大的" />
+                <ComboBoxItem Content="同步较小的" />
+
+            </ComboBox>
+
+        </StackPanel>
+
+        <StackPanel Margin="0,10,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock Text="同步源：" />
+
+            <Button Width="80"
+                    Margin="0,0,0,0"
+                    Command="{Binding ChangeSourcePathCommand}"
+                    Content="选择路径…" />
+
+        </StackPanel>
+
+        <TextBlock Margin="0,5,0,0"
+                   Text="{Binding SourceDriveType, StringFormat='{}设备类型：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding SourceDriveModel, StringFormat='{}设备型号：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding SourceDriveID, StringFormat='{}设备ID：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding SourceRelativePath, StringFormat='{}相对路径：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <StackPanel Margin="0,10,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock Text="同步至：" />
+
+            <Button Width="80"
+                    Margin="0,0,0,0"
+                    Command="{Binding ChangeDestinationPathCommand}"
+                    Content="选择路径…" />
+
+        </StackPanel>
+
+        <TextBlock Margin="0,5,0,0"
+                   Text="{Binding DestinationDriveType, StringFormat='{}设备类型：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding DestinationDriveModel, StringFormat='{}设备型号：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding DestinationDriveID, StringFormat='{}设备ID：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Margin="0,3,0,0"
+                   Text="{Binding DestinationRelativePath, StringFormat='{}相对路径：{0}', Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <Grid Margin="0,10,0,0">
+
+            <Button Width="70"
+                    HorizontalAlignment="Right"
+                    Command="{Binding CancelCommand}"
+                    Content="取消(_C)">
+
+                <Button.InputBindings>
+
+                    <KeyBinding Command="{Binding CancelCommand}"
+                                Gesture="Alt+C" />
+
+                </Button.InputBindings>
+
+            </Button>
+
+            <Button Width="70"
+                    Margin="0,0,85,0"
+                    HorizontalAlignment="Right"
+                    Command="{Binding OKCommand}"
+                    Content="确定(_O)">
+
+                <Button.InputBindings>
+
+                    <KeyBinding Command="{Binding OKCommand}"
+                                Gesture="Alt+O" />
+
+                </Button.InputBindings>
+
+            </Button>
+
+        </Grid>
+
+    </StackPanel>
+
+</ctrl:CustomWindow>

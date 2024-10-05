@@ -1,0 +1,250 @@
+﻿<Page x:Class="Lekco.Promissum.View.Sync.SyncProjectContentPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+      xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:icp="https://iconpark.oceanengine.com"
+      xmlns:local="clr-namespace:Lekco.Promissum.Control"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      Name="ProjectContentPage"
+      Title="ProjectContentPage"
+      MinWidth="640"
+      mc:Ignorable="d">
+
+    <Grid Background="{StaticResource CWhiteBrush}">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="200"
+                              MaxWidth="350" />
+            <ColumnDefinition MinWidth="650" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Name="LeftDock"
+                   Grid.Column="0"
+                   Background="{StaticResource CWhiteBrush}"
+                   LastChildFill="True">
+
+            <Grid Margin="10,10,0,2"
+                  DockPanel.Dock="Top">
+
+                <TextBlock FontSize="15"
+                           FontWeight="Bold"
+                           Text="任务列表" />
+
+                <CheckBox Margin="70,0,0,0"
+                          Command="{Binding ChangeIsAutoLoadCommand}"
+                          Content="启用计划任务"
+                          IsChecked="{Binding IsAutoLoad, Mode=OneWay}"
+                          Style="{StaticResource SliderCheckBox}" />
+
+            </Grid>
+
+            <Border BorderBrush="#B5B5B5"
+                    BorderThickness="0.5"
+                    DockPanel.Dock="Top" />
+
+            <Grid Height="30"
+                  Margin="30,0"
+                  DockPanel.Dock="Bottom">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <local:IconButton Grid.Column="0"
+                                  Height="17"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Command="{Binding NewTaskCommand}"
+                                  Kind="PlusCircleOutline"
+                                  ToolTip="新建任务" />
+
+                <local:IconButton Grid.Column="1"
+                                  Height="17"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Command="{Binding DeleteTaskCommand}"
+                                  IsEnabled="{Binding NavigationService.CurrentKey, Converter={StaticResource NullableBooleanConverter}}"
+                                  Kind="DeleteOutline"
+                                  ToolTip="删除任务" />
+
+                <local:IconButton Grid.Column="2"
+                                  Height="17"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Command="{Binding RenameProjectCommand}"
+                                  Kind="FormTextbox"
+                                  ToolTip="重命名项目" />
+
+            </Grid>
+
+            <ctrl:Navigator Name="Navigator"
+                            BorderBrush="Transparent"
+                            DockPanel.Dock="Top"
+                            NavigationService="{Binding NavigationService}"
+                            Orientation="Vertical">
+
+                <ctrl:Navigator.ItemContainerStyle>
+                    <Style TargetType="{x:Type ctrl:NavigationItem}">
+
+                        <Setter Property="Height"
+                                Value="45" />
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ctrl:NavigationItem}">
+
+                                    <Border Name="border"
+                                            Width="{TemplateBinding ActualWidth}"
+                                            Padding="0,2,0,5"
+                                            BorderBrush="{StaticResource CLightGrayBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            CornerRadius="3">
+
+                                        <StackPanel Margin="9,2,0,0"
+                                                    Orientation="Horizontal">
+
+                                            <Image Width="32"
+                                                   Height="32"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource DriveIcon}"
+                                                   Tag="{Binding SourceDriveType}" />
+
+                                            <StackPanel Margin="8,0,0,0"
+                                                        Orientation="Vertical">
+
+                                                <StackPanel Orientation="Horizontal">
+
+                                                    <TextBlock Name="caption"
+                                                               FontSize="14.5"
+                                                               FontWeight="Bold"
+                                                               Text="{Binding TaskName}" />
+
+                                                    <icon:PackIconMaterial Name="cog"
+                                                                           Width="13"
+                                                                           Height="13"
+                                                                           Margin="5,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Foreground="DimGray"
+                                                                           Kind="Cog"
+                                                                           Spin="True"
+                                                                           ToolTip="执行中……"
+                                                                           Visibility="{Binding TaskIsBusy, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                                                    <icon:PackIconMaterial Name="suspend"
+                                                                           Width="13"
+                                                                           Height="13"
+                                                                           Margin="5,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Foreground="DimGray"
+                                                                           Kind="CogPause"
+                                                                           ToolTip="任务已挂起"
+                                                                           Visibility="{Binding TaskIsSuspended, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+
+                                                </StackPanel>
+
+                                                <TextBlock Name="origin"
+                                                           FontSize="11.5"
+                                                           Foreground="DimGray"
+                                                           TextTrimming="CharacterEllipsis">
+
+                                                    <TextBlock.Text>
+                                                        <MultiBinding Mode="OneWay"
+                                                                      StringFormat="{}{0} → {1}">
+                                                            <Binding Path="SourceDriveName" />
+                                                            <Binding Path="DestinationDriveName" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+
+                                                </TextBlock>
+
+                                            </StackPanel>
+
+                                        </StackPanel>
+
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+
+                                        <Trigger Property="IsMouseOver" Value="True">
+
+                                            <Setter TargetName="border"
+                                                    Property="Background">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                        <GradientStop Offset="0.3" Color="#F2F2F2" />
+                                                        <GradientStop Offset="1" Color="#EDEDED" />
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+
+                                            </Setter>
+
+                                        </Trigger>
+
+                                        <Trigger Property="IsSelected" Value="True">
+
+                                            <Setter TargetName="border"
+                                                    Property="Background"
+                                                    Value="{StaticResource GCBlueToCDeepBlueBrush}" />
+
+                                            <Setter TargetName="caption"
+                                                    Property="Foreground"
+                                                    Value="{StaticResource CWhiteBrush}" />
+
+                                            <Setter TargetName="origin"
+                                                    Property="Foreground"
+                                                    Value="#EAEAEA" />
+
+                                            <Setter TargetName="cog"
+                                                    Property="Foreground"
+                                                    Value="{StaticResource CWhiteBrush}" />
+
+                                            <Setter TargetName="suspend"
+                                                    Property="Foreground"
+                                                    Value="{StaticResource CWhiteBrush}" />
+
+                                        </Trigger>
+
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Setter Property="VerticalAlignment"
+                                Value="Top" />
+
+                        <Setter Property="Width"
+                                Value="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ctrl:Navigator}}" />
+
+                    </Style>
+                </ctrl:Navigator.ItemContainerStyle>
+
+            </ctrl:Navigator>
+
+        </DockPanel>
+
+        <GridSplitter Grid.Column="0"
+                      Width="1"
+                      Background="#D0D0D0"
+                      ShowsPreview="True" />
+
+        <ScrollViewer Name="Scrollviewer"
+                      Grid.Column="1"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+
+            <ctrl:NavigatedFrame x:Name="NavigatedFrame"
+                                 HorizontalAlignment="Left"
+                                 NavigationService="{Binding NavigationService}" />
+
+        </ScrollViewer>
+
+    </Grid>
+
+</Page>

@@ -1,0 +1,89 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sync="clr-namespace:Lekco.Promissum.Model.Sync.Base">
+
+    <Style x:Key="DriveIcon"
+           TargetType="{x:Type Image}">
+
+        <Setter Property="Height"
+                Value="20" />
+
+        <Setter Property="SnapsToDevicePixels"
+                Value="True" />
+
+        <Setter Property="Source"
+                Value="/Resources/Icon/GenericDrive.png" />
+
+        <Setter Property="Width"
+                Value="20" />
+
+        <Style.Triggers>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Fixed}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/InternalDrive.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Removable}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/RemovableDrive.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Phone}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/Phone.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Camera}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/CameraDrive.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Network}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/NetworkFolder.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.AudioRecorder}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/MusicFolder.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.MediaPlayer}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/MusicDrive.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.Video}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/VideoFolder.png" />
+
+            </Trigger>
+
+            <Trigger Property="Tag" Value="{x:Static sync:DriveType.CDRom}">
+
+                <Setter Property="Source"
+                        Value="/Resources/Icon/CD.png" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+</ResourceDictionary>

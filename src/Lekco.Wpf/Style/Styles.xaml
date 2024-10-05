@@ -1,0 +1,20 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Color.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Menu.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Text.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Button.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/ProgressBar.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/RadioButton.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/CheckBox.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/ComboBox.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/ScrollBar.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/DataGrid.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Border.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Image.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Tooltip.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

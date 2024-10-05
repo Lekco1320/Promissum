@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter">
+
+    <cvt:ANDOperation x:Key="ANDOperation" />
+
+    <cvt:NOTOperation x:Key="NOTOperation" />
+
+    <cvt:FileSizeFormatter x:Key="FileSizeFormatter" />
+
+    <cvt:IEnumerableJoiner x:Key="IEnumerableJoiner" />
+
+    <cvt:DateTimeFormatter x:Key="DateTimeFormatter" />
+
+    <cvt:VisibilityReverser x:Key="VisibilityReverser" />
+
+    <cvt:DoubleCeilConverter x:Key="DoubleCeilConverter" />
+
+    <cvt:EnumDiscriptionGetter x:Key="EnumDiscriptionGetter" />
+
+    <cvt:IEnumerableCountGetter x:Key="IEnumerableCountGetter" />
+
+    <cvt:TextAlignmentConverter x:Key="TextAlignmentConverter" />
+
+    <cvt:NullableBooleanConverter x:Key="NullableBooleanConverter" />
+
+    <cvt:NullableVisibilityConverter x:Key="NullableVisibilityConverter" />
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+</ResourceDictionary>

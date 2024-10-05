@@ -1,0 +1,104 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="CLightGreen">#55B155</Color>
+
+    <Color x:Key="CPaleLightBlue">#91C8F2</Color>
+
+    <Color x:Key="CPaleBlue">#64AAFF</Color>
+
+    <Color x:Key="CLightBlue">#278EFB</Color>
+
+    <Color x:Key="CBlue">#007AFF</Color>
+
+    <Color x:Key="CDeepBlue">#006AFF</Color>
+
+    <Color x:Key="CWhite">White</Color>
+
+    <Color x:Key="CPaleGray">#FAFAFA</Color>
+
+    <Color x:Key="CLightGray">#F0F0F0</Color>
+
+    <Color x:Key="CGray">LightGray</Color>
+
+    <Color x:Key="CDarkGray">DarkGray</Color>
+
+    <Color x:Key="CDimGray">Gray</Color>
+
+    <Color x:Key="CPaleBlack">#6D6D6D</Color>
+
+    <Color x:Key="CBlack">Black</Color>
+
+    <Color x:Key="TopPanelGray">#F2F4F7</Color>
+
+    <Color x:Key="RowMouseOver">#D9D9D9</Color>
+
+    <Color x:Key="ChromeButtonBackground">#F0F8FF</Color>
+
+    <SolidColorBrush x:Key="CLightGreenBrush"
+                     Color="{StaticResource CLightGreen}" />
+
+    <SolidColorBrush x:Key="CPaleLightBlueBrush"
+                     Color="{StaticResource CPaleLightBlue}" />
+
+    <SolidColorBrush x:Key="CPaleBlueBrush"
+                     Color="{StaticResource CPaleBlue}" />
+
+    <SolidColorBrush x:Key="CLightBlueBrush"
+                     Color="{StaticResource CLightBlue}" />
+
+    <SolidColorBrush x:Key="CBlueBrush"
+                     Color="{StaticResource CBlue}" />
+
+    <SolidColorBrush x:Key="CDeepBlueBrush"
+                     Color="{StaticResource CDeepBlue}" />
+
+    <SolidColorBrush x:Key="CWhiteBrush"
+                     Color="{StaticResource CWhite}" />
+
+    <SolidColorBrush x:Key="CPaleGrayBrush"
+                     Color="{StaticResource CPaleGray}" />
+
+    <SolidColorBrush x:Key="CLightGrayBrush"
+                     Color="{StaticResource CLightGray}" />
+
+    <SolidColorBrush x:Key="CGrayBrush"
+                     Color="{StaticResource CGray}" />
+
+    <SolidColorBrush x:Key="CDarkGrayBrush"
+                     Color="{StaticResource CDarkGray}" />
+
+    <SolidColorBrush x:Key="CDimGrayBrush"
+                     Color="{StaticResource CDimGray}" />
+
+    <SolidColorBrush x:Key="CPaleBlackBrush"
+                     Color="{StaticResource CPaleBlack}" />
+
+    <SolidColorBrush x:Key="CBlackBrush"
+                     Color="{StaticResource CBlack}" />
+
+    <SolidColorBrush x:Key="TopPanelGrayBrush"
+                     Color="{StaticResource TopPanelGray}" />
+
+    <SolidColorBrush x:Key="RowMouseOverBrush"
+                     Color="{StaticResource RowMouseOver}" />
+
+    <SolidColorBrush x:Key="ChromeButtonBackgroundBrush"
+                     Color="{StaticResource ChromeButtonBackground}" />
+
+    <LinearGradientBrush x:Key="GCLightToCBlueBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="{StaticResource CLightBlue}" />
+        <GradientStop Offset="1" Color="{StaticResource CBlue}" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="GCBlueToCDeepBlueBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="{StaticResource CBlue}" />
+        <GradientStop Offset="1" Color="{StaticResource CDeepBlue}" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="GWhiteToCLightGrayBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0.3" Color="{StaticResource CWhite}" />
+        <GradientStop Offset="1" Color="{StaticResource CLightGray}" />
+    </LinearGradientBrush>
+
+</ResourceDictionary>

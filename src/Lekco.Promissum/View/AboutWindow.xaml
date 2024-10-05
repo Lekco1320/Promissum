@@ -1,0 +1,63 @@
+﻿<Window x:Class="Lekco.Promissum.View.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="关于"
+        Width="400"
+        Height="265"
+        Deactivated="CloseWindow"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      GlassFrameThickness="-1"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <StackPanel Margin="20,18"
+                Orientation="Vertical">
+
+        <Image Width="350"
+               Height="90"
+               SnapsToDevicePixels="True"
+               Source="/Resources/About_Logo.png" />
+
+        <TextBlock Margin="5,4,5,0"
+                   FontFamily="Times New Roman"
+                   FontSize="13"
+                   FontStyle="Italic"
+                   Foreground="#606060"
+                   LineHeight="14"
+                   TextWrapping="Wrap">
+
+            <Run FontStyle="Italic"
+                 FontWeight="Bold"
+                 Text="Promissum" />
+            <Run Text="is the past participle form of the Latin verb" />
+            <Run FontStyle="Italic"
+                 FontWeight="Bold"
+                 Text="promitto" /><Run Text=", meaning the thing that has been promised." />
+
+        </TextBlock>
+
+        <TextBlock Margin="5,8,0,0"
+                   Text="{Binding Version, StringFormat='{}版本：{0}'}" />
+
+        <TextBlock Margin="5,4,0,0"
+                   Text="作者：Lukas Zhang" />
+
+        <TextBlock Margin="5,4,0,0"
+                   Text="邮箱：Lekco_1320@qq.com" />
+
+        <TextBlock Margin="5,4,0,0"
+                   Text="仓库：https://github.com/Lekco1320/Promissum" />
+
+        <TextBlock Margin="5,5,0,0"
+                   Text="© 2023-2024 Lekco. Available under the Apache-2.0 License." />
+
+    </StackPanel>
+
+</Window>

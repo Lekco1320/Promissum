@@ -1,0 +1,115 @@
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.MainWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:app="clr-namespace:Lekco.Promissum.App"
+                   xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+                   xmlns:custom="clr-namespace:Lekco.Promissum.Control"
+                   xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:sync="clr-namespace:Lekco.Promissum.View.Sync"
+                   xmlns:view="clr-namespace:Lekco.Promissum.View"
+                   x:Name="window"
+                   Title="Lekco Promissum"
+                   Width="640"
+                   Height="525"
+                   MinWidth="640"
+                   MinHeight="525"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="CanResize"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
+
+    <Window.InputBindings>
+
+        <KeyBinding Command="{x:Static app:Promissum.QuitCommand}"
+                    Gesture="Control+S" />
+
+        <KeyBinding Command="{x:Static app:Promissum.QuitCommand}"
+                    Gesture="Control+Q" />
+
+    </Window.InputBindings>
+
+    <DockPanel LastChildFill="True">
+
+        <Menu HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              DockPanel.Dock="Top">
+
+            <MenuItem Header="文件(_F)">
+
+                <MenuItem Command="{Binding NewProjectCommand}"
+                          Header="新建(_N)"
+                          InputGestureText="Ctrl+N" />
+
+                <MenuItem Command="{Binding OpenProjectCommand}"
+                          Header="打开(_O)"
+                          InputGestureText="Ctrl+O" />
+
+                <MenuItem Command="{Binding SaveCommand}"
+                          Header="保存(_S)"
+                          InputGestureText="Ctrl+S"
+                          IsEnabled="{Binding CurrentProject, Converter={StaticResource NullableBooleanConverter}}" />
+
+                <Separator />
+
+                <MenuItem Command="{x:Static app:Promissum.QuitCommand}"
+                          Header="退出(_X)"
+                          InputGestureText="Ctrl+Q" />
+
+            </MenuItem>
+
+            <MenuItem Header="设置(_S)">
+
+                <MenuItem Command="{Binding RenameProjectCommand}"
+                          Header="重命名项目(_R)..."
+                          IsEnabled="{Binding CurrentProject, Converter={StaticResource NullableBooleanConverter}}" />
+
+                <Separator />
+
+                <MenuItem Command="{x:Static app:Promissum.ShowSyncEngineWindowCommand}"
+                          Header="备份引擎(_E)..." />
+
+                <MenuItem Command="{x:Static app:Promissum.SetAppConfigCommand}"
+                          Header="首选项(_N)..." />
+
+            </MenuItem>
+
+            <MenuItem Header="工具(_T)">
+
+                <MenuItem Command="{Binding ExplorerCommand}"
+                          Header="文件浏览器…" />
+
+            </MenuItem>
+
+            <MenuItem Header="关于(_A)">
+
+                <MenuItem Command="{x:Static app:Promissum.ShowAboutWindowCommand}"
+                          Header="关于 Lekco Promissum (_A)..." />
+
+                <MenuItem Command="{x:Static app:Promissum.OpenReposCommand}"
+                          Header="Github 仓库(_L)..." />
+
+            </MenuItem>
+
+        </Menu>
+
+        <ctrl:Navigator DockPanel.Dock="Top"
+                        NavigationService="{Binding NavigationService}"
+                        Orientation="Horizontal">
+
+            <ctrl:Navigator.ItemContainerStyle>
+                <Style TargetType="{x:Type ctrl:NavigationItem}">
+                    <Setter Property="Content"
+                            Value="{Binding Key.Name, RelativeSource={RelativeSource Self}}" />
+                </Style>
+            </ctrl:Navigator.ItemContainerStyle>
+
+        </ctrl:Navigator>
+
+        <ctrl:NavigatedFrame DockPanel.Dock="Top"
+                             NavigationService="{Binding NavigationService}" />
+
+    </DockPanel>
+
+</ctrl:CustomWindow>

@@ -1,0 +1,493 @@
+﻿<Page x:Class="Lekco.Promissum.View.StartPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:app="clr-namespace:Lekco.Promissum.App"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      Name="ParentWindow"
+      Title="StartPage"
+      d:DesignHeight="450"
+      d:DesignWidth="600"
+      Background="{StaticResource CWhiteBrush}"
+      mc:Ignorable="d">
+
+    <Grid Background="{StaticResource CPaleGrayBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="55" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="25,0,0,0"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal">
+
+            <icon:PackIconMaterial Width="18"
+                                   Height="18"
+                                   VerticalAlignment="Center"
+                                   Kind="History" />
+
+            <TextBlock Margin="7.5,0,0,0"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Text="最近使用" />
+
+        </StackPanel>
+
+        <Grid Grid.Row="1"
+              Margin="20,10,20,5">
+
+            <TextBlock Margin="0,25,0,0"
+                       HorizontalAlignment="Center"
+                       Foreground="{StaticResource CDimGrayBrush}"
+                       Text="无最近使用项。" />
+
+            <DataGrid Name="DataGrid"
+                      CanUserReorderColumns="False"
+                      CanUserResizeRows="False"
+                      CanUserSortColumns="False"
+                      HorizontalGridLinesBrush="{StaticResource CGrayBrush}"
+                      IsReadOnly="True"
+                      ItemsSource="{Binding AccessedFiles}"
+                      RowHeaderWidth="0"
+                      VerticalGridLinesBrush="Transparent">
+
+                <DataGrid.Template>
+                    <ControlTemplate TargetType="{x:Type DataGrid}">
+
+                        <Border x:Name="border"
+                                Padding="{TemplateBinding Padding}"
+                                Background="Transparent"
+                                SnapsToDevicePixels="True">
+
+                            <ScrollViewer x:Name="DG_ScrollViewer"
+                                          Background="Transparent"
+                                          Focusable="False">
+
+                                <ScrollViewer.Template>
+                                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+
+                                        <Grid>
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Border Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}">
+
+                                                <Button Background="Transparent"
+                                                        Command="{x:Static DataGrid.SelectAllCommand}"
+                                                        Focusable="false"
+                                                        Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.All}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+
+                                            </Border>
+
+                                            <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter"
+                                                                            Grid.Column="1"
+                                                                            FontSize="{TemplateBinding FontSize}"
+                                                                            Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+
+                                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                                                    Grid.Row="1"
+                                                                    Grid.ColumnSpan="2"
+                                                                    CanContentScroll="{TemplateBinding CanContentScroll}" />
+
+                                            <ScrollBar x:Name="PART_VerticalScrollBar"
+                                                       Grid.Row="1"
+                                                       Grid.Column="2"
+                                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                                       Orientation="Vertical"
+                                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                                       Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
+
+                                            <Grid Grid.Row="2"
+                                                  Grid.Column="1">
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="{Binding NonFrozenColumnsViewportHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <ScrollBar x:Name="PART_HorizontalScrollBar"
+                                                           Grid.Column="1"
+                                                           Maximum="{TemplateBinding ScrollableWidth}"
+                                                           Orientation="Horizontal"
+                                                           ViewportSize="{TemplateBinding ViewportWidth}"
+                                                           Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                                           Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
+
+                                            </Grid>
+
+                                        </Grid>
+
+                                    </ControlTemplate>
+                                </ScrollViewer.Template>
+
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+
+                            </ScrollViewer>
+                        </Border>
+
+                    </ControlTemplate>
+                </DataGrid.Template>
+
+                <DataGrid.ColumnHeaderStyle>
+                    <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
+                           TargetType="{x:Type DataGridColumnHeader}">
+
+                        <Setter Property="Background"
+                                Value="{StaticResource CPaleGrayBrush}" />
+
+                        <Setter Property="FontSize"
+                                Value="13" />
+
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Left" />
+
+                        <Setter Property="MinHeight"
+                                Value="20" />
+
+                        <Setter Property="Padding"
+                                Value="2,0,0,0" />
+
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}">
+
+                        <Setter Property="Background"
+                                Value="{StaticResource CPaleGrayBrush}" />
+
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+
+                                <ContextMenu>
+
+                                    <MenuItem Command="{x:Static app:Promissum.OpenSpecifiedProjectCommand}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext.FullName, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              Header="打开(_O)…" />
+
+                                    <MenuItem Command="{x:Static app:AccessedFileManager.RemoveFileCommand}"
+                                              CommandParameter="{Binding}"
+                                              Header="移除(_R)…" />
+
+                                </ContextMenu>
+
+                            </Setter.Value>
+                        </Setter>
+
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CBlackBrush}" />
+
+                        <Setter Property="MinHeight"
+                                Value="20" />
+
+                        <Style.Triggers>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+
+                                <Setter Property="Background"
+                                        Value="{StaticResource CLightGrayBrush}" />
+
+                            </Trigger>
+
+                            <MultiTrigger>
+
+                                <MultiTrigger.Conditions>
+
+                                    <Condition Property="IsSelected" Value="True" />
+
+                                    <Condition Property="IsEnabled" Value="True" />
+
+                                    <Condition Property="Selector.IsSelectionActive" Value="True" />
+
+                                </MultiTrigger.Conditions>
+
+                                <MultiTrigger.Setters>
+
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource CGrayBrush}" />
+
+                                </MultiTrigger.Setters>
+
+                            </MultiTrigger>
+
+                        </Style.Triggers>
+
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.CellStyle>
+                    <Style BasedOn="{StaticResource DataGridLeftCellStyle}"
+                           TargetType="{x:Type DataGridCell}">
+
+                        <Setter Property="BorderThickness"
+                                Value="0" />
+
+                        <Setter Property="Foreground"
+                                Value="Black" />
+
+                    </Style>
+                </DataGrid.CellStyle>
+
+                <DataGrid.Columns>
+
+                    <DataGridTemplateColumn Width="45">
+
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
+                                   TargetType="{x:Type DataGridColumnHeader}">
+
+                                <Setter Property="Background"
+                                        Value="Transparent" />
+
+                            </Style>
+
+                        </DataGridTemplateColumn.HeaderStyle>
+
+                        <DataGridTemplateColumn.Header>
+                            <icon:PackIconMaterial Width="13"
+                                                   Height="13"
+                                                   HorizontalAlignment="Center"
+                                                   Kind="FileOutline" />
+                        </DataGridTemplateColumn.Header>
+
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Width="28"
+                                       Height="28"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+
+                                    <Image.Source>
+                                        <Binding Converter="{StaticResource FileIconGetter}"
+                                                 Mode="OneWay"
+                                                 Path="Extension">
+
+                                            <Binding.ConverterParameter>
+                                                <sys:Boolean>true</sys:Boolean>
+                                            </Binding.ConverterParameter>
+
+                                        </Binding>
+                                    </Image.Source>
+
+                                </Image>
+
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style BasedOn="{StaticResource {x:Type DataGridCell}}"
+                                   TargetType="{x:Type DataGridCell}" />
+                        </DataGridTemplateColumn.CellStyle>
+
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="0.7*"
+                                            Header="名称">
+
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style BasedOn="{StaticResource DataGridColumnLeftHeader}"
+                                   TargetType="{x:Type DataGridColumnHeader}">
+
+                                <Setter Property="Background"
+                                        Value="Transparent" />
+
+                                <Setter Property="Margin"
+                                        Value="3,0,0,0" />
+
+                            </Style>
+
+                        </DataGridTemplateColumn.HeaderStyle>
+
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="5,5,5,5"
+                                            HorizontalAlignment="Left"
+                                            Orientation="Vertical">
+
+                                    <TextBlock FontSize="14"
+                                               FontWeight="Bold"
+                                               Text="{Binding Name}" />
+
+                                    <TextBlock FontSize="10.5"
+                                               Text="{Binding FullName}" />
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Width="0.3*"
+                                        Binding="{Binding LastAccessTime, Converter={StaticResource DateTimeFormatter}}"
+                                        Header="访问日期" />
+
+                </DataGrid.Columns>
+
+                <DataGrid.InputBindings>
+                    <MouseBinding Command="{Binding DoubleClickCommand}"
+                                  CommandParameter="{Binding ElementName=DataGrid}"
+                                  MouseAction="LeftDoubleClick" />
+                </DataGrid.InputBindings>
+
+            </DataGrid>
+
+        </Grid>
+
+        <StackPanel Grid.Row="2"
+                    Margin="20,0,20,10"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+
+            <Button Width="140"
+                    Height="32"
+                    Margin="0,0,45,0"
+                    VerticalAlignment="Center"
+                    Command="{x:Static app:Promissum.NewProjectCommand}"
+                    Content="新建项目(_N)">
+
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+
+                        <Border Name="Border"
+                                BorderBrush="{StaticResource CGrayBrush}"
+                                BorderThickness="1"
+                                CornerRadius="3">
+
+                            <StackPanel VerticalAlignment="Center"
+                                        Orientation="Horizontal">
+
+                                <Path Width="18"
+                                      Height="18"
+                                      Margin="12,0,0,0"
+                                      Data="M20,18H19V17a1,1,0,0,0-2,0v1H16a1,1,0,0,0,0,2h1v1a1,1,0,0,0,2,0V20h1a1,1,0,0,0,0-2Zm-7,2H6a1,1,0,0,1-1-1V5A1,1,0,0,1,6,4h5V7a3,3,0,0,0,3,3h3v3a1,1,0,0,0,2,0V9s0,0,0-.06a1.31,1.31,0,0,0-.06-.27l0-.09a1.07,1.07,0,0,0-.19-.28h0l-6-6h0a1.07,1.07,0,0,0-.28-.19.29.29,0,0,0-.1,0A1.1,1.1,0,0,0,12.06,2H6A3,3,0,0,0,3,5V19a3,3,0,0,0,3,3h7a1,1,0,0,0,0-2ZM13,5.41,15.59,8H14a1,1,0,0,1-1-1ZM8,8a1,1,0,0,0,0,2H9A1,1,0,0,0,9,8Zm5,8H8a1,1,0,0,0,0,2h5a1,1,0,0,0,0-2Zm1-4H8a1,1,0,0,0,0,2h6a1,1,0,0,0,0-2Z"
+                                      Fill="{StaticResource GCBlueToCDeepBlueBrush}"
+                                      Stretch="Uniform" />
+
+                                <ContentPresenter Margin="7.5,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  Content="{TemplateBinding Content}"
+                                                  RecognizesAccessKey="True"
+                                                  TextBlock.FontSize="14" />
+
+                            </StackPanel>
+
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+
+                                <Setter TargetName="Border"
+                                        Property="Background"
+                                        Value="{StaticResource CLightGrayBrush}" />
+
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+
+                                <Setter TargetName="Border"
+                                        Property="Background"
+                                        Value="{StaticResource CPaleGrayBrush}" />
+
+                                <Setter TargetName="Border"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource CDimGrayBrush}" />
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+
+            </Button>
+
+            <Button Width="140"
+                    Height="32"
+                    Margin="0,0,50,0"
+                    VerticalAlignment="Center"
+                    Command="{x:Static app:Promissum.OpenProjectCommand}"
+                    Content="打开项目(_O)">
+
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+
+                        <Border Name="Border"
+                                BorderBrush="{StaticResource CGrayBrush}"
+                                BorderThickness="1"
+                                CornerRadius="3">
+
+                            <StackPanel VerticalAlignment="Center"
+                                        Orientation="Horizontal">
+
+                                <Path Width="18"
+                                      Height="18"
+                                      Margin="12,0,0,0"
+                                      Data="M 6 2 C 4.9000011 2 4 2.9000011 4 4 L 4 20 C 4 21.099999 4.9000011 22 6 22 L 15 22 L 15 20 L 6 20 L 6 4 L 13 4 L 13 9 L 18 9 L 18 14 L 20 14 L 20 8 L 14 2 L 6 2 z M 17 16 L 17 21.660156 L 19 21.660156 L 19 19.419922 L 21.949219 22.369141 L 23.359375 20.960938 L 20.410156 18 L 22.650391 18 L 22.650391 16 L 17 16 z "
+                                      Fill="{StaticResource GCBlueToCDeepBlueBrush}"
+                                      Stretch="Uniform" />
+
+                                <ContentPresenter Margin="7.5,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  Content="{TemplateBinding Content}"
+                                                  RecognizesAccessKey="True"
+                                                  TextBlock.FontSize="14" />
+
+                            </StackPanel>
+
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+
+                                <Setter TargetName="Border"
+                                        Property="Background"
+                                        Value="{StaticResource CLightGrayBrush}" />
+
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+
+                                <Setter TargetName="Border"
+                                        Property="Background"
+                                        Value="{StaticResource CPaleGrayBrush}" />
+
+                                <Setter TargetName="Border"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource CDimGrayBrush}" />
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+
+            </Button>
+
+            <Image Width="160"
+                   Margin="0,-5,10,0"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   SnapsToDevicePixels="True"
+                   Source="/Resources/About_Logo.png" />
+
+        </StackPanel>
+
+    </Grid>
+</Page>

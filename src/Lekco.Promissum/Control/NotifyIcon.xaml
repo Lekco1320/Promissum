@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="Lekco.Promissum.Control.NotifyIcon"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hcd="http://www.hardcodet.net/taskbar"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <hcd:TaskbarIcon Name="appIcon"
+                     DoubleClickCommand="{Binding LeftClickCommand}"
+                     IconSource="/Resources/Logo.ico"
+                     LeftClickCommand="{Binding LeftClickCommand}"
+                     ToolTipText="Lekco Promissum">
+
+        <hcd:TaskbarIcon.ContextMenu>
+            <ContextMenu BorderBrush="{StaticResource CGrayBrush}"
+                         BorderThickness="1">
+
+                <MenuItem Command="{Binding ShowSyncEngineWindowCommand}"
+                          Header="任务引擎" />
+
+                <Separator />
+
+                <MenuItem Command="{Binding QuitCommand}"
+                          Header="退出" />
+
+            </ContextMenu>
+        </hcd:TaskbarIcon.ContextMenu>
+
+    </hcd:TaskbarIcon>
+
+</UserControl>
