@@ -1,0 +1,81 @@
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.ExceptionRecordsWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+                   xmlns:cvt="clr-namespace:Lekco.Promissum.Utility.Converter"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   Title="异常列表"
+                   MinWidth="500"
+                   MinHeight="450"
+                   Icon="/Resources/Logo.png"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
+
+    <Grid Margin="20,15,20,10">
+
+        <Grid VerticalAlignment="Top">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Text="{Binding ExecutionID, StringFormat='{}执行记录ID：{0}'}" />
+
+            <TextBlock Grid.Column="1"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Text="{Binding ExecutionTrigger, Converter={StaticResource EnumDiscriptionGetter}, StringFormat='{}执行原因：{0}'}" />
+
+            <TextBlock Grid.Column="2"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Text="{Binding RecordsCount, StringFormat='{}记录数：{0} 条'}" />
+
+        </Grid>
+
+        <DataGrid Margin="0,22,0,0"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  ItemsSource="{Binding ExceptionRecords}"
+                  RowHeaderWidth="0">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Width="30"
+                                    Binding="{Binding ID, Mode=OneWay}"
+                                    Header="ID" />
+
+                <DataGridTextColumn Width="200"
+                                    Binding="{Binding FileFullName, Mode=OneWay}"
+                                    CellStyle="{StaticResource DataGridFileNameCellStyle}"
+                                    Header="文件名" />
+
+                <DataGridTextColumn Width="120"
+                                    Binding="{Binding OccurredTime, Converter={StaticResource DateTimeFormatter}, Mode=OneWay}"
+                                    Header="发生时间" />
+
+                <DataGridTextColumn Width="80"
+                                    Binding="{Binding OperationType, Converter={StaticResource EnumDiscriptionGetter}, Mode=OneWay}"
+                                    Header="操作类型" />
+
+                <DataGridTextColumn Width="80"
+                                    Binding="{Binding ExceptionType, Converter={StaticResource EnumDiscriptionGetter}, Mode=OneWay}"
+                                    Header="异常类型" />
+
+                <DataGridTextColumn Width="80"
+                                    Binding="{Binding ExceptionMessage, Mode=OneWay}"
+                                    Header="异常消息" />
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+
+</ctrl:CustomWindow>

@@ -1,0 +1,44 @@
+﻿<ctrl:CustomWindow x:Class="Lekco.Wpf.Control.DualProgressDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Wpf.Control"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   Width="330"
+                   Height="135"
+                   EnableClose="False"
+                   EnableMaximize="False"
+                   EnableMinimize="False"
+                   EnableRestore="False"
+                   ShowInTaskbar="False"
+                   Topmost="True"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
+
+    <StackPanel Margin="15">
+
+        <TextBlock Margin="2,0"
+                   VerticalAlignment="Center"
+                   Text="{Binding FirstText, Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <ProgressBar Height="10"
+                     Margin="0,3,0,0"
+                     IsIndeterminate="{Binding FirstIsIndeterminate}"
+                     Style="{StaticResource DianogalProgressBarStyle}"
+                     Value="{Binding FirstValue, Mode=OneWay}" />
+
+        <TextBlock Margin="2,12,2,0"
+                   VerticalAlignment="Center"
+                   Text="{Binding SecondText, Mode=OneWay}"
+                   TextTrimming="CharacterEllipsis" />
+
+        <ProgressBar Height="10"
+                     Margin="0,3,0,0"
+                     IsIndeterminate="{Binding SecondIsIndeterminate}"
+                     Style="{StaticResource DianogalProgressBarStyle}"
+                     Value="{Binding SecondValue, Mode=OneWay}" />
+
+    </StackPanel>
+
+</ctrl:CustomWindow>

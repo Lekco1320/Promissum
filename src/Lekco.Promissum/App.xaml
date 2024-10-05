@@ -1,0 +1,21 @@
+﻿<Application x:Class="Lekco.Promissum.App.Promissum"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:control="clr-namespace:Lekco.Promissum.Control"
+             Exit="Exiting"
+             ShutdownMode="OnExplicitShutdown"
+             Startup="StartUp">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Resources.xaml" />
+                <ResourceDictionary Source="/Style/Text.xaml" />
+                <ResourceDictionary Source="/Style/Font.xaml" />
+                <ResourceDictionary Source="/Style/Image.xaml" />
+                <ResourceDictionary Source="/Style/DataGrid.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

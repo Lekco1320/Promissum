@@ -1,0 +1,519 @@
+﻿<Page x:Class="Lekco.Promissum.View.Sync.SyncTaskModifyPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helper="clr-namespace:Lekco.Wpf.Utility.Helper;assembly=Lekco.Wpf"
+      xmlns:local="clr-namespace:Lekco.Promissum.Control"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:sys="clr-namespace:Microsoft.CSharp;assembly=System.CodeDom"
+      Title="SyncTaskModifyPage"
+      MinWidth="440"
+      mc:Ignorable="d">
+
+    <Grid Background="White">
+
+        <StackPanel Margin="25,15,20,15"
+                    Orientation="Vertical">
+
+            <StackPanel Orientation="Horizontal">
+
+                <TextBox FontSize="18"
+                         FontWeight="Bold"
+                         Text="{Binding TaskName}" />
+
+                <local:IconButton Width="13"
+                                  Height="13"
+                                  Margin="5,7,0,0"
+                                  Command="{Binding CancelCommand}"
+                                  Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
+                                  Kind="ArrowLeftCircle"
+                                  ToolTip="取消更改并返回" />
+
+                <local:IconButton Width="13"
+                                  Height="13"
+                                  Margin="5,7,0,0"
+                                  Command="{Binding SaveCommand}"
+                                  Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
+                                  Kind="ContentSaveCheck"
+                                  ToolTip="保存更改" />
+
+            </StackPanel>
+
+            <TextBlock Margin="0,10,0,0"
+                       FontSize="15"
+                       FontWeight="Bold"
+                       Text="基本信息" />
+
+            <TextBlock Margin="0,5,0,0"
+                       Text="{Binding SourceDriveName, StringFormat='{}同步源设备：{0}', Mode=OneWay}" />
+
+            <TextBlock Margin="0,1,0,0"
+                       Text="{Binding SourcePath, StringFormat='{}同步源路径：{0}', Mode=OneWay}" />
+
+            <TextBlock Margin="0,1,0,0"
+                       Text="{Binding DestinationDriveName, StringFormat='{}同步至设备：{0}', Mode=OneWay}" />
+
+            <TextBlock Margin="0,1,0,0"
+                       Text="{Binding DestinationPath, StringFormat='{}同步至路径：{0}', Mode=OneWay}" />
+
+            <TextBlock Margin="0,15,0,0"
+                       FontSize="15"
+                       FontWeight="Bold"
+                       Text="同步设置" />
+
+            <StackPanel Margin="0,5,0,0"
+                        Orientation="Horizontal">
+
+                <TextBlock Text="文件同步模式：" />
+
+                <ComboBox Width="90"
+                          SelectedIndex="{Binding FileSyncModeIndex}">
+
+                    <ComboBoxItem Content="总是同步" />
+                    <ComboBoxItem Content="同步较新的" />
+                    <ComboBoxItem Content="同步较旧的" />
+                    <ComboBoxItem Content="同步较大的" />
+                    <ComboBoxItem Content="同步较小的" />
+
+                </ComboBox>
+
+            </StackPanel>
+
+            <CheckBox Name="EnableCleanUp"
+                      Margin="0,4,0,0"
+                      Content="启用目录清理"
+                      IsChecked="{Binding EnableCleanUp}" />
+
+            <RadioButton Margin="15,5,0,0"
+                         Content="直接删除老旧和无关文件"
+                         IsChecked="{Binding ElementName=EnableReserve, Path=IsChecked, Converter={StaticResource NOTOperation}, Mode=OneWay}"
+                         IsEnabled="{Binding ElementName=EnableCleanUp, Path=IsChecked}" />
+
+            <StackPanel Margin="15,5,0,0"
+                        Orientation="Horizontal">
+
+                <RadioButton Name="EnableReserve"
+                             VerticalAlignment="Center"
+                             Content="保留老旧和无关文件至指定目录"
+                             IsChecked="{Binding EnableReserve, Mode=OneWay}"
+                             IsEnabled="{Binding ElementName=EnableCleanUp, Path=IsChecked}" />
+
+                <Button Name="SelectReservePath"
+                        Width="80"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding SelectReserveCommand, Mode=OneWay}"
+                        Content="选择目录…">
+
+                    <Button.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableCleanUp"
+                                     Path="IsChecked" />
+                            <Binding ElementName="EnableReserve"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </Button.IsEnabled>
+
+                </Button>
+
+            </StackPanel>
+
+            <TextBlock Margin="30,5,0,0"
+                       IsEnabled="{Binding ElementName=SelectReservePath, Path=IsEnabled}"
+                       Text="{Binding ReserveDriveName, StringFormat='{}设备名：{0}', Mode=OneWay}" />
+
+            <TextBlock Margin="30,3,0,0"
+                       IsEnabled="{Binding ElementName=SelectReservePath, Path=IsEnabled}"
+                       Text="{Binding ReserveRelativePath, StringFormat='{}保留目录：{0}', Mode=OneWay}" />
+
+            <StackPanel Margin="30,5,0,0"
+                        IsEnabled="{Binding ElementName=SelectReservePath, Path=IsEnabled}"
+                        Orientation="Horizontal">
+
+                <CheckBox Name="EnableRetentionPeriod"
+                          Content="设置保留期限："
+                          IsChecked="{Binding EnableRetentionPeriod}" />
+
+                <ctrl:NumericUpDown Name="RetentionPeriodDaySlider"
+                                    Maximum="1e3"
+                                    Minimum="0"
+                                    Value="{Binding RetentionPeriodDay}">
+
+                    <Slider.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableRetentionPeriod"
+                                     Path="IsEnabled" />
+                            <Binding ElementName="EnableRetentionPeriod"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </Slider.IsEnabled>
+
+                </ctrl:NumericUpDown>
+
+                <TextBlock Margin="4,0"
+                           IsEnabled="{Binding ElementName=RetentionPeriodDaySlider, Path=IsEnabled}"
+                           Text="天" />
+
+                <ctrl:NumericUpDown IsEnabled="{Binding ElementName=RetentionPeriodDaySlider, Path=IsEnabled}"
+                                    Maximum="59"
+                                    Minimum="0"
+                                    Value="{Binding RetentionPeriodHour}" />
+
+                <TextBlock Margin="4,0"
+                           IsEnabled="{Binding ElementName=RetentionPeriodDaySlider, Path=IsEnabled}"
+                           Text="时" />
+
+                <ctrl:NumericUpDown IsEnabled="{Binding ElementName=RetentionPeriodDaySlider, Path=IsEnabled}"
+                                    Maximum="59"
+                                    Minimum="0"
+                                    Value="{Binding RetentionPeriodMinute}" />
+
+                <TextBlock Margin="4,0,0,0"
+                           IsEnabled="{Binding ElementName=RetentionPeriodDaySlider, Path=IsEnabled}"
+                           Text="分" />
+
+            </StackPanel>
+
+            <CheckBox Name="MarkVersionCheckBox"
+                      Margin="30,5,0,0"
+                      Content="为保留文件标记版本号"
+                      IsChecked="{Binding EnableVersioning}"
+                      IsEnabled="{Binding ElementName=SelectReservePath, Path=IsEnabled}" />
+
+            <StackPanel Margin="45,5,0,0"
+                        IsEnabled="{Binding ElementName=SelectReservePath, Path=IsEnabled}"
+                        Orientation="Horizontal">
+
+                <CheckBox Name="EnableMaxVersionRetention"
+                          Content="至多保留"
+                          IsChecked="{Binding EnableMaxVersionRetention}">
+
+                    <CheckBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="SelectReservePath"
+                                     Path="IsEnabled" />
+                            <Binding ElementName="MarkVersionCheckBox"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </CheckBox.IsEnabled>
+
+                </CheckBox>
+
+                <ctrl:NumericUpDown Name="EnableMaxVersionRetentionSlider"
+                                    Margin="5,0"
+                                    Maximum="1e2"
+                                    Minimum="1"
+                                    Value="{Binding MaxVersion}">
+
+                    <Slider.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableMaxVersionRetention"
+                                     Path="IsEnabled" />
+                            <Binding ElementName="EnableMaxVersionRetention"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </Slider.IsEnabled>
+
+                </ctrl:NumericUpDown>
+
+                <TextBlock IsEnabled="{Binding ElementName=EnableMaxVersionRetentionSlider, Path=IsEnabled}"
+                           Text="个版本" />
+
+            </StackPanel>
+
+            <StackPanel Margin="0,4,0,0"
+                        Orientation="Horizontal">
+
+                <CheckBox Name="EnableExclusion"
+                          Content="排除符合以下规则的文件"
+                          IsChecked="{Binding EnableExclusionRules}" />
+
+                <Button Width="65"
+                        Margin="10,0,0,0"
+                        Command="{Binding AddRuleCommand}"
+                        Content="添加…"
+                        IsEnabled="{Binding ElementName=EnableExclusion, Path=IsChecked}" />
+
+                <Button Width="65"
+                        Margin="10,0,0,0"
+                        Command="{Binding ModifyRuleCommand}"
+                        CommandParameter="{Binding ElementName=ExclusionsGrid, Path=SelectedItem}"
+                        Content="修改…">
+
+                    <Button.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableExclusion"
+                                     Path="IsChecked" />
+                            <Binding Converter="{StaticResource NullableBooleanConverter}"
+                                     ElementName="ExclusionsGrid"
+                                     Path="SelectedItem" />
+                        </MultiBinding>
+                    </Button.IsEnabled>
+
+                </Button>
+
+                <Button Width="65"
+                        Margin="10,0,0,0"
+                        Command="{Binding RemoveRuleCommand}"
+                        CommandParameter="{Binding ElementName=ExclusionsGrid, Path=SelectedItem}"
+                        Content="删除…">
+
+                    <Button.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableExclusion"
+                                     Path="IsChecked" />
+                            <Binding Converter="{StaticResource NullableBooleanConverter}"
+                                     ElementName="ExclusionsGrid"
+                                     Path="SelectedItem" />
+                        </MultiBinding>
+                    </Button.IsEnabled>
+
+                </Button>
+
+            </StackPanel>
+
+            <DataGrid Name="ExclusionsGrid"
+                      Width="380"
+                      Margin="15,7,0,0"
+                      HorizontalAlignment="Left"
+                      helper:DataGridHelper.DisplayRowNumber="True"
+                      IsEnabled="{Binding ElementName=EnableExclusion, Path=IsChecked}"
+                      ItemsSource="{Binding ExclusionRules}">
+
+                <DataGrid.Columns>
+
+                    <DataGridTemplateColumn Width="*"
+                                            Header="排除规则">
+
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type DataGridCell}">
+
+                                            <Grid Margin="4,2,0,0">
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+
+                                                <Grid Grid.Row="0"
+                                                      Grid.Column="0">
+
+                                                    <TextBlock Name="SearchPatternTextBlock"
+                                                               Padding="3,1"
+                                                               Text="{Binding SearchPattern, StringFormat='{}路径匹配：{0}'}"
+                                                               Visibility="{Binding EnableSearchPattern, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                                    <TextBlock Padding="3,1"
+                                                               Text="任意文件路径"
+                                                               Visibility="{Binding ElementName=SearchPatternTextBlock, Path=Visibility, Converter={StaticResource VisibilityReverser}}" />
+
+                                                </Grid>
+
+                                                <Grid Grid.Row="0"
+                                                      Grid.Column="1">
+
+                                                    <TextBlock Name="ExtensionFilterTextBlock"
+                                                               Padding="3,1"
+                                                               Text="{Binding ExtensionFilter, Mode=OneWay, Converter={StaticResource IEnumerableJoiner}, ConverterParameter=', ', StringFormat='{}拓展名：{0}'}"
+                                                               Visibility="{Binding EnableExtensionFilter, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                                    <TextBlock Padding="3,1"
+                                                               Text="任意拓展名"
+                                                               Visibility="{Binding ElementName=ExtensionFilterTextBlock, Path=Visibility, Converter={StaticResource VisibilityReverser}}" />
+
+                                                </Grid>
+
+                                                <Grid Grid.Row="1"
+                                                      Grid.Column="0">
+
+                                                    <TextBlock Name="RegexPatternTextBlock"
+                                                               Padding="3,1"
+                                                               Text="{Binding RegexPattern, StringFormat='{}正则匹配：{0}'}"
+                                                               Visibility="{Binding EnableRegexPattern, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                                    <TextBlock Padding="3,1"
+                                                               Text="无正则匹配"
+                                                               Visibility="{Binding ElementName=RegexPatternTextBlock, Path=Visibility, Converter={StaticResource VisibilityReverser}}" />
+
+                                                </Grid>
+
+                                                <Grid Grid.Row="1"
+                                                      Grid.Column="1">
+
+                                                    <TextBlock Name="SizeFilterTextBlock"
+                                                               Padding="3,1"
+                                                               Visibility="{Binding EnableSizeFilter, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                                                        <TextBlock.Text>
+                                                            <MultiBinding Mode="OneWay"
+                                                                          StringFormat="{}文件大小：{0} ~ {1}">
+                                                                <Binding Converter="{StaticResource FileSizeFormatter}"
+                                                                         Path="SizeMinLimit" />
+                                                                <Binding Converter="{StaticResource FileSizeFormatter}"
+                                                                         Path="SizeMaxLimit" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+
+                                                    </TextBlock>
+
+                                                    <TextBlock Padding="3,1"
+                                                               Text="任意文件大小"
+                                                               Visibility="{Binding ElementName=SizeFilterTextBlock, Path=Visibility, Converter={StaticResource VisibilityReverser}}" />
+
+                                                </Grid>
+
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+
+                    </DataGridTemplateColumn>
+
+                </DataGrid.Columns>
+
+            </DataGrid>
+
+            <TextBlock Margin="0,15,0,0"
+                       FontSize="15"
+                       FontWeight="Bold"
+                       Text="计划任务" />
+
+            <CheckBox Name="EnableSchedule"
+                      Margin="0,5,0,0"
+                      Content="启用计划任务"
+                      IsChecked="{Binding EnableSchedule}" />
+
+            <CheckBox Margin="15,5,0,0"
+                      Content="设备就绪时自动执行"
+                      IsChecked="{Binding EnableOnDriveReady}"
+                      IsEnabled="{Binding ElementName=EnableSchedule, Path=IsChecked}" />
+
+            <StackPanel Margin="15,5,0,0"
+                        IsEnabled="{Binding ElementName=EnableSchedule, Path=IsChecked}"
+                        Orientation="Horizontal">
+
+                <CheckBox Name="ScheduledDays"
+                          Content="定期执行："
+                          IsChecked="{Binding EnableScheduledDays}" />
+
+                <ctrl:MultiComboBox MinWidth="120"
+                                    MaxWidth="200"
+                                    Margin="5,0,0,0"
+                                    SelectedIndexes="{Binding ScheduledDays}">
+
+                    <ctrl:MultiComboBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="ScheduledDays"
+                                     Path="IsEnabled" />
+                            <Binding ElementName="ScheduledDays"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </ctrl:MultiComboBox.IsEnabled>
+
+                    <ctrl:MultiComboBoxItem Content="无"
+                                            Visibility="Collapsed" />
+                    <ctrl:MultiComboBoxItem Content="每周日" />
+                    <ctrl:MultiComboBoxItem Content="每周一" />
+                    <ctrl:MultiComboBoxItem Content="每周二" />
+                    <ctrl:MultiComboBoxItem Content="每周三" />
+                    <ctrl:MultiComboBoxItem Content="每周四" />
+                    <ctrl:MultiComboBoxItem Content="每周五" />
+                    <ctrl:MultiComboBoxItem Content="每周六" />
+                    <ctrl:MultiComboBoxItem Content="每一月初" />
+                    <ctrl:MultiComboBoxItem Content="每二月初" />
+                    <ctrl:MultiComboBoxItem Content="每三月初" />
+                    <ctrl:MultiComboBoxItem Content="每四月初" />
+                    <ctrl:MultiComboBoxItem Content="每五月初" />
+                    <ctrl:MultiComboBoxItem Content="每六月初" />
+                    <ctrl:MultiComboBoxItem Content="每七月初" />
+                    <ctrl:MultiComboBoxItem Content="每八月初" />
+                    <ctrl:MultiComboBoxItem Content="每九月初" />
+                    <ctrl:MultiComboBoxItem Content="每十月初" />
+                    <ctrl:MultiComboBoxItem Content="每十一月初" />
+                    <ctrl:MultiComboBoxItem Content="每十二月初" />
+                    <ctrl:MultiComboBoxItem Content="每月度" />
+                    <ctrl:MultiComboBoxItem Content="每季度" />
+                    <ctrl:MultiComboBoxItem Content="每年度" />
+
+                </ctrl:MultiComboBox>
+
+            </StackPanel>
+
+            <StackPanel Margin="15,5,0,0"
+                        IsEnabled="{Binding ElementName=EnableSchedule, Path=IsChecked}"
+                        Orientation="Horizontal">
+
+                <CheckBox Name="EnableOnInterval"
+                          Content="隔期执行："
+                          IsChecked="{Binding EnableOnInterval}" />
+
+                <TextBlock Name="IntervalDay"
+                           Text="每隔">
+
+                    <TextBlock.IsEnabled>
+                        <MultiBinding Converter="{StaticResource ANDOperation}"
+                                      Mode="OneWay">
+                            <Binding ElementName="EnableOnInterval"
+                                     Path="IsEnabled" />
+                            <Binding ElementName="EnableOnInterval"
+                                     Path="IsChecked" />
+                        </MultiBinding>
+                    </TextBlock.IsEnabled>
+
+                </TextBlock>
+
+                <ctrl:NumericUpDown Margin="5,0,0,0"
+                                    IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                                    Maximum="1e3"
+                                    Minimum="0"
+                                    Value="{Binding IntervalDay}" />
+
+                <TextBlock Margin="4,0"
+                           IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                           Text="天" />
+
+                <ctrl:NumericUpDown IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                                    Maximum="59"
+                                    Minimum="0"
+                                    Value="{Binding IntervalHour}" />
+
+                <TextBlock Margin="4,0"
+                           IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                           Text="时" />
+
+                <ctrl:NumericUpDown IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                                    Maximum="59"
+                                    Minimum="0"
+                                    Value="{Binding IntervalMinute}" />
+
+                <TextBlock Margin="4,0,0,0"
+                           IsEnabled="{Binding ElementName=IntervalDay, Path=IsEnabled}"
+                           Text="分" />
+
+            </StackPanel>
+
+        </StackPanel>
+
+    </Grid>
+
+</Page>

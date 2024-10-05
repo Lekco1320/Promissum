@@ -1,0 +1,47 @@
+﻿<Page x:Class="Lekco.Promissum.View.Sync.SyncTaskNullPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:local="clr-namespace:Lekco.Promissum.View.Sync"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      Title="SyncTaskNullPage"
+      Width="440"
+      MinWidth="440"
+      HorizontalAlignment="Stretch"
+      Background="White"
+      mc:Ignorable="d">
+
+    <StackPanel Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Orientation="Vertical">
+
+        <Path Width="50"
+              Height="50"
+              Data="M2 18H12V20H2V18ZM2 11H22V13H2V11ZM2 4H22V6H2V4ZM18 18V15H20V18H23V20H20V23H18V20H15V18H18Z"
+              Fill="{StaticResource CDimGrayBrush}"
+              Stretch="Uniform" />
+
+        <StackPanel Margin="0,3,0,0"
+                    Orientation="Horizontal">
+
+            <TextBlock FontSize="13"
+                       Foreground="{StaticResource CDimGrayBrush}"
+                       Text="单击左下侧" />
+
+            <icon:PackIconMaterial Width="15"
+                                   Margin="3,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource CDimGrayBrush}"
+                                   Kind="PlusCircleOutline" />
+
+            <TextBlock FontSize="13"
+                       Foreground="{StaticResource CDimGrayBrush}"
+                       Text="以添加任务。" />
+
+        </StackPanel>
+
+    </StackPanel>
+
+</Page>
