@@ -54,7 +54,7 @@
 
             <Path Margin="5,0,0,0"
                   Style="{StaticResource TipIcon}"
-                  ToolTip="启用后，项目将在程序启动时自动加载，其含有的计划任务将自动执行。建议前往“设置”菜单开启“开机自启动”以达到最佳状态。" />
+                  ToolTip="启用后，项目将在程序启动时自动加载，其含有的计划任务将自动执行。建议前往&quot;设置&quot;菜单开启&quot;开机自启动&quot;以达到最佳状态。" />
 
         </StackPanel>
 

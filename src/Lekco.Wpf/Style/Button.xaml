@@ -32,43 +32,83 @@
 
                     </Border>
 
-                    <ControlTemplate.Triggers>
-
-                        <Trigger Property="IsMouseOver" Value="True">
-
-                            <Setter Property="BorderBrush"
-                                    Value="{DynamicResource CDeepBlueBrush}" />
-
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource CDeepBlueBrush}" />
-
-                        </Trigger>
-
-                        <Trigger Property="IsPressed" Value="True">
-
-                            <Setter Property="Background"
-                                    Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
-
-                            <Setter Property="BorderBrush"
-                                    Value="{DynamicResource CGrayBrush}" />
-
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource CWhiteBrush}" />
-
-                        </Trigger>
-
-                        <Trigger Property="IsEnabled" Value="False">
-
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource CGrayBrush}" />
-
-                        </Trigger>
-
-                    </ControlTemplate.Triggers>
-
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver" Value="True">
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CDeepBlueBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CDeepBlueBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsPressed" Value="True">
+
+                <Setter Property="Background"
+                        Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CGrayBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CWhiteBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsEnabled" Value="False">
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CGrayBrush}" />
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style>
+
+    <Style x:Key="RedTextButton"
+           BasedOn="{StaticResource {x:Type Button}}"
+           TargetType="{x:Type Button}">
+
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver" Value="True">
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CRedBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CLightRedBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsPressed" Value="True">
+
+                <Setter Property="Background"
+                        Value="{DynamicResource GCLightRedToCRedBrush}" />
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CGrayBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CWhiteBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsEnabled" Value="False">
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CGrayBrush}" />
+
+            </Trigger>
+
+        </Style.Triggers>
 
     </Style>
 

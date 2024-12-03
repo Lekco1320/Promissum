@@ -1,5 +1,8 @@
 ﻿using ConcurrentCollections;
 using Lekco.Promissum.Model.Sync;
+using Lekco.Promissum.Model.Sync.Record;
+using Lekco.Promissum.View;
+using Lekco.Promissum.ViewModel.Sync;
 using Lekco.Wpf.Utility;
 using Lekco.Wpf.Utility.Helper;
 using System;
@@ -263,7 +266,7 @@ namespace Lekco.Promissum.Model.Engine
                     catch (Exception ex)
                     {
                         DialogHelper.ShowError(
-                            message: $"路径为“{path}”的项目文件受损，加载失败：{ex.Message}。",
+                            message: $"路径为\"{path}\"的项目文件受损，加载失败：{ex.Message}。",
                             location: DialogStartUpLocation.RightBottom
                         );
                     }
@@ -271,13 +274,14 @@ namespace Lekco.Promissum.Model.Engine
                 else
                 {
                     DialogHelper.ShowError(
-                        message: $"项目路径“{path}”不存在，备份计划执行失败。此消息将不再提醒。",
+                        message: $"项目路径\"{path}\"不存在，备份计划执行失败。此消息将不再提醒。",
                         location: DialogStartUpLocation.RightBottom
                     );
                     AutoLoadProjectPaths.TryRemove(path);
                     SaveConfigFile();
                 }
             }
+            TriggerOnDaysTasks(null);
         }
 
         /// <summary>
@@ -343,15 +347,17 @@ namespace Lekco.Promissum.Model.Engine
             {
                 if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnIntervalDue)
                 {
-                    if (task.IsReady)
-                    {
-                        TryExecuteTask(task, ExecutionTrigger.OnInterval);
-                        continue;
-                    }
-                    HandleUnreadyScheduledTask(task);
+                    TryExecuteTask(task, ExecutionTrigger.OnInterval);
                 }
             }
-        }
+			foreach (var task in UnreadyScheduledTasks)
+			{
+                if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnIntervalDue)
+                {
+					HandleUnreadyScheduledTask(task);
+				}
+			}
+		}
 
         /// <summary>
         /// Triggers periodic tasks.
@@ -363,14 +369,16 @@ namespace Lekco.Promissum.Model.Engine
             {
                 if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnDaysDue)
                 {
-                    if (task.IsReady)
-                    {
-                        TryExecuteTask(task, ExecutionTrigger.OnScheduledDays);
-                        continue;
-                    }
-                    HandleUnreadyScheduledTask(task);
+                    TryExecuteTask(task, ExecutionTrigger.OnScheduledDays);
                 }
             }
+            foreach (var task in UnreadyScheduledTasks)
+            {
+				if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnDaysDue)
+                {
+					HandleUnreadyScheduledTask(task);
+				}
+			}
         }
 
         /// <summary>
@@ -380,7 +388,7 @@ namespace Lekco.Promissum.Model.Engine
         private static void HandleUnreadyScheduledTask(SyncTask task)
         {
             if (!DialogHelper.ShowInformationAsync(
-                message: $"任务“{task}”已被触发执行，但相关设备并未就绪，请检查设备是否已接入计算机。点击“取消”后，10分钟内不再触发此任务。",
+                message: $"任务\"{task}\"已被触发执行，但相关设备并未就绪，请检查设备是否已接入计算机。点击\"取消\"后，10分钟内不再触发此任务。",
                 buttonStyle: Wpf.Control.MessageDialogButtonStyle.OKCancel,
                 title: "通知",
                 location: DialogStartUpLocation.RightBottom,
@@ -456,23 +464,41 @@ namespace Lekco.Promissum.Model.Engine
         /// <param name="trigger">The execution trigger of the task.</param>
         private static void ExecuteTask(SyncTask task, ExecutionTrigger trigger)
         {
+            ExecutionRecord executionRecord;
             try
             {
-                task.Execute(trigger);
+                executionRecord = task.Execute(trigger);
             }
             catch (Exception ex)
             {
                 DialogHelper.ShowErrorAsync(ex, location: DialogStartUpLocation.RightBottom);
+                return;
             }
             finally
             {
                 task.ParentProject.SyncProjectFile.Save();
             }
-            DialogHelper.ShowSuccessAsync(
-                message: $"任务\"{task.Name}\"执行成功。",
-                location: DialogStartUpLocation.RightBottom,
-                autoCountDown: true
-            );
+
+            string message = $"任务\"{task.Name}\"执行成功。";
+            if (executionRecord == null || executionRecord.ExceptionRecords.Count == 0)
+            {
+                DialogHelper.ShowSuccessAsync(
+                    message: message,
+                    location: DialogStartUpLocation.RightBottom,
+                    autoCountDown: true
+                );
+            }
+            else
+            {
+                var vm = new ExceptionRecordsWindowVM(executionRecord);
+                DialogHelper.ShowWarningAsync(
+                    message: message + $"其中本次执行过程中共捕获{executionRecord.ExceptionRecords.Count}个异常。",
+                    location: DialogStartUpLocation.RightBottom,
+                    autoCountDown: true,
+                    link: "查看已捕获异常",
+                    linkAction: () => new ExceptionRecordsWindow(vm).Show()
+                );
+            }
         }
 
         /// <summary>

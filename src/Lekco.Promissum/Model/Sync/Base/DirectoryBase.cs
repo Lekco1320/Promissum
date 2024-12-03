@@ -23,7 +23,7 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// </summary>
         /// <param name="fullName">Full name of the directory.</param>
         public DirectoryBase(string fullName)
-            : base(FormatFullName(fullName))
+            : base(fullName)
         {
         }
 
@@ -47,18 +47,6 @@ namespace Lekco.Promissum.Model.Sync.Base
             ptr = ptr < 0 ? 0 : ptr;
 
             return fullName[(ptr + 1)..];
-        }
-
-        protected static string FormatFullName(string fullName)
-        {
-            if (fullName.EndsWith('\\') && !fullName.EndsWith(@":\"))
-            {
-                return fullName[..^1];
-            }
-            else
-            {
-                return fullName;
-            }
         }
 
         /// <summary>

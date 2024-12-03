@@ -148,7 +148,7 @@ namespace Lekco.Promissum.Model.Sync
         {
             CheckDataBaseExists();
             if (!dataBaseExists)
-                throw new FileNotFoundException($"任务“{Name}”的数据库文件不存在。");
+                throw new FileNotFoundException($"任务\"{Name}\"的数据库文件不存在。");
 
             return SyncDbContext.GetDbContext(DataBaseFileName, true, pooling);
         }
@@ -157,8 +157,9 @@ namespace Lekco.Promissum.Model.Sync
         /// Executes the task to sync files.
         /// </summary>
         /// <param name="trigger">The trigger of current execution.</param>
+        /// <returns>Record of this execution.</returns>
         /// <exception cref="TaskNotReadyException"></exception>
-        public void Execute(ExecutionTrigger trigger)
+        public ExecutionRecord Execute(ExecutionTrigger trigger)
         {
             if (!IsReady)
                 throw new TaskNotReadyException($"任务\"{Name}\"执行失败：未连接设备或尚未就绪。", this);
@@ -169,15 +170,24 @@ namespace Lekco.Promissum.Model.Sync
             if (IsSuspended)
                 throw new TaskSuspendedException($"任务\"{Name}\"执行失败：任务已挂起。", this);
 
-            BusyAction(() => ExecuteProtected(trigger));
+            if (!Source.Exists)
+                throw new DirectoryNotFoundException($"任务\"{Name}\"的同步源路径\"{Source.FullPath}\"不存在。");
+
+            if (!Destination.Exists)
+                throw new DirectoryNotFoundException($"任务\"{Name}\"的同步至路径\"{Destination.FullPath}\"不存在。");
+
+            var ret = BusyAction(() => ExecuteProtected(trigger));
             ParentProject.Save();
+
+            return ret;
         }
 
         /// <summary>
         /// Executes the task to sync files. The function is protected.
         /// </summary>
         /// <param name="trigger">The trigger of current execution.</param>
-        protected void ExecuteProtected(ExecutionTrigger trigger)
+        /// <returns>Record of this execution.</returns>
+        protected ExecutionRecord ExecuteProtected(ExecutionTrigger trigger)
         {
             var data = new ExecutionData();
             data.ExecutionBegin();
@@ -185,6 +195,8 @@ namespace Lekco.Promissum.Model.Sync
 
             var dbContext = GetDbContext();
             dbContext.EnsureCreated();
+
+            ExecutionRecord executionRecord;
             try
             {
                 QueryNeedSyncFiles(Source.Directory, data);
@@ -205,7 +217,8 @@ namespace Lekco.Promissum.Model.Sync
                 data.EndTime = DateTime.Now;
                 data.ExecutionTrigger = trigger;
 
-                dbContext.ExecutionRecords.Add(new ExecutionRecord(data));
+                executionRecord = new ExecutionRecord(data);
+                dbContext.ExecutionRecords.Add(executionRecord);
                 dbContext.Dispose();
                 SqliteConnection.ClearAllPools();
                 GC.Collect();
@@ -213,6 +226,8 @@ namespace Lekco.Promissum.Model.Sync
 
                 data.ExecutionEnd();
             }
+
+            return executionRecord;
         }
 
         /// <summary>
@@ -342,6 +357,9 @@ namespace Lekco.Promissum.Model.Sync
             {
                 var destSubDir = GenerateDirectoryPathOfDestination(srcSubDir);
                 needCleanUpDirSet.Remove(destSubDir);
+                Task task = new Task(() => QueryNeedSyncFiles(srcSubDir, data));
+				tasks.Add(task);
+                task.Start();
             }
 
             // If need to clean up,
@@ -358,11 +376,8 @@ namespace Lekco.Promissum.Model.Sync
                     }
                 }
             }
-            
-            Parallel.ForEach(srcSubDirs, srcSubDir =>
-            {
-                QueryNeedSyncFiles(srcSubDir, data);
-            });
+
+            Task.WaitAll(tasks.ToArray());
         }
 
         /// <summary>
@@ -688,7 +703,7 @@ namespace Lekco.Promissum.Model.Sync
         {
             CheckDataBaseExists();
             if (!dataBaseExists)
-                throw new FileNotFoundException($"任务“{Name}”的数据库文件不存在。");
+                throw new FileNotFoundException($"任务\"{Name}\"的数据库文件不存在。");
 
             using var dbContext = GetDbContext(pooling: false);
 
@@ -705,7 +720,12 @@ namespace Lekco.Promissum.Model.Sync
                 dbContext.ExecutionRecords.RemoveRange(dbContext.ExecutionRecords);
             }
 
-            dbContext.SaveChanges();
+            dbContext.Dispose();
+            SqliteConnection.ClearAllPools();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            ParentProject.SyncProjectFile.Save();
         }
     }
 

@@ -1,19 +1,30 @@
-# Lekco Promissum 
-[![Apache License](https://img.shields.io/npm/l/echarts?color=5470c6)](LICENSE.txt)
+# Promissum
 
-***Backup is the best promise to data.***
+[![hugo-papermod](https://img.shields.io/badge/Promissum-@Lekco-red)](https://github.com/Lekco1320/Promissum)
+[![release](https://img.shields.io/github/v/release/Lekco1320/Promissum)](https://github.com/Lekco1320/Promissum/releases)
+[![Apache License](https://img.shields.io/npm/l/echarts?color=green)](LICENSE)
 
-After losing all files from stepping into the campus of university late last year, I finally realized this. Watching all my works and memories become zero bytes but not being able to do anything about it is catching up with me, and that's why I set out to begin this program. The program's name *Promissum*, the origin of *Promise* from Latin, means the program should possess the ability to backup important files well, and the followings are what Lekco Promissum can do:
+> ***Promissum***, the noun form derived from the Latin verb ***promittō*** (to promise), 
+> means something that has been promised.
 
-+ Backups specified directories and theirs files to other specified directories.
-+ Provides multiple compare modes to update files.
-+ Provides plans to execute backup tasks automatically by given settings.
-+ Provides choices to cope with files need deleting, such as moving them into a specified folder, marking them with versions, clearing out-dated files periodically and so on.
-+ Allows users to set up rules to exclude files that don't need to backup.
-+ Records all actions Lekco Promissum does to the files, and be able to output them into Excel documents.
+After losing all files from stepping into the campus of university late last year, I finally realized that
+**backup is the best promise to data**, and that's why I set out to begin this program to ensure the safety
+of my files to become things that have been promised.
 
-Hope you find Lekco Promissum helpful and submit issues if possible.
+### Capabilities
 
-***Make data immortal.***
+* Supports cross-devices synchronization including disks, phones, cameras and other MTP devices.
+* Sets up custom backup tasks with fine grained control.
+* Sets up custom plans to execute backup tasks automatically.
+* Provides multiple compare modes to update files by last write time and size.
+* Enables a directory to store directories and files that have been updated, and provides automatic custom management.
+* Enables rules to exclude unwanted files by search pattern, extension, regex or file size.
+* Records all detailed backup information.
 
-Copyright 2023 - 2024 Lekco. Available under the [Apache-2.0 License](LICENSE.txt).
+Promissum is available under the [Apache-2.0 License](LICENSE.txt) and incorporates the following projects:
+* [MiSans](https://hyperos.mi.com/font/en/), released under
+[About](https://hyperos.mi.com/font/en/about/).
+* [MediaDevices](https://github.com/Bassman2/MediaDevices), released under
+[MIT License](https://github.com/Bassman2/MediaDevices/blob/main/LICENSE).
+
+Hope you find Promissum helpful and submit issues if possible :).

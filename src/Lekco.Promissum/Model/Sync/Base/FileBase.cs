@@ -51,7 +51,6 @@ namespace Lekco.Promissum.Model.Sync.Base
         protected FileBase(string fullName)
             : base(fullName)
         {
-            FullName = fullName;
         }
 
         /// <summary>

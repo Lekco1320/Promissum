@@ -51,6 +51,16 @@ namespace Lekco.Promissum.Utility
 
         private static readonly Dictionary<string, string> _typeInfoCache = new Dictionary<string, string>();
 
+        public static readonly Icon LargeFolderIcon;
+
+        public static readonly Icon SmallFolderIcon;
+
+        public static readonly ImageSource LargeFolderIconImage;
+
+        public static readonly ImageSource SmallFolderIconImage;
+
+        public static readonly string FolderInfo = "文件夹";
+
         [StructLayout(LayoutKind.Sequential)]
         private struct SHFileInfo
         {
@@ -85,21 +95,13 @@ namespace Lekco.Promissum.Utility
             _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref largeSHInfo, (uint)Marshal.SizeOf(largeSHInfo), uFlags | SHGFI_LARGEICON);
             _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref smallSHInfo, (uint)Marshal.SizeOf(smallSHInfo), uFlags | SHGFI_SMALLICON);
 
-            var largeFolderIcon = Icon.FromHandle(largeSHInfo.hIcon);
-            var smallFolderIcon = Icon.FromHandle(smallSHInfo.hIcon);
-
-            var largeFolderImage = ((Icon)largeFolderIcon.Clone()).ToImageSource();
-            var smallFolderImage = ((Icon)smallFolderIcon.Clone()).ToImageSource();
-
-            _smallIconCache.Add("", smallFolderIcon);
-            _largeIconCache.Add("", largeFolderIcon);
-            _smallIconImageCache.Add("", smallFolderImage);
-            _largeIconImageCache.Add("", largeFolderImage);
+            LargeFolderIcon = Icon.FromHandle(largeSHInfo.hIcon);
+            SmallFolderIcon = Icon.FromHandle(smallSHInfo.hIcon);
+            LargeFolderIconImage = ((Icon)LargeFolderIcon.Clone()).ToImageSource();
+            SmallFolderIconImage = ((Icon)SmallFolderIcon.Clone()).ToImageSource();
 
             _ = DestroyIcon(largeSHInfo.hIcon);
             _ = DestroyIcon(smallSHInfo.hIcon);
-
-            _typeInfoCache.Add("", "文件夹");
         }
 
         /// <summary>

@@ -7,8 +7,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Title>Lekco Wpf</Title>
     <Copyright>© 2023-2024 Lekco</Copyright>
-    <AssemblyVersion>1.1.0.285</AssemblyVersion>
-    <FileVersion>1.1.0.285</FileVersion>
+    <AssemblyVersion>1.1.0.709</AssemblyVersion>
+    <FileVersion>1.1.0.709</FileVersion>
     <Company>Lekco</Company>
     <Product>$(AssemblyName)</Product>
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

@@ -67,7 +67,7 @@ namespace Lekco.Promissum.View
             }
             else
             {
-                DialogHelper.ShowError("首选项中“开机自启动”项修改失败。");
+                DialogHelper.ShowError("首选项中\"开机自启动\"项修改失败。");
             }
         }
     }

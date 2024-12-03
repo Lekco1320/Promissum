@@ -16,8 +16,8 @@
     <Grid Margin="20,15,20,10">
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0"
@@ -114,11 +114,23 @@
                   ItemsSource="{Binding CurrentView}"
                   RowHeaderWidth="0" />
 
-        <Button Width="90"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Command="{Binding OutputCommand}"
-                Content="导出全部(_A)…" />
+        <StackPanel Orientation="Horizontal">
+
+            <Button Width="90"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Command="{Binding OutputCommand}"
+                    Content="导出全部(_A)…" />
+
+            <Button Width="90"
+                    Margin="10,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Command="{Binding ClearDataBaseCommand}"
+                    Content="清除数据(_C)…"
+                    Style="{StaticResource RedTextButton}" />
+
+        </StackPanel>
 
     </Grid>
 

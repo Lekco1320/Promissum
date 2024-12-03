@@ -51,7 +51,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
 
         /// <inheritdoc />
         public override DirectoryBase RootDirectory => IsReady ? new DiskDirectory(info.RootDirectory)
-                                                       : throw new DriveNotReadyException($"设备“{Name}”尚未就绪。", this);
+                                                       : throw new DriveNotReadyException($"设备\"{Name}\"尚未就绪。", this);
 
         /// <inheritdoc />
         public override string Root => IsReady ? info.RootDirectory.FullName : "";
@@ -161,23 +161,23 @@ namespace Lekco.Promissum.Model.Sync.Disk
 
         /// <inheritdoc />
         public override FileBase GetFile(string path)
-            => new DiskFile(!path.StartsWith('\\') ? Root + path : Root + path[1..]);
+            => new DiskFile(GetFullPath(path));
 
         /// <inheritdoc />
         public override DirectoryBase GetDirectory(string path)
-            => new DiskDirectory(!path.StartsWith('\\') ? Root + path : Root + path[1..]);
+            => new DiskDirectory(GetFullPath(path));
 
         /// <inheritdoc />
         public override void OpenFile(FileBase file)
         {
             if (file is not DiskFile)
-                throw new InvalidOperationException($"文件“{file.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件\"{file.FullName}\"不在设备\"{Name}\"中。");
 
             if (!IsReady)
-                throw new DriveNotReadyException($"设备“{Name}”尚未就绪。", this);
+                throw new DriveNotReadyException($"设备\"{Name}\"尚未就绪。", this);
 
             if (!file.Exists)
-                throw new FileNotFoundException($"文件“{file.FullName}”不存在。", file.FullName);
+                throw new FileNotFoundException($"文件\"{file.FullName}\"不存在。", file.FullName);
 
             Process.Start(new ProcessStartInfo(file.FullName) { UseShellExecute = true });
         }
@@ -186,13 +186,13 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override void OpenInExplorer(FileSystemBase entity)
         {
             if (entity is not (DiskFile or DiskDirectory))
-                throw new InvalidOperationException($"文件(夹)“{entity.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件(夹)\"{entity.FullName}\"不在设备\"{Name}\"中。");
 
             if (!IsReady)
-                throw new DriveNotReadyException($"设备“{Name}”尚未就绪。", this);
+                throw new DriveNotReadyException($"设备\"{Name}\"尚未就绪。", this);
 
             if (!entity.Exists)
-                throw new FileNotFoundException($"文件(夹)“{entity.FullName}”不存在。", entity.FullName);
+                throw new FileNotFoundException($"文件(夹)\"{entity.FullName}\"不存在。", entity.FullName);
 
             Process.Start("explorer.exe", entity.FullName);
         }
@@ -201,7 +201,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override string GetRelativePath(FileSystemBase entity)
         {
             if (entity is not (DiskFile or DiskDirectory) || !entity.FullName.StartsWith(driveLetter))
-                throw new InvalidOperationException($"文件(夹)“{entity.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件(夹)\"{entity.FullName}\"不在设备\"{Name}\"中。");
 
             return entity.FullName.Length > 3 ? entity.FullName[3..] : "";
         }

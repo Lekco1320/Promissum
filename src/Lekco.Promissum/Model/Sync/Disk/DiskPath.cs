@@ -9,7 +9,6 @@ namespace Lekco.Promissum.Model.Sync.Disk
     /// The class describes path of a disk.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{Drive} {RelativePath}")]
     public class DiskPath : PathBase
     {
         /// <inheritdoc />

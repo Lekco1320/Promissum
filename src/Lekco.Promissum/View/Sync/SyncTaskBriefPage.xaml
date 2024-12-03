@@ -69,7 +69,8 @@
                                  Command="{Binding ModifyCommand}"
                                  Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
                                  Kind="SquareEditOutline"
-                                 ToolTip="编辑…" />
+                                 ToolTip="编辑…"
+                                 Visibility="{Binding TaskCanModify, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
             </StackPanel>
 

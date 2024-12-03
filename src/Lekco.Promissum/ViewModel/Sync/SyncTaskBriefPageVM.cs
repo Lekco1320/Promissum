@@ -12,7 +12,6 @@ using Lekco.Wpf.Utility.Progress;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using DriveType = Lekco.Promissum.Model.Sync.Base.DriveType;
@@ -35,11 +34,13 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public bool TaskIsBusy => SyncTask.IsBusy;
 
-        public bool TaskCanExecute => SyncTask.IsReady && !SyncTask.IsSuspended;
+        public bool TaskCanExecute => SyncTask.IsReady && !SyncTask.IsSuspended && !SyncTask.IsBusy;
 
         public bool TaskIsSuspended => SyncTask.IsSuspended;
 
         public bool TaskCanSuspend => !SyncTask.IsSuspended && !TaskIsBusy;
+
+        public bool TaskCanModify => !SyncTask.IsBusy;
 
         public string TaskName => SyncTask.Name;
 
@@ -53,7 +54,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public double SourceUsage => 100d * SyncTask.Source.Drive.UsedSpace / SyncTask.Source.Drive.TotalSpace;
 
-        public string SourceSpace => $"{new FileSize(SyncTask.Source.Drive.UsedSpace)} / " +
+        public string SourceSpace => $"{new FileSize(SyncTask.Source.Drive.AvailableSpace)} / " +
                                      $"{new FileSize(SyncTask.Source.Drive.TotalSpace)}";
 
         public ICommand OpenSourcePathCommand => new RelayCommand(() => OpenDirectory(SyncTask.Source.Drive, SyncTask.Source.Directory));
@@ -68,7 +69,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public double DestinationUsage => 100d * SyncTask.Destination.Drive.UsedSpace / SyncTask.Destination.Drive.TotalSpace;
 
-        public string DestinationSpace => $"{new FileSize(SyncTask.Destination.Drive.UsedSpace)} / " +
+        public string DestinationSpace => $"{new FileSize(SyncTask.Destination.Drive.AvailableSpace)} / " +
                                           $"{new FileSize(SyncTask.Destination.Drive.TotalSpace)}";
 
         public ICommand OpenDestinationPathCommand => new RelayCommand(() => OpenDirectory(SyncTask.Destination.Drive, SyncTask.Destination.Directory));
@@ -90,7 +91,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             SyncTask = task;
             NavigationService = NavigationServiceManager.GetService(task.ParentProject);
 
-            RegisterNotifier(task, nameof(task.IsBusy), [nameof(TaskIsBusy), nameof(TaskCanSuspend)]);
+            RegisterNotifier(task, nameof(task.IsBusy), [nameof(TaskIsBusy), nameof(TaskCanSuspend), nameof(TaskCanModify), nameof(TaskCanExecute)]);
             RegisterNotifier(task, nameof(task.IsReady), nameof(TaskCanExecute));
             RegisterNotifier(task, nameof(task.Name), nameof(TaskName));
             RegisterNotifier(task, nameof(task.IsSuspended), [nameof(TaskIsSuspended), nameof(TaskCanSuspend), nameof(TaskCanExecute)]);
@@ -107,12 +108,13 @@ namespace Lekco.Promissum.ViewModel.Sync
         protected void SuspendTask()
         {
             SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
-            // SyncTask.ParentProject.Save();
+            SyncTask.ParentProject.SyncProjectFile.Save();
         }
 
         protected void RestoreTask()
         {
             SyncTask.BusyAction(() => SyncTask.IsSuspended = false);
+            SyncTask.ParentProject.SyncProjectFile.Save();
         }
 
         protected void ModifyTask()

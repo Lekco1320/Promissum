@@ -12,11 +12,9 @@ using Lekco.Wpf.Utility.Helper;
 using Lekco.Wpf.Utility.Navigation;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Input;
 
 namespace Lekco.Promissum.ViewModel
 {
@@ -38,6 +36,8 @@ namespace Lekco.Promissum.ViewModel
 
         public RelayCommand RenameProjectCommand => new RelayCommand(RenameProject);
 
+        public RelayCommand<CustomWindow> CloseWindowCommand => new RelayCommand<CustomWindow>(CloseWindow);
+
         public MainWindowVM()
         {
             OpenProjects = new HashSet<SyncProject>();
@@ -57,7 +57,7 @@ namespace Lekco.Promissum.ViewModel
             try
             {
                 CurrentProject.SyncProjectFile.Save();
-                DialogHelper.ShowSuccess($"项目“{CurrentProject.Name}”保存成功。");
+                DialogHelper.ShowSuccess($"项目\"{CurrentProject.Name}\"保存成功。");
             }
             catch (Exception ex)
             {
@@ -83,6 +83,7 @@ namespace Lekco.Promissum.ViewModel
         {
             if (NewSyncProjectDialog.NewProject(out var newProjectFile))
             {
+                AccessedFileManager.AddAccessedFile(newProjectFile.FileName);
                 var newProject = newProjectFile.SyncProject;
                 SyncEngine.LoadProject(newProject);
                 OpenProjects.Add(newProject);
@@ -128,7 +129,7 @@ namespace Lekco.Promissum.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    DialogHelper.ShowError(message: $"路径为“{projectPath}”的项目文件受损，加载失败：{ex.Message}。");
+                    DialogHelper.ShowError(message: $"路径为\"{projectPath}\"的项目文件受损，加载失败：{ex.Message}。");
                 }
             }
         }
@@ -149,6 +150,12 @@ namespace Lekco.Promissum.ViewModel
             var drive = new DiskDrive(driveInfo);
             var directory = new DiskDirectory(directoryInfo);
             new ExplorerWindow(drive, directory).Show();
+        }
+
+        private void CloseWindow(CustomWindow window)
+        {
+            window.Close();
+            App.Promissum.Current.MainWindow = null;
         }
     }
 }
