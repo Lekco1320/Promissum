@@ -13,6 +13,42 @@
       Background="{StaticResource CWhiteBrush}"
       mc:Ignorable="d">
 
+    <Page.Resources>
+
+        <Style x:Key="ButtonStyle"
+               TargetType="{x:Type Button}">
+
+            <Setter Property="Background"
+                    Value="{StaticResource CPaleGrayBrush}" />
+
+            <Setter Property="BorderBrush"
+                    Value="{StaticResource CGrayBrush}" />
+
+            <Style.Triggers>
+
+                <Trigger Property="IsMouseOver" Value="True">
+
+                    <Setter Property="Background"
+                            Value="{StaticResource CLightGrayBrush}" />
+
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+
+                    <Setter Property="Background"
+                            Value="{StaticResource CPaleGrayBrush}" />
+
+                    <Setter Property="BorderBrush"
+                            Value="{StaticResource CDeepBlueBrush}" />
+
+                </Trigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+    </Page.Resources>
+
     <Grid Background="{StaticResource CPaleGrayBrush}">
 
         <Grid.RowDefinitions>
@@ -357,13 +393,14 @@
                     Margin="0,0,45,0"
                     VerticalAlignment="Center"
                     Command="{x:Static app:Promissum.NewProjectCommand}"
-                    Content="新建项目(_N)">
+                    Content="新建项目(_N)"
+                    Style="{StaticResource ButtonStyle}">
 
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type Button}">
 
-                        <Border Name="Border"
-                                BorderBrush="{StaticResource CGrayBrush}"
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="3">
 
@@ -387,30 +424,6 @@
 
                         </Border>
 
-                        <ControlTemplate.Triggers>
-
-                            <Trigger Property="IsMouseOver" Value="True">
-
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="{StaticResource CLightGrayBrush}" />
-
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="{StaticResource CPaleGrayBrush}" />
-
-                                <Setter TargetName="Border"
-                                        Property="BorderBrush"
-                                        Value="{StaticResource CDimGrayBrush}" />
-
-                            </Trigger>
-
-                        </ControlTemplate.Triggers>
-
                     </ControlTemplate>
                 </Button.Template>
 
@@ -421,13 +434,14 @@
                     Margin="0,0,50,0"
                     VerticalAlignment="Center"
                     Command="{x:Static app:Promissum.OpenProjectCommand}"
-                    Content="打开项目(_O)">
+                    Content="打开项目(_O)"
+                    Style="{StaticResource ButtonStyle}">
 
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type Button}">
 
-                        <Border Name="Border"
-                                BorderBrush="{StaticResource CGrayBrush}"
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="3">
 
@@ -450,30 +464,6 @@
                             </StackPanel>
 
                         </Border>
-
-                        <ControlTemplate.Triggers>
-
-                            <Trigger Property="IsMouseOver" Value="True">
-
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="{StaticResource CLightGrayBrush}" />
-
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="{StaticResource CPaleGrayBrush}" />
-
-                                <Setter TargetName="Border"
-                                        Property="BorderBrush"
-                                        Value="{StaticResource CDimGrayBrush}" />
-
-                            </Trigger>
-
-                        </ControlTemplate.Triggers>
 
                     </ControlTemplate>
                 </Button.Template>

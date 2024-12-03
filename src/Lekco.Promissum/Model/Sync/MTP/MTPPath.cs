@@ -9,7 +9,6 @@ namespace Lekco.Promissum.Model.Sync.MTP
     /// The class describes path of a MTP drive.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{Drive} {RelativePath}")]
     public class MTPPath : PathBase
     {
         /// <inheritdoc />

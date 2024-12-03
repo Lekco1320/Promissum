@@ -8,9 +8,7 @@ using Lekco.Wpf.Utility.Helper;
 using MiniExcelLibs;
 using PropertyChanged;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -33,6 +31,8 @@ namespace Lekco.Promissum.ViewModel.Sync
         public RelayCommand FilterCommand => new RelayCommand(Filter);
 
         public RelayCommand OutputCommand => new RelayCommand(Output);
+
+        public RelayCommand ClearDataBaseCommand => new RelayCommand(ClearDataBase);
 
         public static RelayCommand<ExecutionRecord> HyperLinkCommand => new RelayCommand<ExecutionRecord>(ViewExceptions);
 
@@ -274,7 +274,6 @@ namespace Lekco.Promissum.ViewModel.Sync
                 2 => ExecutionRecordsColumns,
                 _ => null,
             };
-            // CurrentView = RecordsViewSource.View;
             CurrentView.Refresh();
         }
 
@@ -368,6 +367,19 @@ namespace Lekco.Promissum.ViewModel.Sync
         {
             var vm = new ExceptionRecordsWindowVM(record);
             new ExceptionRecordsWindow(vm).Show();
+        }
+
+        protected void ClearDataBase()
+        {
+            if (DialogHelper.ShowWarning("是否要清除该任务关联的所有数据？此操作将无法撤销。"))
+            {
+                SyncTask.DeleteDataSet(SyncDataSetType.AllDataSets);
+                FileRecords.Clear();
+                CleanUpRecords.Clear();
+                ExecutionRecords.Clear();
+                CurrentView.Refresh();
+                RecordsCount = 0;
+            }
         }
     }
 }

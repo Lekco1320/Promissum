@@ -44,8 +44,27 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// <param name="fullName">Full name of the directory.</param>
         protected FileSystemBase(string fullName)
         {
-            FullName = fullName;
+            FullName = FormatFullName(fullName);
         }
+
+        /// <summary>
+        /// Format full name of a entity in a general format.
+        /// </summary>
+        /// <param name="fullName">Full name of this entity.</param>
+        /// <returns>Full name of this entity in a general format.</returns>
+        protected virtual string FormatFullName(string fullName)
+        {
+            if (fullName.EndsWith('\\') && !fullName.EndsWith(@":\"))
+            {
+                fullName = fullName[..^1];
+            }
+            if (fullName.StartsWith('\\'))
+            {
+                fullName = fullName[1..];
+            }
+            return fullName;
+        }
+
 
         /// <inheritdoc />
         public override string ToString()

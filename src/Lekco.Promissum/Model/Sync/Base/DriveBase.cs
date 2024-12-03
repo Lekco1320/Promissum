@@ -80,6 +80,7 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// </summary>
         public virtual long UsedSpace => TotalSpace - AvailableSpace;
 
+        /// <inheritdoc />
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
@@ -91,6 +92,14 @@ namespace Lekco.Promissum.Model.Sync.Base
             ID = "";
             Model = "Unknown";
         }
+
+        /// <summary>
+        /// Get full path of a path relative to this drive's root.
+        /// </summary>
+        /// <param name="path">Path relative to this drive's root.</param>
+        /// <returns>Full path.</returns>
+        protected virtual string GetFullPath(string path)
+            => Root + (!path.StartsWith('\\') ? path : path[1..]);
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

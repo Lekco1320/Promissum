@@ -132,6 +132,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
                     isReady = true;
                     device.DeviceRemoved += CheckIsReady;
                     device.DeviceReset += CheckIsReady;
+                    device.Connect();
                     return;
                 }
             }
@@ -149,7 +150,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public override void OpenFile(FileBase file)
         {
             if (file is not MTPFile mtpFile || mtpFile.Device != Device)
-                throw new InvalidOperationException($"文件(夹)“{file.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件(夹)\"{file.FullName}\"不在设备\"{Name}\"中。");
 
             var diskInfo = new FileInfo(App.Promissum.TempDir + '\\' + file.Name);
             var diskFile = new DiskFile(diskInfo);
@@ -162,12 +163,12 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 }
                 catch (Exception ex)
                 {
-                    DialogHelper.ShowError($"文件“{file.FullName}”打开失败：{ex.Message}。");
+                    DialogHelper.ShowError($"文件\"{file.FullName}\"打开失败：{ex.Message}。");
                 }
             }
             else
             {
-                DialogHelper.ShowError($"文件“{file.FullName}”打开失败：{exRecord.ExceptionType.GetDiscription()}。");
+                DialogHelper.ShowError($"文件\"{file.FullName}\"打开失败：{exRecord.ExceptionType.GetDiscription()}。");
             }
         }
 
@@ -175,13 +176,13 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public override void OpenInExplorer(FileSystemBase entity)
         {
             if (entity is not IMTPDevice device || device.Device != Device)
-                throw new InvalidOperationException($"文件(夹)“{entity.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件(夹)\"{entity.FullName}\"不在设备\"{Name}\"中。");
 
             if (!IsReady)
-                throw new DriveNotReadyException($"设备“{Name}”尚未就绪。", this);
+                throw new DriveNotReadyException($"设备\"{Name}\"尚未就绪。", this);
 
             if (!entity.Exists)
-                throw new FileNotFoundException($"文件(夹)“{entity.FullName}”不存在。", entity.FullName);
+                throw new FileNotFoundException($"文件(夹)\"{entity.FullName}\"不存在。", entity.FullName);
 
             var directory = entity is MTPFile file ? file.Parent : (DirectoryBase)entity;
             new ExplorerWindow(this, directory).Show();
@@ -191,7 +192,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public override string GetRelativePath(FileSystemBase entity)
         {
             if (entity is not (MTPFile or MTPDirectory))
-                throw new InvalidOperationException($"文件(夹)“{entity.FullName}”不在设备“{Name}”中。");
+                throw new InvalidOperationException($"文件(夹)\"{entity.FullName}\"不在设备\"{Name}\"中。");
 
             return entity.FullName;
         }

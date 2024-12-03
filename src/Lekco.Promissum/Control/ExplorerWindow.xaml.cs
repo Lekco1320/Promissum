@@ -123,7 +123,7 @@ namespace Lekco.Promissum.Control
         {
             if (!drive.IsReady)
             {
-                DialogHelper.ShowError($"设备“{drive.Name}”尚未就绪。");
+                DialogHelper.ShowError($"设备\"{drive.Name}\"尚未就绪。");
                 return;
             }
 
@@ -225,9 +225,9 @@ namespace Lekco.Promissum.Control
 
             public long Size => IsFile ? ((FileBase)FileSystemBase).Size : 0L;
 
-            public ImageSource Icon => SHFileInfoHelper.GetFileIconImage(IsFile ? ((FileBase)FileSystemBase).Extension : "", false);
+            public ImageSource Icon => IsFile ? SHFileInfoHelper.GetFileIconImage(((FileBase)FileSystemBase).Extension, false) : SHFileInfoHelper.SmallFolderIconImage;
 
-            public string TypeInfo => SHFileInfoHelper.GetTypeInfo(IsFile ? ((FileBase)FileSystemBase).Extension : "");
+            public string TypeInfo => IsFile ? SHFileInfoHelper.GetTypeInfo(((FileBase)FileSystemBase).Extension) : SHFileInfoHelper.FolderInfo;
 
             public FileSystemBaseVM(FileSystemBase fileSystemBase, ExplorerWindow parentWindow)
             {

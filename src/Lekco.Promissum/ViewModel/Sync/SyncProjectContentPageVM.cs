@@ -101,7 +101,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             {
                 return;
             }
-            if (DialogHelper.ShowWarning($"是否删除任务“{CurrentTask.Name}”？") &&
+            if (DialogHelper.ShowWarning($"是否删除任务\"{CurrentTask.Name}\"？") &&
                 Project.DeleteTask(CurrentTask))
             {
                 SyncEngine.UnloadTask(CurrentTask);

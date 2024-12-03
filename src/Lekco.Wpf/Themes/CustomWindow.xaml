@@ -35,8 +35,7 @@
                 <ControlTemplate TargetType="{x:Type Button}">
 
                     <Border x:Name="Back"
-                            Background="{DynamicResource ChromeButtonBackgroundBrush}"
-                            CornerRadius="0,6,0,0">
+                            Background="{DynamicResource ChromeButtonBackgroundBrush}">
 
                         <Path x:Name="path"
                               HorizontalAlignment="Center"
@@ -267,6 +266,8 @@
 
                                     <Button x:Name="CloseButton"
                                             Command="{Binding CloseCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                            CommandParameter="{Binding CloseCommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                            CommandTarget="{Binding CloseCommandTarget, RelativeSource={RelativeSource TemplatedParent}}"
                                             Style="{StaticResource CloseButtonStyle}"
                                             Visibility="{Binding EnableClose, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource TemplatedParent}}" />
 

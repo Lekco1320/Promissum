@@ -28,9 +28,10 @@ namespace Lekco.Promissum.App
         /// <param name="arg">Arguments to send.</param>
         public void Send(string arg)
         {
-            using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+            using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut);
             client.Connect();
             using var writer = new StreamWriter(client);
+            writer.AutoFlush = true;
             writer.Write(arg);
         }
     }

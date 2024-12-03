@@ -1,4 +1,6 @@
-﻿// Lekco Promissum. 2023/12/25.
+﻿// Lekco Promissum
+// Lukaß Zhang, 2023/12/25
+
 using Lekco.Promissum.Control;
 using Lekco.Promissum.Model.Engine;
 using Lekco.Promissum.View;
@@ -88,15 +90,16 @@ namespace Lekco.Promissum.App
             if (!createdNew)
             {
                 var client = new NamedPipeClient(Name);
-                for (int i = 1; i < Args.Length; i++)
+                foreach (string arg in Args)
                 {
-                    client.Send(Args[i]);
+                    client.Send(arg);
                 }
                 Environment.Exit(0);
             }
 
             _pipeServer = new NamedPipeServer(Name);
             _ = _pipeServer.StartUpAsync();
+            _pipeServer.OnConnected += ConnectedServer;
             _pipeServer.OnReceivedArg += ReceivedArg;
 
             DispatcherUnhandledException += CopeWithUnhandledException;
@@ -112,12 +115,21 @@ namespace Lekco.Promissum.App
         }
 
         /// <summary>
+        /// Occurs when a new instance of Lekco.Promissum launched.
+        /// </summary>
+        private void ConnectedServer(object? sender, EventArgs e)
+        {
+            Dispatcher.Invoke(ShowMainWindow);
+        }
+
+        /// <summary>
         /// Receive arguments from new Promissum application.
         /// </summary>
         /// <param name="e">Argument from new Promissum application.</param>
         private void ReceivedArg(object? sender, string e)
         {
-            if (File.Exists(e))
+            var info = new FileInfo(e);
+            if (info.Exists && info.Extension == ".prms")
             {
                 MainWindowVM.OpenProject(e);
             }
@@ -231,7 +243,8 @@ namespace Lekco.Promissum.App
 
             if (!runBackground)
             {
-                new MainWindow(MainWindowVM).Show();
+                MainWindow = new MainWindow(MainWindowVM);
+                MainWindow.Show();
             }
         }
 

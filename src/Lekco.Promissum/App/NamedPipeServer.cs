@@ -26,6 +26,11 @@ namespace Lekco.Promissum.App
         public event EventHandler<string>? OnReceivedArg;
 
         /// <summary>
+        /// Occurs when server connects.
+        /// </summary>
+        public event EventHandler? OnConnected;
+
+        /// <summary>
         /// Create an instance.
         /// </summary>
         /// <param name="pipeName">Name of this pipe.</param>
@@ -40,11 +45,14 @@ namespace Lekco.Promissum.App
         /// <returns>Task for starting up this server.</returns>
         public async Task StartUpAsync()
         {
+            IsRunning = true;
+
             while (IsRunning)
             {
                 // Create and waiting clients' connection.
                 using var server = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                 await server.WaitForConnectionAsync();
+                OnConnected?.Invoke(this, new EventArgs());
 
                 // Read and cope with arguments.
                 using var reader = new StreamReader(server);
