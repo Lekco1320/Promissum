@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -141,8 +142,8 @@ namespace Lekco.Promissum.App
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            SyncEngine.AutoLoadProjects();
+            
+            Task.Run(SyncEngine.AutoLoadProjects);
         }
 
         /// <summary>

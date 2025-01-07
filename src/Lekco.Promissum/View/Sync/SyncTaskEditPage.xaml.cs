@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Lekco.Promissum.View.Sync
 {
     /// <summary>
-    /// SyncTaskModifyPage.xaml 的交互逻辑
+    /// SyncTaskEditPage.xaml 的交互逻辑
     /// </summary>
-    public partial class SyncTaskModifyPage : Page
+    public partial class SyncTaskEditPage : Page
     {
-        public SyncTaskModifyPage(SyncTaskModifyPageVM vm)
+        public SyncTaskEditPage(SyncTaskModifyPageVM vm)
         {
             DataContext = vm;
             InitializeComponent();
