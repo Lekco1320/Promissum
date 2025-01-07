@@ -122,7 +122,8 @@ namespace Lekco.Promissum.Model.Sync
                 .HasKey(record => record.ID);
 
             modelBuilder.Entity<FileRecord>()
-                .HasIndex(record => record.RelativeFileName);
+                .HasIndex(record => record.RelativeFileName)
+                .IsUnique();
 
             #endregion
 
@@ -145,7 +146,8 @@ namespace Lekco.Promissum.Model.Sync
                 .HasKey(record => record.ID);
 
             modelBuilder.Entity<CleanUpRecord>()
-                .HasIndex(record => record.RelativeFileName);
+                .HasIndex(record => record.RelativeFileName)
+                .IsUnique();
 
             #endregion
 

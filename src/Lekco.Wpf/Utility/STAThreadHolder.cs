@@ -8,9 +8,9 @@ namespace Lekco.Wpf.Utility
 {
     public class STAThreadHolder<T> : IDisposable where T : DispatcherObject
     {
-        protected Thread STAThread { get; }
+        public Thread STAThread { get; }
 
-        protected T DispatcherObject { get; set; }
+		public T DispatcherObject { get; protected set; }
 
         private bool _disposed;
 

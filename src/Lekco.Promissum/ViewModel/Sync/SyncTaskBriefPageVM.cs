@@ -121,7 +121,7 @@ namespace Lekco.Promissum.ViewModel.Sync
         {
             SuspendTask();
             var vm = new SyncTaskModifyPageVM(SyncTask);
-            var view = new SyncTaskModifyPage(vm);
+            var view = new SyncTaskEditPage(vm);
             var oldView = NavigationService.ChangeView(SyncTask, view);
             vm.OldView = oldView;
         }
