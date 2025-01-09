@@ -10,10 +10,9 @@ using Lekco.Wpf.Utility.Progress;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lekco.Promissum.Model.Sync
+namespace Lekco.Promissum.Model.Sync.Execution
 {
     /// <summary>
     /// The class stores data during execution, and reports progress to UI.
@@ -38,7 +37,7 @@ namespace Lekco.Promissum.Model.Sync
         /// <summary>
         /// The bag storing files which need to be synced.
         /// </summary>
-        public ConcurrentBag<(FileBase, FileBase)> NeedSyncFiles { get; set; } = new();
+        public ConcurrentBag<Pair<FileBase, FileBase>> NeedSyncFiles { get; set; } = new();
 
         /// <summary>
         /// The bag storing directories which need to be initially synced.
@@ -76,9 +75,9 @@ namespace Lekco.Promissum.Model.Sync
         public ConcurrentBag<FileBase> DeletedDestinationFiles { get; set; } = new();
 
         /// <summary>
-        /// The bag storing tuples of records, corresponding versions and reserved files which need to be cleaned up.
+        /// The bag storing info of reserved files which need to be cleaned up.
         /// </summary>
-        public ConcurrentBag<(CleanUpRecord, int, FileBase)> NeedCleanUpReservedFiles { get; set; } = new();
+        public ConcurrentBag<ReservedFileInfo> NeedCleanUpReservedFiles { get; set; } = new();
 
         /// <summary>
         /// The bag storing reserved files which have been deleted.
@@ -110,18 +109,27 @@ namespace Lekco.Promissum.Model.Sync
         /// </summary>
         private bool _isEnded;
 
+        /// <inheritdoc />
         public event EventHandler? OnProgressBegin;
 
+        /// <inheritdoc />
         public event EventHandler? OnProgressEnd;
 
+        /// <inheritdoc />
         public event EventHandler<double>? OnFirstProgressValueChanged;
 
+        /// <inheritdoc />
         public event EventHandler<double>? OnSecondProgressValueChanged;
 
+        /// <inheritdoc />
         public event EventHandler<string>? OnFirstProgressTextChanged;
 
+        /// <inheritdoc />
         public event EventHandler<string>? OnSecondProgressTextChanged;
 
+        /// <summary>
+        /// STA thread holder for showing dialogs.
+        /// </summary>
         private readonly STAThreadHolder<DualProgressDialog> _STAThreadHolder;
 
         /// <summary>
@@ -131,10 +139,13 @@ namespace Lekco.Promissum.Model.Sync
         {
             _STAThreadHolder = new STAThreadHolder<DualProgressDialog>(() => new DualProgressDialog(this, location: DialogStartUpLocation.RightBottom));
             SetState(ExecutionState.Prepare);
-            
+
             _STAThreadHolder.SafelyDo(dialog => ReportCallBack());
         }
 
+        /// <summary>
+        /// A callback for reporting current progress.
+        /// </summary>
         protected async void ReportCallBack()
         {
             while (!_isEnded)
@@ -155,7 +166,7 @@ namespace Lekco.Promissum.Model.Sync
             (double, string) tuple = state switch
             {
                 ExecutionState.Prepare => (100d / 6d, "(1/6) 准备"),
-                ExecutionState.Query => (200d / 6d, "(2/6) 查找待同步文件"),
+                ExecutionState.ConstructTree => (200d / 6d, "(2/6) 查找待同步文件"),
                 ExecutionState.CleanUpDestinationPath => (300d / 6d, "(3/6) 清理目标目录"),
                 ExecutionState.CleanUpReservedPath => (400d / 6d, "(4/6) 清理回收目录"),
                 ExecutionState.SyncFiles => (500d / 6d, "(5/6) 同步文件"),
@@ -176,7 +187,7 @@ namespace Lekco.Promissum.Model.Sync
                 return false;
             }
 
-            var relativeTo = NeedCleanUpReservedFiles.Select(t => new RelativedFile(t.Item3, path));
+            var relativeTo = NeedCleanUpReservedFiles.Select(t => new RelativedFile(t.File, path));
             return !Config.Instance.AlwaysNotifyWhenDelete || DialogHelper.ShowInformation(
                 message: $"是否清理回收目录中的{NeedCleanUpReservedFiles.Count}份文件？",
                 location: DialogStartUpLocation.RightBottom,
@@ -213,7 +224,7 @@ namespace Lekco.Promissum.Model.Sync
             (double, string) tuple = _state switch
             {
                 ExecutionState.Prepare => (double.NaN, "正在读取数据库及准备必要资源……"),
-                ExecutionState.Query => (double.NaN, $"已发现{NeedSyncFiles.Count}份文件……"),
+                ExecutionState.ConstructTree => (double.NaN, $"正在构建目录树……"),
                 ExecutionState.CleanUpDestinationPath => (100d * (ReservedFiles.Count + DeletedDestinationFiles.Count) / NeedCleanUpFiles.Count,
                                                           $"已回收{ReservedFiles.Count}份文件，清理{DeletedDestinationFiles.Count}份文件……"),
                 ExecutionState.CleanUpReservedPath => (100d * DeletedReservedFiles.Count / NeedCleanUpReservedFiles.Count,
@@ -225,41 +236,5 @@ namespace Lekco.Promissum.Model.Sync
             OnSecondProgressValueChanged?.Invoke(this, tuple.Item1);
             OnSecondProgressTextChanged?.Invoke(this, tuple.Item2);
         }
-    }
-
-    /// <summary>
-    /// The state of execution.
-    /// </summary>
-    public enum ExecutionState
-    {
-        /// <summary>
-        /// State of preparing.
-        /// </summary>
-        Prepare,
-
-        /// <summary>
-        /// State of querying.
-        /// </summary>
-        Query,
-
-        /// <summary>
-        /// State of cleaning up destination path.
-        /// </summary>
-        CleanUpDestinationPath,
-
-        /// <summary>
-        /// State of cleaning up reserved path.
-        /// </summary>
-        CleanUpReservedPath,
-
-        /// <summary>
-        /// State of syncing files.
-        /// </summary>
-        SyncFiles,
-
-        /// <summary>
-        /// State of completion.
-        /// </summary>
-        Completion,
     }
 }

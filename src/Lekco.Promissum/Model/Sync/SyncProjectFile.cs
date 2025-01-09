@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lekco.Wpf.Utility.Helper;
+using System;
 using System.IO;
 using System.IO.Compression;
 
@@ -50,12 +51,21 @@ namespace Lekco.Promissum.Model.Sync
             }
         }
 
-        public void Save()
+        public bool Save()
         {
             CheckDirectory();
             SyncProject.Save();
-            using var fileStream = new FileStream(FileName, FileMode.Create);
-            ZipFile.CreateFromDirectory(WorkDirectory, fileStream);
+            try
+            {
+                using var fileStream = new FileStream(FileName, FileMode.Create);
+                ZipFile.CreateFromDirectory(WorkDirectory, fileStream);
+                return true;
+            }
+            catch (IOException)
+            {
+                DialogHelper.ShowErrorAsync("保存失败：文件被占用或已丢失。");
+            }
+            return false;
         }
 
         public string GetWorkFileName(string relativeName)

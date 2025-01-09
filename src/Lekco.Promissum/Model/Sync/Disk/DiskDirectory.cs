@@ -15,7 +15,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
     /// The class describes disk directory for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public class DiskDirectory : DirectoryBase
     {
         /// <inheritdoc />

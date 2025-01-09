@@ -1,11 +1,12 @@
 ﻿using Lekco.Promissum.App;
 using Lekco.Promissum.Model.Engine;
 using Lekco.Promissum.Model.Sync.Base;
+using Lekco.Promissum.Model.Sync.Execution;
 using Lekco.Promissum.Model.Sync.Record;
+using Lekco.Wpf.Utility;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Lekco.Promissum.Model.Sync
     /// The task for sync and clean up files and directories.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{Name,nq}")]
     public class SyncTask : TaskBase
     {
         /// <summary>
@@ -199,7 +200,7 @@ namespace Lekco.Promissum.Model.Sync
             ExecutionRecord executionRecord;
             try
             {
-                QueryNeedSyncFiles(Source.Directory, data);
+                QueryNeedSyncFiles(data);
                 if (EnableCleanUpBehavior)
                 {
                     CleanUpDestinationPath(data);
@@ -249,135 +250,36 @@ namespace Lekco.Promissum.Model.Sync
             => Destination.GetDirectory(Source.GetRelativePath(entity));
 
         /// <summary>
-        /// Get filtered files in the source directory.
-        /// </summary>
-        /// <param name="srcDir">The source directory.</param>
-        /// <returns>Filtered files in the source directory.</returns>
-        protected IEnumerable<FileBase> GetFilesInSourceDirectory(DirectoryBase srcDir)
-        {
-            var comparer = new FileNameComparer();
-            var files = new HashSet<FileBase>(srcDir.EnumerateFiles(), comparer);
-            if (EnableExclusionRules)
-            {
-                foreach (var rule in ExclusionRules)
-                {
-                    files.ExceptWith(rule.MatchedFiles(srcDir));
-                }
-            }
-            return files;
-        }
-
-        /// <summary>
-        /// Indicates whether need to sync given file in source path.
-        /// </summary>
-        /// <param name="srcFile">Given file in source path.</param>
-        /// <param name="dstName">Given file in destination path.</param>
-        /// <returns><see langword="true"/> if needs; otherwise, returns <see langword="false"/>.</returns>
-        /// <exception cref="ArgumentException" />
-        protected bool NeedSync(FileBase srcFile, FileBase dstName)
-        {
-            return FileSyncMode switch
-            {
-                FileSyncMode.Always => true,
-                FileSyncMode.SyncNewer => srcFile.CompareTo(dstName, FileCompareMode.IsNewer),
-                FileSyncMode.SyncOlder => srcFile.CompareTo(dstName, FileCompareMode.IsOlder),
-                FileSyncMode.SyncLarger => srcFile.CompareTo(dstName, FileCompareMode.IsLarger),
-                FileSyncMode.SyncSmaller => srcFile.CompareTo(dstName, FileCompareMode.IsSmaller),
-                _ => throw new ArgumentException("Invalid argument.", nameof(srcFile)),
-            };
-        }
-
-        /// <summary>
         /// Query the source directory to find files and directories which need to sync or clean up.
         /// </summary>
-        /// <param name="srcDir">The source directory.</param>
         /// <param name="data">Execution data.</param>
         /// <returns>The count of files need to be synced.</returns>
-        protected void QueryNeedSyncFiles(DirectoryBase srcDir, ExecutionData data)
+        protected void QueryNeedSyncFiles(ExecutionData data)
         {
-            data.SetState(ExecutionState.Query);
+            data.SetState(ExecutionState.ConstructTree);
+            var rules = EnableExclusionRules ? ExclusionRules : new List<ExclusionRule>();
+            var srcDirTree = new DirectoryTree(Source.Directory, rules);
+            var dstDirTree = new DirectoryTree(Destination.Directory, rules);
+            var srcConTask = new Task(srcDirTree.Construct);
+            var dstConTask = new Task(dstDirTree.Construct);
+            srcConTask.Start();
+            dstConTask.Start();
+            Task.WaitAll(srcConTask, dstConTask);
+            var result = srcDirTree.CompareTo(dstDirTree, (FileCompareMode)FileSyncMode);
 
-            // Get filtered files in source directory and destination directory.
-            var srcFiles = GetFilesInSourceDirectory(srcDir);
-            var destDir = GenerateDirectoryPathOfDestination(srcDir);
-
-            // If destination directory doesn't exist,
-            if (!destDir.Exists)
+            data.NeedSyncFiles = result.DifferentFiles;
+            data.NeedCleanUpFiles = result.DeletedFiles;
+            data.NeedCleanUpDirectories = result.DeletedDirectories;
+            foreach (var newFile in result.NewFiles)
             {
-                // adds it and its sub files into data.
-                data.NeedSyncDirectories.Add(destDir);
-                foreach (var srcfile in srcFiles)
-                {
-                    var destfile = GenerateFilePathOfDestination(srcfile);
-                    data.NeedSyncFiles.Add((srcfile, destfile));
-                }
-                goto FindSub;
+                FileBase newSyncFile = GenerateFilePathOfDestination(newFile);
+                data.NeedSyncFiles.Add(new Pair<FileBase, FileBase>(newFile, newSyncFile));
             }
-
-            // If destination directory exists, files in destination directory maybe out-dated and need cleaning
-            // up. Therefore, here I initialize a HashSet of files from destination directory to optimize
-            // querying performance. Compare all files having same name to files in source directory, compare them
-            // to judge whether out-dated. The out-dated and redundant files need to be cleaned up.
-            var destFilesSet = new HashSet<FileBase>(destDir.EnumerateFiles(), new FileNameComparer());
-            foreach (var srcFile in srcFiles)
+            foreach (var newDir in result.NewDirectories)
             {
-                if (destFilesSet.TryGetValue(srcFile, out FileBase? destFile) &&
-                    !NeedSync(srcFile, destFile))
-                {
-                    data.DontNeedSyncFiles.Add(srcFile);
-                    destFilesSet.Remove(destFile);
-                }
-                else
-                {
-                    destFile ??= GenerateFilePathOfDestination(srcFile);
-                    data.NeedSyncFiles.Add((srcFile, destFile));
-                }
+                DirectoryBase newSyncDir = GenerateDirectoryPathOfDestination(newDir);
+                data.NeedSyncDirectories.Add(newSyncDir);
             }
-
-            // If needs, add remain files in destination directory into data.
-            if (EnableCleanUpBehavior)
-            {
-                foreach (var destFile in destFilesSet)
-                {
-                    data.NeedCleanUpFiles.Add(destFile);
-                }
-            }
-
-        FindSub:
-            // Now we should find out whether the sub directories of current directory whether should be synced.
-            // Initialize a HashSet of directories from destinationDir to optimize querying performance. With this
-            // HashSet function can quickly find out whether a directory of the same name exists in destinationDir.
-            // The directory with same name should be queryed recursively and parallelly.
-            var srcSubDirs = srcDir.EnumerateDirectories();
-            var needCleanUpDirSet = destDir.Exists ?
-                new HashSet<DirectoryBase>(destDir.EnumerateDirectories(), new FileNameComparer()) :
-                new HashSet<DirectoryBase>(new FileNameComparer());
-            var tasks = new List<Task>();
-            foreach (var srcSubDir in srcSubDirs)
-            {
-                var destSubDir = GenerateDirectoryPathOfDestination(srcSubDir);
-                needCleanUpDirSet.Remove(destSubDir);
-                Task task = new Task(() => QueryNeedSyncFiles(srcSubDir, data));
-				tasks.Add(task);
-                task.Start();
-            }
-
-            // If need to clean up,
-            if (EnableCleanUpBehavior)
-            {
-                // all the out-dated directories and its sub files should be added into data.
-                foreach (var needCleanUpDir in needCleanUpDirSet)
-                {
-                    data.NeedCleanUpDirectories.Add(needCleanUpDir);
-                    var needCleanUpFiles = needCleanUpDir.EnumerateFiles();
-                    foreach (var needCleanUpFile in needCleanUpFiles)
-                    {
-                        data.NeedCleanUpFiles.Add(needCleanUpFile);
-                    }
-                }
-            }
-
-            Task.WaitAll(tasks.ToArray());
         }
 
         /// <summary>
@@ -435,7 +337,7 @@ namespace Lekco.Promissum.Model.Sync
                 using var dbContext = GetDbContext();
                 string relativeName = Destination.GetRelativePath(file);
                 ExceptionRecord? exRecord;
-                var record = dbContext.CleanUpRecords.FirstOrDefault(record => record.RelativeFileName ==  relativeName);
+                var record = dbContext.CleanUpRecords.FirstOrDefault(record => record.RelativeFileName == relativeName);
                 int currentVersion = record == null || record.ReservedVersions.Count == 0 ?
                                      1 : record.ReservedVersions[^1] + 1;
                 if (CleanUpBehavior.EnableReserve)
@@ -521,7 +423,7 @@ namespace Lekco.Promissum.Model.Sync
                     if (CleanUpBehavior.EnableVersioning && CleanUpBehavior.EnableMaxVersionRetention && i < reservedMinIndex
                         || CleanUpBehavior.EnableRetentionPeriod && reservedFile.LastWriteTime < dueTime)
                     {
-                        data.NeedCleanUpReservedFiles.Add((record, reservedVersionIndex, reservedFile));
+                        data.NeedCleanUpReservedFiles.Add(new ReservedFileInfo(record, reservedVersionIndex, reservedFile));
                     }
                     ++reservedVersionIndex;
                 }
@@ -536,9 +438,9 @@ namespace Lekco.Promissum.Model.Sync
         {
             foreach (var tuple in data.NeedCleanUpReservedFiles)
             {
-                var record = tuple.Item1;
-                var index = tuple.Item2;
-                var file = tuple.Item3;
+                var record = tuple.CleanUpRecord;
+                var index = tuple.VersionIndex;
+                var file = tuple.File;
                 if (file.TryDelete(out var exRecord))
                 {
                     data.DeletedReservedFiles.Add(file);
@@ -727,68 +629,5 @@ namespace Lekco.Promissum.Model.Sync
 
             ParentProject.SyncProjectFile.Save();
         }
-    }
-
-    /// <summary>
-    /// Indicates the mode when syncing files.
-    /// </summary>
-    public enum FileSyncMode
-    {
-        /// <summary>
-        /// Sync always.
-        /// </summary>
-        [Description("总是同步")]
-        Always,
-
-        /// <summary>
-        /// Sync the newer ones.
-        /// </summary>
-        [Description("同步较新的")]
-        SyncNewer,
-
-        /// <summary>
-        /// Sync the older ones.
-        /// </summary>
-        [Description("同步较旧的")]
-        SyncOlder,
-
-        /// <summary>
-        /// Sync the larger ones.
-        /// </summary>
-        [Description("同步较大的")]
-        SyncLarger,
-
-        /// <summary>
-        /// Sync the smaller ones.
-        /// </summary>
-        [Description("同步较小的")]
-        SyncSmaller,
-    }
-
-    /// <summary>
-    /// Indicates the type of dataset of <see cref="SyncTask"/> database.
-    /// </summary>
-    [Flags]
-    public enum SyncDataSetType
-    {
-        /// <summary>
-        /// The type of dataset of <see cref="FileRecord"/>.
-        /// </summary>
-        FileRecordDataSet = 0x001,
-
-        /// <summary>
-        /// The type of dataset of <see cref="CleanUpRecord"/>.
-        /// </summary>
-        CleanUpDataSet = 0x010,
-
-        /// <summary>
-        /// The type of dataset of <see cref="ExecutionRecord"/>.
-        /// </summary>
-        ExecutionDataSet = 0x100,
-
-        /// <summary>
-        /// The type of all types.
-        /// </summary>
-        AllDataSets = FileRecordDataSet | CleanUpDataSet | ExecutionDataSet
     }
 }

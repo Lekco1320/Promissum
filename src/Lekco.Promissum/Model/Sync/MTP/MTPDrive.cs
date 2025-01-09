@@ -16,7 +16,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
     /// The class describes a MTP drive for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{DriveType}, {Model}, {Name}")]
+    [DebuggerDisplay("{Name,nq}, {Model,nq}, {DriveType}")]
     public class MTPDrive : DriveBase, IMTPDevice
     {
         /// <summary>

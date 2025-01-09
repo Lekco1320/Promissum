@@ -10,7 +10,7 @@ namespace Lekco.Wpf.Utility
     {
         public Thread STAThread { get; }
 
-		public T DispatcherObject { get; protected set; }
+        public T DispatcherObject { get; protected set; }
 
         private bool _disposed;
 

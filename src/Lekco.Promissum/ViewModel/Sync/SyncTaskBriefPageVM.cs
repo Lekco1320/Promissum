@@ -1,6 +1,7 @@
 ﻿using Lekco.Promissum.Model.Engine;
 using Lekco.Promissum.Model.Sync;
 using Lekco.Promissum.Model.Sync.Base;
+using Lekco.Promissum.Model.Sync.Execution;
 using Lekco.Promissum.View.Sync;
 using Lekco.Wpf.Control;
 using Lekco.Wpf.MVVM;
@@ -108,13 +109,19 @@ namespace Lekco.Promissum.ViewModel.Sync
         protected void SuspendTask()
         {
             SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
-            SyncTask.ParentProject.SyncProjectFile.Save();
+            if (!SyncTask.ParentProject.SyncProjectFile.Save())
+            {
+                SyncTask.BusyAction(() => SyncTask.IsSuspended = false);
+            }
         }
 
         protected void RestoreTask()
         {
             SyncTask.BusyAction(() => SyncTask.IsSuspended = false);
-            SyncTask.ParentProject.SyncProjectFile.Save();
+            if (!SyncTask.ParentProject.SyncProjectFile.Save())
+            {
+                SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
+            }
         }
 
         protected void ModifyTask()

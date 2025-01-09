@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Lekco.Promissum.Model.Sync
+namespace Lekco.Promissum.Model.Sync.Execution
 {
     /// <summary>
     /// Trigger which execute task.
