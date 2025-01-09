@@ -12,7 +12,7 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for file for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public abstract class FileBase : FileSystemBase, INotifyPropertyChanged
     {
         /// <summary>
@@ -63,6 +63,7 @@ namespace Lekco.Promissum.Model.Sync.Base
         {
             return compareMode switch
             {
+                FileCompareMode.None => true,
                 FileCompareMode.IsNewer => LastWriteTime > otherFile.LastWriteTime,
                 FileCompareMode.IsOlder => LastWriteTime < otherFile.LastWriteTime,
                 FileCompareMode.IsLarger => Size > otherFile.Size,
@@ -102,31 +103,5 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// <param name="exRecord">Exception record when operation fails.</param>
         /// <returns><see langword="true"/> when delete successfully; otherwise, returns <see langword="false"/>.</returns>
         public abstract bool TryDelete([MaybeNullWhen(true)] out ExceptionRecord exRecord);
-    }
-
-    /// <summary>
-    /// Indicates the mode to compare two files.
-    /// </summary>
-    public enum FileCompareMode
-    {
-        /// <summary>
-        /// Whether the file is newer.
-        /// </summary>
-        IsNewer,
-
-        /// <summary>
-        /// Whether the file is older.
-        /// </summary>
-        IsOlder,
-
-        /// <summary>
-        /// Whether the file is larger.
-        /// </summary>
-        IsLarger,
-
-        /// <summary>
-        /// Whether the file is smaller.
-        /// </summary>
-        IsSmaller,
     }
 }

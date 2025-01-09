@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Lekco.Promissum.Model.Sync.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using Lekco.Promissum.Model.Sync.Base;
 
 namespace Lekco.Promissum.Model.Sync
 {
@@ -11,7 +11,7 @@ namespace Lekco.Promissum.Model.Sync
     /// Rule for excluding files during sync operations.
     /// </summary>
     [DataContract]
-    public class ExclusionRule : INotifyPropertyChanged
+    public partial class ExclusionRule : INotifyPropertyChanged
     {
         /// <summary>
         /// Indicates whether enable search pattern.
@@ -67,6 +67,19 @@ namespace Lekco.Promissum.Model.Sync
         [DataMember]
         public long SizeMaxLimit { get; set; }
 
+        /// <summary>
+        /// Regex form of search pattern.
+        /// </summary>
+        protected Regex SearchPatternRegex
+        {
+            get
+            {
+                _searchPatternRegex ??= FileSystemBase.WildcardToRegex(SearchPattern);
+                return _searchPatternRegex;
+            }
+        }
+        private Regex? _searchPatternRegex;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
@@ -81,41 +94,28 @@ namespace Lekco.Promissum.Model.Sync
         }
 
         /// <summary>
-        /// Get all files matched the rule in a directory.
-        /// </summary>
-        /// <param name="directory">Given directory.</param>
-        /// <returns>Matched files.</returns>
-        public IEnumerable<FileBase> MatchedFiles(DirectoryBase directory)
-        {
-            var result = new List<FileBase>();
-            foreach (var file in directory.EnumerateFiles(SearchPattern))
-            {
-                if (IsMatch(file))
-                {
-                    result.Add(file);
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Indicates whether given file matches the rule.
         /// </summary>
         /// <param name="file">Given file.</param>
         /// <returns><see langword="true"/> if matches; otherwise, returns <see langword="false"/>.</returns>
-        protected bool IsMatch(FileBase file)
+        public bool Matches(FileBase file)
         {
+            if (EnableSearchPattern && !file.MatchWildcardRegex(SearchPatternRegex))
+            {
+                return false;
+            }
             if (EnableExtensionFilter)
             {
                 foreach (var extension in ExtensionFilter)
                 {
                     if (file.Extension.Equals(extension, StringComparison.OrdinalIgnoreCase))
                     {
-                        break;
+                        goto Regex;
                     }
-                    return false;
                 }
+                return false;
             }
+        Regex:
             if (EnableRegexPattern && !Regex.IsMatch(file.FullName, RegexPattern))
             {
                 return false;

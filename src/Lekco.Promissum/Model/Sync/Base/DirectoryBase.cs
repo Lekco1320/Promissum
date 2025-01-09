@@ -12,7 +12,7 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for directory for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public abstract class DirectoryBase : FileSystemBase, INotifyPropertyChanged
     {
         /// <inheritdoc />

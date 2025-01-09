@@ -16,7 +16,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
     /// The class describes a file for MTP device.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public class MTPFile : FileBase, IMTPDevice
     {
         /// <summary>

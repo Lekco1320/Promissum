@@ -15,7 +15,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
     /// The class describes a disk file for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public class DiskFile : FileBase
     {
         /// <inheritdoc />

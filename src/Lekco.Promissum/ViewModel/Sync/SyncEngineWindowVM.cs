@@ -6,6 +6,7 @@ using Lekco.Promissum.Model.Engine;
 using Lekco.Wpf.MVVM.Command;
 using Lekco.Wpf.Control;
 using System.Linq;
+using Lekco.Promissum.Model.Sync.Execution;
 
 namespace Lekco.Promissum.ViewModel.Sync
 {

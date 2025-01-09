@@ -8,7 +8,7 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for file's record during sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{RelativeFileName}")]
+    [DebuggerDisplay("{RelativeFileName,nq}")]
     public abstract class FileRecordBase : RecordBase
     {
         /// <summary>

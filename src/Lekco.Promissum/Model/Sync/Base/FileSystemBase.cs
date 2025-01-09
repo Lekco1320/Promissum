@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Lekco.Promissum.Model.Sync.Base
 {
@@ -8,8 +9,8 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for describing entity of a file system.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
-    public abstract class FileSystemBase
+    [DebuggerDisplay("{FullName,nq}")]
+    public abstract partial class FileSystemBase
     {
         /// <summary>
         /// Full name of the directory.
@@ -52,7 +53,7 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// </summary>
         /// <param name="fullName">Full name of this entity.</param>
         /// <returns>Full name of this entity in a general format.</returns>
-        protected virtual string FormatFullName(string fullName)
+        public static string FormatFullName(string fullName)
         {
             if (fullName.EndsWith('\\') && !fullName.EndsWith(@":\"))
             {
@@ -65,9 +66,52 @@ namespace Lekco.Promissum.Model.Sync.Base
             return fullName;
         }
 
+        /// <summary>
+        /// Translate wildcard string to regex.
+        /// </summary>
+        /// <param name="wildcardStr">Wildcard string.</param>
+        /// <param name="ignoreCase">Whether ingore case.</param>
+        /// <returns>Regex form of given wildcard string.</returns>
+        public static Regex WildcardToRegex(string wildcardStr, bool ignoreCase = true)
+        {
+            Regex replace = WildcardRegex();
+            string regexStr = replace.Replace(wildcardStr, (Match m) => m.Value switch
+            {
+                "?" => ".?",
+                "*" => ".*",
+                _ => "\\" + m.Value,
+            }) + "$";
+            return new Regex(regexStr, ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+        }
+
+        /// <summary>
+        /// Match <see cref="FullName"/> and given wildcard pattern in regex form.
+        /// </summary>
+        /// <param name="wildcardRegex">Given wildcard regex.</param>
+        /// <returns><see langword="true"/> if matches; otherwise, returns <see langword="false"/>.</returns>
+        public bool MatchWildcardRegex(Regex wildcardRegex)
+            => wildcardRegex.IsMatch(FullName);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            if (obj is FileSystemBase other)
+            {
+                return FullName == FullName;
+            }
+            return false;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+            => FullName.GetHashCode();
 
         /// <inheritdoc />
         public override string ToString()
             => FullName;
+
+        /// <inheritdoc />
+        [GeneratedRegex("[.$^{\\[(|)*+?\\\\]")]
+        private static partial Regex WildcardRegex();
     }
 }

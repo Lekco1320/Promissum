@@ -14,7 +14,7 @@ namespace Lekco.Promissum.Model.Sync
     /// </summary>
     [DataContract]
     [KnownType(nameof(KnownTypes))]
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{Name,nq}")]
     public class SyncProject : ProjectBase
     {
         /// <summary>

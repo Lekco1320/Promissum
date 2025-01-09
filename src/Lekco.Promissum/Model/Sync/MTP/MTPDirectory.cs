@@ -16,7 +16,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
     /// The class describes disk directory for MTP device.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{FullName}")]
+    [DebuggerDisplay("{FullName,nq}")]
     public class MTPDirectory : DirectoryBase, IMTPDevice
     {
         /// <inheritdoc />

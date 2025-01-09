@@ -9,7 +9,7 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for drive for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{DriveType}, {Model}, {Name}")]
+    [DebuggerDisplay("{Name,nq}, {Model,nq}, {DriveType}")]
     public abstract class DriveBase : INotifyPropertyChanged
     {
         /// <summary>

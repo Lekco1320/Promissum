@@ -12,7 +12,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
     /// The class describes a disk drive for sync.
     /// </summary>
     [DataContract]
-    [DebuggerDisplay("{DriveType}, {Model}, {Name}")]
+    [DebuggerDisplay("{Name,nq}, {Model,nq}, {DriveType}")]
     public class DiskDrive : DriveBase
     {
         /// <inheritdoc />

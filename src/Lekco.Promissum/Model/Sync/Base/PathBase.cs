@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -9,6 +10,7 @@ namespace Lekco.Promissum.Model.Sync.Base
     /// The base class for describing source and target path for sync.
     /// </summary>
     [DataContract]
+    [DebuggerDisplay("{FullPath,nq}")]
     public abstract class PathBase : INotifyPropertyChanged
     {
         /// <summary>
