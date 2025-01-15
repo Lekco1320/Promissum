@@ -70,6 +70,7 @@
 
                 <DataGridTextColumn Width="80"
                                     Binding="{Binding ExceptionMessage, Mode=OneWay}"
+                                    CellStyle="{StaticResource DataGridLeftCellStyle}"
                                     Header="异常消息" />
 
             </DataGrid.Columns>

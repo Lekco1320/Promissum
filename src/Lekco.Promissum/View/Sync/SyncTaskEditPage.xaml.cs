@@ -8,7 +8,7 @@ namespace Lekco.Promissum.View.Sync
     /// </summary>
     public partial class SyncTaskEditPage : Page
     {
-        public SyncTaskEditPage(SyncTaskModifyPageVM vm)
+        public SyncTaskEditPage(SyncTaskEditPageVM vm)
         {
             DataContext = vm;
             InitializeComponent();

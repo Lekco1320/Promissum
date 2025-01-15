@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Lekco.Promissum.Model.Sync.Base;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using Lekco.Promissum.Model.Sync.Base;
 
 namespace Lekco.Promissum.Model.Sync.Record
 {
@@ -18,17 +19,30 @@ namespace Lekco.Promissum.Model.Sync.Record
         public DateTime LastOperateTime { get; set; }
 
         /// <summary>
-        /// Versions of remained cleaned up files.
+        /// Versions of reserved files.
         /// </summary>
         [DataMember]
-        public List<int> ReservedVersions { get; set; }
+        public string ReservedVersions { get; protected set; }
+
+        /// <summary>
+        /// Versions of reserved files in list form.
+        /// </summary>
+        public List<int> ReservedVersionList
+        {
+            get
+            {
+                string[] splitted = ReservedVersions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                return splitted.Length > 0 ? splitted.Select(int.Parse).ToList() : new List<int>();
+            }
+            set => ReservedVersions = string.Join(',', value);
+        }
 
         /// <summary>
         /// Create an instance.
         /// </summary>
         public CleanUpRecord()
         {
-            ReservedVersions = new List<int>();
+            ReservedVersions = "";
         }
 
         /// <summary>
@@ -40,8 +54,7 @@ namespace Lekco.Promissum.Model.Sync.Record
         public CleanUpRecord(FileBase file, string relativeName)
             : base(file, relativeName)
         {
-            ReservedVersions = new List<int>() { 1 };
-            LastOperateTime = DateTime.Now;
+            ReservedVersions = "";
         }
 
         /// <summary>
@@ -53,26 +66,6 @@ namespace Lekco.Promissum.Model.Sync.Record
             FileSize = file.Size;
             CreationTime = file.CreationTime;
             LastWriteTime = file.LastWriteTime;
-        }
-
-        /// <summary>
-        /// Add a new version of the reserved file.
-        /// </summary>
-        /// <param name="version">Latest verion.</param>
-        public void AddVersion(int version)
-        {
-            ReservedVersions.Add(version);
-            LastOperateTime = DateTime.Now;
-        }
-
-        /// <summary>
-        /// Remove a version whose index is given.
-        /// </summary>
-        /// <param name="versionIndex">Given version's index.</param>
-        public void RemoveVersion(int versionIndex)
-        {
-            ReservedVersions.RemoveAt(versionIndex);
-            LastOperateTime = DateTime.Now;
         }
     }
 }

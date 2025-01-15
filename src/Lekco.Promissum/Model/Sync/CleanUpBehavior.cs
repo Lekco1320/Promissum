@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Lekco.Promissum.Model.Sync.Base;
+using System;
 using System.Runtime.Serialization;
-using Lekco.Promissum.Model.Sync.Base;
+using System.Text.RegularExpressions;
 
 namespace Lekco.Promissum.Model.Sync
 {
@@ -8,7 +9,7 @@ namespace Lekco.Promissum.Model.Sync
     /// Represents the clean up behavior configuration for files in destination path.
     /// </summary>
     [DataContract]
-    public class CleanUpBehavior
+    public partial class CleanUpBehavior
     {
         /// <summary>
         /// Indicates whether to enable reservation of files during clean up.
@@ -60,5 +61,49 @@ namespace Lekco.Promissum.Model.Sync
             RetentionPeriod = new TimeSpan(7, 0, 0, 0);
             MaxVersion = 3;
         }
+
+        /// <summary>
+        /// Extract version from file name.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        /// <param name="version">Extracted version.</param>
+        /// <returns>The file name without version mark.</returns>
+        public static string ExtractVersion(string fileName, out int version)
+        {
+            version = 0;
+            var regex = FileNameRegex();
+            var match = regex.Match(fileName);
+            if (match.Success)
+            {
+                version = int.Parse(match.Groups[1].Value[1..]);
+            }
+            return regex.Replace(fileName, "");
+        }
+
+        /// <summary>
+        /// Indicates the given reserved file whether needs cleaning up.
+        /// </summary>
+        /// <param name="file">Given reserved file.</param>
+        /// <param name="versionIndex">Index of the version which is 1-based.</param>
+        /// <returns><see langword="true"/> if needs; otherwise, returns <see langword="false"/>.</returns>
+        public bool NeedCleanUp(FileBase file, int versionIndex)
+        {
+            if (EnableRetentionPeriod && file.LastWriteTime < DateTime.Now - RetentionPeriod)
+            {
+                return true;
+            }
+            if (EnableVersioning && EnableMaxVersionRetention && versionIndex > MaxVersion)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Regex for matching file name marked with version.
+        /// </summary>
+        /// <returns>Compiled regex.</returns>
+        [GeneratedRegex("(_\\d+)(?=\\.|$)")]
+        private static partial Regex FileNameRegex();
     }
 }

@@ -1,12 +1,12 @@
-﻿using Lekco.Promissum.Model.Sync;
+﻿using Lekco.Promissum.Model.Engine;
+using Lekco.Promissum.Model.Sync;
+using Lekco.Promissum.Model.Sync.Execution;
+using Lekco.Wpf.Control;
 using Lekco.Wpf.MVVM;
+using Lekco.Wpf.MVVM.Command;
 using System;
 using System.Collections.Generic;
-using Lekco.Promissum.Model.Engine;
-using Lekco.Wpf.MVVM.Command;
-using Lekco.Wpf.Control;
 using System.Linq;
-using Lekco.Promissum.Model.Sync.Execution;
 
 namespace Lekco.Promissum.ViewModel.Sync
 {

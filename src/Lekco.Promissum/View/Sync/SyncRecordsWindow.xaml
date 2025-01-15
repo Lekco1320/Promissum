@@ -79,16 +79,22 @@
                            Text="输入内容以筛选…">
 
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock">
+                        <Style BasedOn="{StaticResource {x:Type TextBlock}}"
+                               TargetType="TextBlock">
+
                             <Setter Property="Visibility"
                                     Value="Collapsed" />
+
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Text, ElementName=FilterTextBox}"
                                              Value="">
+
                                     <Setter Property="Visibility"
                                             Value="Visible" />
+
                                 </DataTrigger>
                             </Style.Triggers>
+
                         </Style>
                     </TextBlock.Style>
 

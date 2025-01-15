@@ -34,7 +34,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// <param name="mtpPath">Path of given directory need deleting.</param>
         public static void SafeCreateDirectory(this MediaDevice device, string mtpPath)
         {
-            lock ( _lock)
+            lock (_lock)
             {
                 device.CreateDirectory(mtpPath);
             }
@@ -134,7 +134,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// <returns>Files in the directory.</returns>
         public static IEnumerable<MediaFileInfo> SafeEnumerateFiles(this MediaDirectoryInfo directoryInfo, string pattern)
         {
-            lock ( _lock)
+            lock (_lock)
             {
                 return directoryInfo.EnumerateFiles(pattern);
             }
@@ -148,7 +148,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// <returns>Directories in the directory.</returns>
         public static IEnumerable<MediaDirectoryInfo> SafeEnumerateDirectories(this MediaDirectoryInfo directoryInfo, string pattern)
         {
-            lock ( _lock)
+            lock (_lock)
             {
                 return directoryInfo.EnumerateDirectories(pattern);
             }

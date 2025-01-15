@@ -351,14 +351,14 @@ namespace Lekco.Promissum.Model.Engine
                     TryExecuteTask(task, ExecutionTrigger.OnInterval);
                 }
             }
-			foreach (var task in UnreadyScheduledTasks)
-			{
+            foreach (var task in UnreadyScheduledTasks)
+            {
                 if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnIntervalDue)
                 {
-					HandleUnreadyScheduledTask(task);
-				}
-			}
-		}
+                    HandleUnreadyScheduledTask(task);
+                }
+            }
+        }
 
         /// <summary>
         /// Triggers periodic tasks.
@@ -375,11 +375,11 @@ namespace Lekco.Promissum.Model.Engine
             }
             foreach (var task in UnreadyScheduledTasks)
             {
-				if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnDaysDue)
+                if (!task.IsSuspended && !UntriggerTasks.Contains(task) && task.IsOnDaysDue)
                 {
-					HandleUnreadyScheduledTask(task);
-				}
-			}
+                    HandleUnreadyScheduledTask(task);
+                }
+            }
         }
 
         /// <summary>

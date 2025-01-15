@@ -1,5 +1,4 @@
-﻿using Lekco.Promissum.Control;
-using Lekco.Promissum.ViewModel;
+﻿using Lekco.Promissum.ViewModel;
 using Lekco.Wpf.Control;
 
 namespace Lekco.Promissum.View

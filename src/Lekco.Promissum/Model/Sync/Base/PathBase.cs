@@ -65,9 +65,9 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// <param name="relativeTo">The base path.</param>
         /// <param name="path">The other path.</param>
         /// <returns>A relative path.</returns>
-        protected virtual string GetRelativePath(string relativeTo, string path)
+        public virtual string GetRelativePath(string path)
         {
-            string ret = Path.GetRelativePath(relativeTo, path);
+            string ret = Path.GetRelativePath(FullPath, path);
             return ret != "." ? ret : "";
         }
 

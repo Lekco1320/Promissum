@@ -130,7 +130,7 @@ namespace Lekco.Promissum.View.Sync
             var dialog = new NewSyncTaskDialog(syncProject);
             dialog.ShowDialog();
             newTask = dialog.IsOK ? new SyncTask(dialog.TaskName, dialog.SourcePath!, dialog.DestinationPath!, syncProject)
-                                    { FileSyncMode = (FileSyncMode)dialog.FileSyncModeIndex } : null;
+            { FileSyncMode = (FileSyncMode)dialog.FileSyncModeIndex } : null;
             return dialog.IsOK;
         }
     }

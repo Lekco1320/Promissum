@@ -96,7 +96,7 @@
                 <RadioButton Name="EnableReserve"
                              VerticalAlignment="Center"
                              Content="保留老旧和无关文件至指定目录"
-                             IsChecked="{Binding EnableReserve, Mode=OneWay}"
+                             IsChecked="{Binding EnableReserve}"
                              IsEnabled="{Binding ElementName=EnableCleanUp, Path=IsChecked}" />
 
                 <Button Name="SelectReservePath"

@@ -142,7 +142,7 @@ namespace Lekco.Promissum.App
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            
+
             Task.Run(SyncEngine.AutoLoadProjects);
         }
 

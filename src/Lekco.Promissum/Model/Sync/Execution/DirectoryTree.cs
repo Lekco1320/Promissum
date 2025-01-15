@@ -1,5 +1,6 @@
 ﻿using Lekco.Promissum.Model.Sync.Base;
 using Lekco.Wpf.Utility;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,7 +34,7 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// <summary>
         /// Rules for file exclusion.
         /// </summary>
-        public List<ExclusionRule> ExclusionRules { get; }
+        public List<ExclusionRule>? ExclusionRules { get; }
 
         /// <summary>
         /// Files in the directory.
@@ -54,8 +55,17 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// Create an instance.
         /// </summary>
         /// <param name="directory">Intrinsic directory.</param>
+        public DirectoryTree(DirectoryBase directory)
+            : this(directory, null)
+        {
+        }
+
+        /// <summary>
+        /// Create an instance.
+        /// </summary>
+        /// <param name="directory">Intrinsic directory.</param>
         /// <param name="rules">Rules for file exclusion.</param>
-        public DirectoryTree(DirectoryBase directory, List<ExclusionRule> rules)
+        public DirectoryTree(DirectoryBase directory, List<ExclusionRule>? rules)
         {
             Directory = directory;
             ExclusionRules = rules;
@@ -86,6 +96,11 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// <returns><see langword="true"/> if matches; otherwise, returns <see langword="false"/>.</returns>
         public bool MatchRules(FileBase file)
         {
+            if (ExclusionRules == null)
+            {
+                return false;
+            }
+
             foreach (var rule in ExclusionRules)
             {
                 if (rule.Matches(file))
@@ -101,7 +116,6 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// Add all new entities into result recursively.
         /// </summary>
         /// <param name="result">Result of comparison.</param>
-        /// <param name="newDirTree">New directory tree.</param>
         protected void HandledAsNewTree(ComparisonResult result)
         {
             result.NewDirectories.Add(Directory);
@@ -120,7 +134,6 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// Add all deleted entities into result recursively.
         /// </summary>
         /// <param name="result">Result of comparison.</param>
-        /// <param name="deletedDirTree">Deleted directory tree.</param>
         protected void HandledAsDeleteTree(ComparisonResult result)
         {
             result.DeletedDirectories.Add(Directory);
@@ -191,6 +204,10 @@ namespace Lekco.Promissum.Model.Sync.Execution
                     {
                         result.DifferentFiles.Add(new Pair<FileBase, FileBase>(thisFile, otherFile));
                     }
+                    else
+                    {
+                        result.SameFiles.Add(thisFile);
+                    }
                     unshotFiles.Remove(otherFile.Name);
                 }
                 else
@@ -203,6 +220,72 @@ namespace Lekco.Promissum.Model.Sync.Execution
                 result.DeletedFiles.Add(other.Files[unshotFileName]);
             }
             Task.WaitAll(tasks.ToArray());
+        }
+
+        /// <summary>
+        /// Query all files.
+        /// </summary>
+        /// <returns>All files in the directory tree.</returns>
+        public IEnumerable<FileBase> QueryFiles()
+            => QueryFiles(_ => true);
+
+        /// <summary>
+        /// Query files that satisfy the given criteria.
+        /// </summary>
+        /// <param name="criteria">Given criteria.</param>
+        /// <returns>All files satify the given criteria in the directory tree.</returns>
+        public IEnumerable<FileBase> QueryFiles(Func<FileBase, bool> criteria)
+        {
+            var result = new ConcurrentBag<FileBase>();
+            QueryFiles(result, criteria);
+            return result.ToList();
+        }
+
+        /// <summary>
+        /// Internal implement for querying files.
+        /// </summary>
+        /// <param name="result">Query result.</param>
+        /// <param name="criteria">Given criteria.</param>
+        protected void QueryFiles(ConcurrentBag<FileBase> result, Func<FileBase, bool> criteria)
+        {
+            foreach (var file in Files.Values.Where(criteria))
+            {
+                result.Add(file);
+            }
+            Parallel.ForEach(DirectoryTrees.Values, tree => tree.QueryFiles(result, criteria));
+        }
+
+        /// <summary>
+        /// Query all empty directories.
+        /// </summary>
+        /// <returns>All empty directories.</returns>
+        public IEnumerable<DirectoryBase> QueryEmptyDirectories()
+        {
+            var result = new List<DirectoryBase>();
+            QueryEmptyDirectories(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Internal implement for querying empty directories.
+        /// </summary>
+        /// <param name="result">Query result.</param>
+        /// <returns><see langword="true"/> if empty; otherwise, returns <see langword="false"/>.</returns>
+        protected bool QueryEmptyDirectories(List<DirectoryBase> result)
+        {
+            if (Files.Count > 0)
+            {
+                return false;
+            }
+            foreach (var tree in DirectoryTrees.Values)
+            {
+                if (!tree.QueryEmptyDirectories(result))
+                {
+                    return false;
+                }
+            }
+            result.AddRange(Directories.Values);
+            return true;
         }
 
         /// <summary>
@@ -219,6 +302,11 @@ namespace Lekco.Promissum.Model.Sync.Execution
             /// New directories in source directory tree.
             /// </summary>
             public ConcurrentBag<DirectoryBase> NewDirectories { get; } = new();
+
+            /// <summary>
+            /// Same files judged by givn criteria.
+            /// </summary>
+            public ConcurrentBag<FileBase> SameFiles { get; } = new();
 
             /// <summary>
             /// Different files with same name in two directories.

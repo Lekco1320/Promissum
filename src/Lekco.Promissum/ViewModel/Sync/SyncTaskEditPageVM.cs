@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace Lekco.Promissum.ViewModel.Sync
 {
-    public class SyncTaskModifyPageVM : ViewModelBase
+    public class SyncTaskEditPageVM : ViewModelBase
     {
         public SyncTask SyncTask { get; }
 
@@ -92,7 +92,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public int IntervalMinute { get; set; }
 
-        public SyncTaskModifyPageVM(SyncTask syncTask)
+        public SyncTaskEditPageVM(SyncTask syncTask)
         {
             SyncTask = syncTask;
             NavigationService = NavigationServiceManager.GetService(SyncTask.ParentProject);
@@ -212,7 +212,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             SyncTask.Schedule.OnScheduledDays = EnableScheduledDays && day != Day.None ? day : Day.None;
             var interval = new TimeSpan(IntervalDay, IntervalHour, IntervalMinute, 0);
             SyncTask.Schedule.OnInterval = EnableOnInterval && interval != TimeSpan.Zero ? interval : TimeSpan.Zero;
-            
+
             if (SyncTask.EnableCleanUpBehavior &&
                (!SyncTask.CleanUpBehavior.ReservedPath?.Equals(ReservePath) ?? false))
             {

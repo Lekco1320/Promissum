@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Lekco.Promissum.Model.Sync.Record;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using Lekco.Promissum.Model.Sync.Record;
 
 namespace Lekco.Promissum.Model.Sync.Base
 {

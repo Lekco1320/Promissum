@@ -61,7 +61,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             {
                 return;
             }
-            
+
             Project.IsAutoLoad = !Project.IsAutoLoad;
             try
             {

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Lekco.Promissum.Model.Sync.Base;
+using System;
 using System.Runtime.Serialization;
-using Lekco.Promissum.Model.Sync.Base;
 
 namespace Lekco.Promissum.Model.Sync.Record
 {
@@ -46,12 +46,11 @@ namespace Lekco.Promissum.Model.Sync.Record
         /// Update information of file.
         /// </summary>
         /// <param name="file">The record's file.</param>
-        public void SyncAndUpdate(FileBase file)
+        public void UpdateFileInfo(FileBase file)
         {
             FileSize = file.Size;
             CreationTime = file.CreationTime;
             LastWriteTime = file.LastWriteTime;
-            SyncCount += 1;
         }
     }
 }

@@ -131,7 +131,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             new DataGridTextColumn
             {
                 Header = "保留版本",
-                Binding = new Binding(nameof(CleanUpRecord.ReservedVersions)) { Converter = IEnumerableJoiner, ConverterParameter = ", ", StringFormat = "{{{0}}}" },
+                Binding = new Binding(nameof(CleanUpRecord.ReservedVersionList)) { Converter = IEnumerableJoiner, ConverterParameter = ", ", StringFormat = "{{{0}}}" },
                 Width = 60,
             },
             new DataGridTextColumn

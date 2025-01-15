@@ -5,7 +5,9 @@ using Lekco.Promissum.Model.Sync.Execution;
 using Lekco.Promissum.Model.Sync.Record;
 using Lekco.Wpf.Utility;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -220,6 +222,7 @@ namespace Lekco.Promissum.Model.Sync
 
                 executionRecord = new ExecutionRecord(data);
                 dbContext.ExecutionRecords.Add(executionRecord);
+                dbContext.SaveChanges();
                 dbContext.Dispose();
                 SqliteConnection.ClearAllPools();
                 GC.Collect();
@@ -250,14 +253,30 @@ namespace Lekco.Promissum.Model.Sync
             => Destination.GetDirectory(Source.GetRelativePath(entity));
 
         /// <summary>
+        /// Generate the name of a file whose version is given.
+        /// </summary>
+        /// <param name="fileName">File's name.</param>
+        /// <param name="version">file's version.</param>
+        /// <returns>The file name annotated with version.</returns>
+        protected static string GenerateVersionedFileName(string fileName, int version)
+        {
+            string directory = Path.GetDirectoryName(fileName) ?? "";
+            string newName = Path.GetFileNameWithoutExtension(fileName);
+            string extension = Path.GetExtension(fileName);
+            string newFileName = $"{newName}_{version}{extension}";
+            return Path.Combine(directory, newFileName);
+        }
+
+        /// <summary>
         /// Query the source directory to find files and directories which need to sync or clean up.
         /// </summary>
         /// <param name="data">Execution data.</param>
         /// <returns>The count of files need to be synced.</returns>
         protected void QueryNeedSyncFiles(ExecutionData data)
         {
+            // Construct directory trees in the source and destination path.
             data.SetState(ExecutionState.ConstructTree);
-            var rules = EnableExclusionRules ? ExclusionRules : new List<ExclusionRule>();
+            var rules = EnableExclusionRules ? ExclusionRules : null;
             var srcDirTree = new DirectoryTree(Source.Directory, rules);
             var dstDirTree = new DirectoryTree(Destination.Directory, rules);
             var srcConTask = new Task(srcDirTree.Construct);
@@ -267,9 +286,11 @@ namespace Lekco.Promissum.Model.Sync
             Task.WaitAll(srcConTask, dstConTask);
             var result = srcDirTree.CompareTo(dstDirTree, (FileCompareMode)FileSyncMode);
 
+            // Generate corresponding path of file in destination path.
             data.NeedSyncFiles = result.DifferentFiles;
             data.NeedCleanUpFiles = result.DeletedFiles;
             data.NeedCleanUpDirectories = result.DeletedDirectories;
+            data.DontNeedSyncFiles = result.SameFiles;
             foreach (var newFile in result.NewFiles)
             {
                 FileBase newSyncFile = GenerateFilePathOfDestination(newFile);
@@ -283,100 +304,105 @@ namespace Lekco.Promissum.Model.Sync
         }
 
         /// <summary>
-        /// Get all directories in reserved path and add them into data.
-        /// </summary>
-        /// <param name="directory">The current directory in reserved path.</param>
-        /// <param name="data">The execution data.</param>
-        protected static void GetReservedPathDirectories(DirectoryBase directory, ExecutionData data)
-        {
-            var tasks = new List<Task>();
-            foreach (var dir in directory.EnumerateDirectories())
-            {
-                data.ReservedPathDirectories.Add(dir.FullName);
-                tasks.Add(new Task(() => GetReservedPathDirectories(dir, data)));
-            }
-            Task.WhenAll(tasks).Wait();
-        }
-
-        /// <summary>
-        /// Check reserved file's parent directory whether exists. If not, create them.
-        /// </summary>
-        /// <param name="reservedFile">The reserved file.</param>
-        /// <param name="data">The execution data.</param>
-        /// <returns><see langword="true"/> if checks successfully; otherwise, returns <see langword="false"/>.</returns>
-        protected static bool CheckReservedFilePath(FileBase reservedFile, ExecutionData data)
-        {
-            var dir = reservedFile.Parent;
-            if (data.ReservedPathDirectories.Contains(dir.FullName))
-            {
-                return true;
-            }
-            if (!dir.TryCreate(out var exRecord))
-            {
-                data.ExceptionRecords.Add(exRecord);
-                return false;
-            }
-            while (!data.ReservedPathDirectories.Contains(dir.FullName))
-            {
-                data.ReservedPathDirectories.Add(dir.FullName);
-                dir = dir.Parent;
-            }
-            return true;
-        }
-
-        /// <summary>
         /// Clean up destination path's files and directories if needs.
         /// </summary>
         /// <param name="data">Execution data.</param>
         protected void CleanUpDestinationPath(ExecutionData data)
         {
+            // Try to get corresponding `CleanUpRecord` of files need cleaning up.
             data.SetState(ExecutionState.CleanUpDestinationPath);
-            var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
-            Parallel.ForEach(data.NeedCleanUpFiles, option, file =>
+            var records = new ConcurrentBag<Pair<FileBase, CleanUpRecord?>>();
+            var cleanUpFiles = data.NeedCleanUpFiles.ToList();
+            cleanUpFiles.AddRange(data.NeedSyncFiles.Select(p => p.Item2));
+            Parallel.ForEach(cleanUpFiles, file =>
             {
+                string relativeFileName = Destination.GetRelativePath(file);
                 using var dbContext = GetDbContext();
-                string relativeName = Destination.GetRelativePath(file);
+                var record = dbContext.CleanUpRecords.AsNoTracking()
+                                                     .FirstOrDefault(r => r.RelativeFileName == relativeFileName);
+                records.Add(new Pair<FileBase, CleanUpRecord?>(file, record));
+            });
+
+            // Clean up files in destination path.
+            var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
+            Parallel.ForEach(records, option, pair =>
+            {
+                var cleanFile = pair.Item1;
+                var record = pair.Item2;
                 ExceptionRecord? exRecord;
-                var record = dbContext.CleanUpRecords.FirstOrDefault(record => record.RelativeFileName == relativeName);
-                int currentVersion = record == null || record.ReservedVersions.Count == 0 ?
-                                     1 : record.ReservedVersions[^1] + 1;
-                if (CleanUpBehavior.EnableReserve)
+                using var dbContext = GetDbContext();
+
+                // If disable reservation,
+                if (!CleanUpBehavior.EnableReserve)
                 {
-                    var reservedFile = CleanUpBehavior.EnableVersioning ? GetReservedFile(file, currentVersion) : GetReservedFile(file);
-                    if (!CheckReservedFilePath(reservedFile, data))
+                    // delete it directly and finish.
+                    if (cleanFile.TryDelete(out exRecord))
                     {
-                        return;
+                        string relativeName = Destination.GetRelativePath(cleanFile);
+                        var newRecord = new CleanUpRecord(cleanFile, relativeName) { LastOperateTime = DateTime.Now };
+                        dbContext.CleanUpRecords.Add(newRecord);
+                        dbContext.SaveChanges();
+                        data.DeletedDestinationFiles.Add(cleanFile);
                     }
-                    if (file.TryMoveTo(reservedFile, true, out exRecord))
+                    else
                     {
-                        if (record == null)
-                        {
-                            record = new CleanUpRecord(file, relativeName);
-                            dbContext.CleanUpRecords.Add(record);
-                        }
-                        else
-                        {
-                            record.AddVersion(currentVersion);
-                            dbContext.Entry(record).Property(record => record.ReservedVersions).IsModified = true;
-                        }
-                        data.ReservedFiles.Add(file);
+                        data.ExceptionRecords.Add(exRecord);
                     }
+                    return;
                 }
-                else if (file.TryDelete(out exRecord))
+
+                // If enable reservation, generate path of reserved file.
+                FileBase reservedFile;
+                var verList = new List<int>();
+                string reservedPath;
+                if (CleanUpBehavior.EnableVersioning)
                 {
-                    if (record is null)
+                    verList = record?.ReservedVersionList ?? verList;
+                    int version = verList.LastOrDefault() + 1;
+                    string relativeName = record?.RelativeFileName ?? Destination.GetRelativePath(cleanFile);
+                    reservedPath = GenerateVersionedFileName(relativeName, version);
+                    reservedFile = CleanUpBehavior.ReservedPath!.GetFile(reservedPath);
+                    verList.Add(version);
+                }
+                else
+                {
+                    reservedPath = Destination.GetRelativePath(cleanFile);
+                    reservedFile = CleanUpBehavior.ReservedPath!.GetFile(reservedPath);
+                }
+
+                // Create parent directory of reserved file if doesn't exist.
+                var parent = reservedFile.Parent;
+                if (!parent.Exists && !parent.TryCreate(out exRecord))
+                {
+                    data.ExceptionRecords.Add(exRecord);
+                    return;
+                }
+
+                // Move files for reservation.
+                if (cleanFile.TryMoveTo(reservedFile, true, out exRecord))
+                {
+                    if (record == null)
                     {
-                        record = new CleanUpRecord(file, relativeName);
+                        record = new CleanUpRecord(cleanFile, reservedPath);
                         dbContext.CleanUpRecords.Add(record);
                     }
-                    data.DeletedDestinationFiles.Add(file);
+                    else
+                    {
+                        dbContext.CleanUpRecords.Attach(record);
+                    }
+                    record.LastOperateTime = DateTime.Now;
+                    record.ReservedVersionList = verList;
+                    dbContext.SaveChanges();
+                    data.ReservedFiles.Add(reservedFile);
                 }
-                if (exRecord is not null)
+                else
                 {
                     data.ExceptionRecords.Add(exRecord);
                 }
             });
-            Parallel.ForEach(data.NeedCleanUpDirectories, directory =>
+
+            // Delete empty directories in destination path.
+            Parallel.ForEach(data.NeedCleanUpDirectories, option, directory =>
             {
                 if (!directory.TryDelete(out var exRecord))
                 {
@@ -392,40 +418,76 @@ namespace Lekco.Promissum.Model.Sync
         protected void QueryNeedCleanUpReservedFiles(ExecutionData data)
         {
             data.SetState(ExecutionState.CleanUpReservedPath);
-            if (EnableCleanUpBehavior && CleanUpBehavior.EnableReserve && !CleanUpBehavior.ReservedPath!.Directory.Exists
-                && !CleanUpBehavior.ReservedPath!.Directory.TryCreate(out var record))
+            if (CleanUpBehavior.EnableReserve &&
+                !CleanUpBehavior.ReservedPath!.Directory.Exists &&
+                !CleanUpBehavior.ReservedPath!.Directory.TryCreate(out var record))
             {
                 data.ExceptionRecords.Add(record);
                 return;
             }
-            if (!CleanUpBehavior.EnableReserve || !CleanUpBehavior.EnableRetentionPeriod && !CleanUpBehavior.EnableMaxVersionRetention)
+            if (!CleanUpBehavior.EnableReserve ||
+                !CleanUpBehavior.EnableRetentionPeriod && !CleanUpBehavior.EnableMaxVersionRetention)
             {
                 return;
             }
 
-            using var DbContext = GetDbContext();
-            DateTime dueTime = DateTime.Now - CleanUpBehavior.RetentionPeriod;
-            Parallel.ForEach(DbContext.CleanUpRecords, record =>
+            // Construct a tree of reserved path and group all reserved files by their versions if needs.
+            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory);
+            reservedTree.Construct();
+            var reservedFileGroups = reservedTree.QueryFiles().Select(file =>
             {
+                int version = 0;
+                string noVersionName = CleanUpBehavior.EnableVersioning
+                                     ? CleanUpBehavior.ExtractVersion(file.FullName, out version)
+                                     : file.FullName;
+                return new Tuple<FileBase, string, int>(file, noVersionName, version);
+            }).GroupBy(t => t.Item2);
+
+            Parallel.ForEach(reservedFileGroups, group =>
+            {
+                // Try querying corresponding record from dataset by relative path of the file.
+                string relativeFileName = CleanUpBehavior.ReservedPath!.GetRelativePath(group.Key);
                 using var dbContext = GetDbContext();
-                var reservedFiles = GetReservedFile(record);
-                int reservedVersionIndex = 0;
-                int reservedMinIndex = reservedFiles.Count - CleanUpBehavior.MaxVersion;
-                for (int i = 0; i < reservedFiles.Count; i++)
+                var record = dbContext.CleanUpRecords.AsNoTracking()
+                                                     .FirstOrDefault(r => r.RelativeFileName == relativeFileName);
+                if (record == null)
                 {
-                    var reservedFile = reservedFiles[i];
-                    if (!reservedFile.Exists)
+                    return;
+                }
+
+                // Judge the file whether needs to be cleaned up.
+                int maxVersion = group.Max(t => t.Item3);
+                var verList = record.ReservedVersionList;
+                var verSet = new HashSet<int>(verList);
+                bool modified = false;
+                foreach (var tuple in group)
+                {
+                    int version = tuple.Item3;
+                    int versionIndex = maxVersion - version + 1;
+                    if (!verSet.Remove(version))
                     {
-                        record.RemoveVersion(reservedVersionIndex);
-                        dbContext.Entry(record).Property(record => record.ReservedVersions).IsModified = true;
-                        continue;
+                        verList.Add(version);
+                        modified = true;
                     }
-                    if (CleanUpBehavior.EnableVersioning && CleanUpBehavior.EnableMaxVersionRetention && i < reservedMinIndex
-                        || CleanUpBehavior.EnableRetentionPeriod && reservedFile.LastWriteTime < dueTime)
+                    if (CleanUpBehavior.NeedCleanUp(tuple.Item1, versionIndex))
                     {
-                        data.NeedCleanUpReservedFiles.Add(new ReservedFileInfo(record, reservedVersionIndex, reservedFile));
+                        data.NeedCleanUpReservedFiles.Add(new ReservedFileInfo(tuple.Item1, record, tuple.Item3));
                     }
-                    ++reservedVersionIndex;
+                }
+
+                // Remove all versions which have been deleted already.
+                foreach (int ver in verSet)
+                {
+                    verList.Remove(ver);
+                    modified = true;
+                }
+
+                // Save record to database if modified.
+                if (modified)
+                {
+                    dbContext.CleanUpRecords.Attach(record);
+                    record.ReservedVersionList = verList;
+                    dbContext.SaveChanges();
                 }
             });
         }
@@ -436,25 +498,48 @@ namespace Lekco.Promissum.Model.Sync
         /// <param name="data">Execution data.</param>
         protected void CleanUpReservedFiles(ExecutionData data)
         {
-            foreach (var tuple in data.NeedCleanUpReservedFiles)
+            // Try to clean up reserved files.
+            var modifiedRecords = new ConcurrentBag<CleanUpRecord>();
+            var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
+            Parallel.ForEach(data.NeedCleanUpReservedFiles, option, info =>
             {
-                var record = tuple.CleanUpRecord;
-                var index = tuple.VersionIndex;
-                var file = tuple.File;
+                var file = info.File;
+                var record = info.CleanUpRecord;
                 if (file.TryDelete(out var exRecord))
                 {
                     data.DeletedReservedFiles.Add(file);
-                    record.RemoveVersion(index);
+                    var verList = record.ReservedVersionList;
+                    verList.Remove(info.Version);
+                    record.ReservedVersionList = verList;
+                    record.LastOperateTime = DateTime.Now;
+                    modifiedRecords.Add(record);
                 }
                 else
                 {
                     data.ExceptionRecords.Add(exRecord);
                 }
-            }
+            });
 
-            Parallel.ForEach(CleanUpBehavior.ReservedPath!.Directory.EnumerateDirectories(),
-                dir => DeleteEmptyDirectory(dir, data)
-            );
+            // Delete empty directories in reserved path.
+            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory);
+            reservedTree.Construct();
+            var emptyDirs = reservedTree.QueryEmptyDirectories();
+            Parallel.ForEach(emptyDirs, option, emptyDir =>
+            {
+                if (!emptyDir.TryDelete(out var exRecord))
+                {
+                    data.ExceptionRecords.Add(exRecord);
+                }
+            });
+
+            // Save changes to database.
+            using var dbContext = GetDbContext();
+            foreach (var record in modifiedRecords)
+            {
+                dbContext.CleanUpRecords.Attach(record);
+                dbContext.CleanUpRecords.Entry(record).State = EntityState.Modified;
+            }
+            dbContext.SaveChanges();
         }
 
         /// <summary>
@@ -463,28 +548,30 @@ namespace Lekco.Promissum.Model.Sync
         /// <param name="data">Execution data.</param>
         protected void SyncFiles(ExecutionData data)
         {
+            // Create parent directory of syncing file if doesn't exist.
             data.SetState(ExecutionState.SyncFiles);
-            foreach (var directory in data.NeedSyncDirectories)
+            var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
+            Parallel.ForEach(data.NeedSyncDirectories, option, directory =>
             {
                 if (!directory.TryCreate(out var exRecord))
                 {
                     data.ExceptionRecords.Add(exRecord);
                 }
-            }
+            });
 
-            var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
+            // Sync files.
             Parallel.ForEach(data.NeedSyncFiles, option, filePair =>
             {
                 using var dbContext = GetDbContext();
                 var srcFile = filePair.Item1;
                 var dstFile = filePair.Item2;
-
-                string relativeName = Source.GetRelativePath(srcFile);
                 if (!srcFile.TryCopyTo(dstFile, out var exRecord))
                 {
                     data.ExceptionRecords.Add(exRecord);
                     return;
                 }
+
+                string relativeName = Source.GetRelativePath(srcFile);
                 var record = dbContext.FileRecords.FirstOrDefault(record => record.RelativeFileName == relativeName);
                 if (record == null)
                 {
@@ -493,17 +580,20 @@ namespace Lekco.Promissum.Model.Sync
                 }
                 else
                 {
-                    record.SyncAndUpdate(srcFile);
+                    record.UpdateFileInfo(srcFile);
+                    record.SyncCount += 1;
+                    record.LastSyncTime = DateTime.Now;
                 }
+                dbContext.SaveChanges();
                 data.SyncedFiles.Add(srcFile);
             });
 
+            // Update records which files don't need syncing.
             data.SetState(ExecutionState.Completion);
             using var dbContext = GetDbContext();
             foreach (var file in data.DontNeedSyncFiles)
             {
                 string relativeName = Source.GetRelativePath(file);
-
                 var record = dbContext.FileRecords.FirstOrDefault(record => record.RelativeFileName == relativeName);
                 if (record == null)
                 {
@@ -512,89 +602,13 @@ namespace Lekco.Promissum.Model.Sync
                 }
                 else
                 {
-                    record.SyncAndUpdate(file);
+                    record.UpdateFileInfo(file);
+                    record.SyncCount += 1;
+                    record.LastSyncTime = DateTime.Now;
                 }
                 data.SyncedFiles.Add(file);
             }
-        }
-
-        /// <summary>
-        /// Delete the given directory if it is empty.
-        /// </summary>
-        /// <param name="directory">Given directory.</param>
-        /// <param name="data">Execution data.</param>
-        protected static void DeleteEmptyDirectory(DirectoryBase directory, ExecutionData data)
-        {
-            var directories = directory.EnumerateDirectories();
-            var files = directory.EnumerateFiles();
-            if (!directories.Any() || !files.Any())
-            {
-                if (!directory.TryDelete(out var exRecord))
-                {
-                    data.ExceptionRecords.Add(exRecord);
-                }
-                else
-                {
-                    data.DeletedDirectories.Add(directory);
-                }
-                return;
-            }
-            Parallel.ForEach(directories, directory => DeleteEmptyDirectory(directory, data));
-        }
-
-        /// <summary>
-        /// Get corresponding reserved version of the file.
-        /// </summary>
-        /// <param name="file">The file.</param>
-        /// <returns>Corresponding reserved file.</returns>
-        protected FileBase GetReservedFile(FileBase file)
-        {
-            string directory = Destination.GetRelativePath(file.Parent);
-            string relativeName = Path.Combine(directory, file.Name);
-            return CleanUpBehavior.ReservedPath!.GetFile(relativeName);
-        }
-
-        /// <summary>
-        /// Get corresponding reserved version of the file.
-        /// </summary>
-        /// <param name="file">The file.</param>
-        /// <param name="version">Specified version.</param>
-        /// <returns>Corresponding reserved file.</returns>
-        protected FileBase GetReservedFile(FileBase file, int version)
-        {
-            string directory = Destination.GetRelativePath(file.Parent);
-            string newName = file.NameWithoutExtension + "_" + version + file.Extension;
-            string relativeName = Path.Combine(directory, newName);
-            return CleanUpBehavior.ReservedPath!.GetFile(relativeName);
-        }
-
-        /// <summary>
-        /// Get all reserved files of the record.
-        /// </summary>
-        /// <param name="cleanUpRecord">The record.</param>
-        /// <returns>All reserved files of the record.</returns>
-        protected List<FileBase> GetReservedFile(CleanUpRecord cleanUpRecord)
-        {
-            var ret = new List<FileBase>();
-            if (CleanUpBehavior.EnableVersioning)
-            {
-                string directory = Path.GetDirectoryName(cleanUpRecord.RelativeFileName)!;
-                string nameWithoutExtension = Path.GetFileNameWithoutExtension(cleanUpRecord.RelativeFileName);
-                string extension = Path.GetExtension(cleanUpRecord.RelativeFileName);
-                foreach (var version in cleanUpRecord.ReservedVersions)
-                {
-                    string reservedName = nameWithoutExtension + "_" + version + extension;
-                    string relativeName = Path.Combine(directory, reservedName);
-                    var reservedFile = CleanUpBehavior.ReservedPath!.GetFile(relativeName);
-                    ret.Add(reservedFile);
-                }
-            }
-            else
-            {
-                var reservedFile = CleanUpBehavior.ReservedPath!.GetFile(cleanUpRecord.RelativeFileName);
-                ret.Add(reservedFile);
-            }
-            return ret;
+            dbContext.SaveChanges();
         }
 
         /// <summary>
@@ -607,8 +621,7 @@ namespace Lekco.Promissum.Model.Sync
             if (!dataBaseExists)
                 throw new FileNotFoundException($"任务\"{Name}\"的数据库文件不存在。");
 
-            using var dbContext = GetDbContext(pooling: false);
-
+            var dbContext = GetDbContext(pooling: false);
             if (dataSetType.HasFlag(SyncDataSetType.FileRecordDataSet))
             {
                 dbContext.FileRecords.RemoveRange(dbContext.FileRecords);
@@ -622,6 +635,7 @@ namespace Lekco.Promissum.Model.Sync
                 dbContext.ExecutionRecords.RemoveRange(dbContext.ExecutionRecords);
             }
 
+            dbContext.SaveChanges();
             dbContext.Dispose();
             SqliteConnection.ClearAllPools();
             GC.Collect();

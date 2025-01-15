@@ -9,6 +9,11 @@ namespace Lekco.Promissum.Model.Sync.Execution
     public class ReservedFileInfo
     {
         /// <summary>
+        /// Related file.
+        /// </summary>
+        public FileBase File { get; }
+
+        /// <summary>
         /// Related <see cref="Record.CleanUpRecord"/> of the reserved file.
         /// </summary>
         public CleanUpRecord CleanUpRecord { get; }
@@ -16,23 +21,18 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// <summary>
         /// Index of version of the file.
         /// </summary>
-        public int VersionIndex { get; }
-
-        /// <summary>
-        /// Related file.
-        /// </summary>
-        public FileBase File { get; }
+        public int Version { get; }
 
         /// <summary>
         /// Create an instance.
         /// </summary>
         /// <param name="record">Related <see cref="Record.CleanUpRecord"/> of the reserved file.</param>
-        /// <param name="index">Index of version of the file.</param>
+        /// <param name="version">Version of the file.</param>
         /// <param name="file">Related file.</param>
-        public ReservedFileInfo(CleanUpRecord record, int index, FileBase file)
+        public ReservedFileInfo(FileBase file, CleanUpRecord record, int version)
         {
             CleanUpRecord = record;
-            VersionIndex = index;
+            Version = version;
             File = file;
         }
     }

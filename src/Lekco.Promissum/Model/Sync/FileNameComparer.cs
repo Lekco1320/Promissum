@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Lekco.Promissum.Model.Sync.Base;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Lekco.Promissum.Model.Sync.Base;
 
 namespace Lekco.Promissum.Model.Sync
 {

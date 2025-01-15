@@ -30,7 +30,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
 
         // <inheritdoc />
         public override string GetRelativePath(FileSystemBase entity)
-            => GetRelativePath(FullPath, entity.FullName);
+            => GetRelativePath(entity.FullName);
 
         // <inheritdoc />
         public override FileBase GetFile(string relativePath)

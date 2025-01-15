@@ -91,7 +91,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         {
             if (info == null)
                 throw new DriveNotReadyException($"目录\"{FullName}\"的设备尚未就绪。");
-            
+
             return info.SafeEnumerateFiles(searchPattern)
                        .Select(info => new MTPFile(info, Device));
         }

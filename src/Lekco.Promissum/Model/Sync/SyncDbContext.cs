@@ -1,9 +1,5 @@
 ﻿using Lekco.Promissum.Model.Sync.Record;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Lekco.Promissum.Model.Sync
 {
@@ -56,9 +52,6 @@ namespace Lekco.Promissum.Model.Sync
             FileName = fileName;
             IsReadonly = isReadonly;
             Pooling = pooling;
-            Database.OpenConnection();
-            Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-            Database.CloseConnection();
         }
 
         /// <summary>
@@ -81,6 +74,7 @@ namespace Lekco.Promissum.Model.Sync
         protected void Initialize()
         {
             Database.ExecuteSqlRaw("PRAGMA foreign_keys = ON;");
+            Database.ExecuteSqlRaw("PRAGMA journal_mode = WAL;");
         }
 
         /// <summary>
@@ -129,18 +123,12 @@ namespace Lekco.Promissum.Model.Sync
 
             #region CleanUpRecord
 
-            var converter = new ValueConverter<List<int>, string>(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!
-            );
-
             modelBuilder.Entity<CleanUpRecord>()
                 .Property(record => record.ID)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<CleanUpRecord>()
-                .Property(record => record.ReservedVersions)
-                .HasConversion(converter);
+                .Ignore(record => record.ReservedVersionList);
 
             modelBuilder.Entity<CleanUpRecord>()
                 .HasKey(record => record.ID);
@@ -178,16 +166,6 @@ namespace Lekco.Promissum.Model.Sync
                 .HasKey(record => record.ID);
 
             #endregion
-        }
-
-        /// <inheritdoc />
-        public override void Dispose()
-        {
-            if (!IsReadonly)
-            {
-                SaveChanges();
-            }
-            GC.SuppressFinalize(this);
         }
     }
 }
