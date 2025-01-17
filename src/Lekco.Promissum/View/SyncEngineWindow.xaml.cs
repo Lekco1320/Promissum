@@ -1,6 +1,7 @@
 ﻿using Lekco.Promissum.ViewModel.Sync;
 using Lekco.Wpf.Control;
 using System;
+using System.Windows;
 
 namespace Lekco.Promissum.View
 {
@@ -25,17 +26,17 @@ namespace Lekco.Promissum.View
             base.OnClosed(e);
         }
 
-        public static void ShowSyncEngineWindow()
+        public static new void Show()
         {
             if (_instance == null)
             {
                 var window = new SyncEngineWindow();
                 _instance = window;
-                window.Show();
+                ((Window)window).Show();
             }
             else
             {
-                _instance.Show();
+                ((Window)_instance).Show();
                 _instance.Activate();
             }
         }

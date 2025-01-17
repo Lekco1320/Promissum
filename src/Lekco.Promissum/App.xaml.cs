@@ -55,22 +55,49 @@ namespace Lekco.Promissum.App
         /// </summary>
         public static string AgensPath => Args[0][..Args[0].LastIndexOf('\\')] + @"\Lekco.Promissum.Agens.exe";
 
+        /// <summary>
+        /// Viewmodel of the main window.
+        /// </summary>
         public static MainWindowVM MainWindowVM { get; } = new MainWindowVM();
 
+        /// <summary>
+        /// Static command for creating a new project.
+        /// </summary>
         public static ICommand NewProjectCommand => MainWindowVM.NewProjectCommand;
 
+        /// <summary>
+        /// Static command for opening a project.
+        /// </summary>
         public static ICommand OpenProjectCommand => MainWindowVM.OpenProjectCommand;
 
+        /// <summary>
+        /// Static command for opening a specified project.
+        /// </summary>
         public static ICommand OpenSpecifiedProjectCommand => new RelayCommand<string>(MainWindowVM.OpenProject);
 
-        public static ICommand ShowSyncEngineWindowCommand => new RelayCommand(SyncEngineWindow.ShowSyncEngineWindow);
+        /// <summary>
+        /// Static command for showing <see cref="SyncEngineWindow" />.
+        /// </summary>
+        public static ICommand ShowSyncEngineWindowCommand => new RelayCommand(SyncEngineWindow.Show);
 
-        public static ICommand SetAppConfigCommand => new RelayCommand(() => new AppConfigDialog().ShowDialog());
+        /// <summary>
+        /// Static command for showing <see cref="AppConfigDialog" />.
+        /// </summary>
+        public static ICommand ShowAppConfigDialogCommand => new RelayCommand(() => new AppConfigDialog().ShowDialog());
 
+        /// <summary>
+        /// Static command for showing <see cref="AboutWindow" />.
+        /// </summary>
         public static ICommand ShowAboutWindowCommand => new RelayCommand(AboutWindow.ShowAbout);
 
+        /// <summary>
+        /// Static command for opening the repository in browser.
+        /// </summary>
         public static ICommand OpenReposCommand => new RelayCommand(() => Process.Start("explorer.exe", "https://github.com/Lekco1320/Promissum"));
 
+        /// <summary>
+        /// Static command for quitting the app.
+        /// </summary>
         public static ICommand QuitCommand => new RelayCommand(Quit);
 
         /// <summary>
@@ -78,14 +105,20 @@ namespace Lekco.Promissum.App
         /// </summary>
         private static NotifyIcon? NotifyIcon;
 
-        private readonly NamedPipeServer _pipeServer;
-
-        private readonly Mutex _mutex;
+        /// <summary>
+        /// Pipe server for corresponding with other instances of Promissum.
+        /// </summary>
+        private static readonly NamedPipeServer _pipeServer;
 
         /// <summary>
-        /// Create an instance.
+        /// Mutex for ensuring singleton.
         /// </summary>
-        public Promissum()
+        private static readonly Mutex _mutex;
+
+        /// <summary>
+        /// Static constructor.
+        /// </summary>
+        static Promissum()
         {
             _mutex = new Mutex(true, "Lekco.Promissum.Mutex", out bool createdNew);
             if (!createdNew)
@@ -100,9 +133,15 @@ namespace Lekco.Promissum.App
 
             _pipeServer = new NamedPipeServer(Name);
             _ = _pipeServer.StartUpAsync();
+        }
+
+        /// <summary>
+        /// Create an instance.
+        /// </summary>
+        public Promissum()
+        {
             _pipeServer.OnConnected += ConnectedServer;
             _pipeServer.OnReceivedArg += ReceivedArg;
-
             DispatcherUnhandledException += CopeWithUnhandledException;
             CheckAppTempDir();
             SetAppStyle();
@@ -132,7 +171,7 @@ namespace Lekco.Promissum.App
             var info = new FileInfo(e);
             if (info.Exists && info.Extension == ".prms")
             {
-                MainWindowVM.OpenProject(e);
+                Dispatcher.Invoke(() => MainWindowVM.OpenProject(e));
             }
         }
 

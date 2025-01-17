@@ -72,7 +72,7 @@
                 <MenuItem Command="{x:Static app:Promissum.ShowSyncEngineWindowCommand}"
                           Header="备份引擎(_E)..." />
 
-                <MenuItem Command="{x:Static app:Promissum.SetAppConfigCommand}"
+                <MenuItem Command="{x:Static app:Promissum.ShowAppConfigDialogCommand}"
                           Header="首选项(_N)..." />
 
             </MenuItem>

@@ -1,5 +1,4 @@
-﻿using Lekco.Promissum.View;
-using Lekco.Wpf.MVVM.Command;
+﻿using Lekco.Wpf.MVVM.Command;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,11 +12,7 @@ namespace Lekco.Promissum.Control
     {
         private static readonly App.Promissum _promissum = (App.Promissum)Application.Current;
 
-        public ICommand LeftClickCommand => new RelayCommand(_promissum.ShowMainWindow);
-
-        public ICommand ShowSyncEngineWindowCommand => new RelayCommand(SyncEngineWindow.ShowSyncEngineWindow);
-
-        public ICommand QuitCommand => new RelayCommand(App.Promissum.Quit);
+        public static ICommand ShowMainWindowCommand { get; } = new RelayCommand(_promissum.ShowMainWindow);
 
         public NotifyIcon()
         {
