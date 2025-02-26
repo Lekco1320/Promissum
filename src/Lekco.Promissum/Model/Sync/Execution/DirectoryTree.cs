@@ -86,7 +86,8 @@ namespace Lekco.Promissum.Model.Sync.Execution
                                    .ToDictionary(d => d.Name);
             DirectoryTrees = Directories.Values.Select(d => new DirectoryTree(d, ExclusionRules))
                                                .ToDictionary(t => t.Name);
-            Parallel.ForEach(DirectoryTrees.Values, tree => tree.Construct());
+            var option = new ParallelOptions() { MaxDegreeOfParallelism = App.Config.Instance.FileOperationMaxParallelCount };
+            Parallel.ForEach(DirectoryTrees.Values, option, tree => tree.Construct());
         }
 
         /// <summary>

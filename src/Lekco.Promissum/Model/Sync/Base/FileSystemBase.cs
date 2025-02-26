@@ -97,7 +97,7 @@ namespace Lekco.Promissum.Model.Sync.Base
         {
             if (obj is FileSystemBase other)
             {
-                return FullName == FullName;
+                return FullName == other.FullName;
             }
             return false;
         }

@@ -311,7 +311,7 @@ namespace Lekco.Promissum.Model.Sync
         {
             // Try to get corresponding `CleanUpRecord` of files need cleaning up.
             data.SetState(ExecutionState.CleanUpDestinationPath);
-            var records = new ConcurrentBag<Pair<FileBase, CleanUpRecord?>>();
+            var records = new ConcurrentBag<Tuple<FileBase, string, CleanUpRecord?>>();
             var cleanUpFiles = data.NeedCleanUpFiles.ToList();
             cleanUpFiles.AddRange(data.NeedSyncFiles.Select(p => p.Item2));
             Parallel.ForEach(cleanUpFiles, file =>
@@ -320,15 +320,16 @@ namespace Lekco.Promissum.Model.Sync
                 using var dbContext = GetDbContext();
                 var record = dbContext.CleanUpRecords.AsNoTracking()
                                                      .FirstOrDefault(r => r.RelativeFileName == relativeFileName);
-                records.Add(new Pair<FileBase, CleanUpRecord?>(file, record));
+                records.Add(new Tuple<FileBase, string, CleanUpRecord?>(file, relativeFileName, record));
             });
 
             // Clean up files in destination path.
             var option = new ParallelOptions() { MaxDegreeOfParallelism = Config.Instance.FileOperationMaxParallelCount };
-            Parallel.ForEach(records, option, pair =>
+            Parallel.ForEach(records, option, tuple =>
             {
-                var cleanFile = pair.Item1;
-                var record = pair.Item2;
+                var cleanFile = tuple.Item1;
+                var relativeName = tuple.Item2;
+                var record = tuple.Item3;
                 ExceptionRecord? exRecord;
                 using var dbContext = GetDbContext();
 
@@ -338,7 +339,6 @@ namespace Lekco.Promissum.Model.Sync
                     // delete it directly and finish.
                     if (cleanFile.TryDelete(out exRecord))
                     {
-                        string relativeName = Destination.GetRelativePath(cleanFile);
                         var newRecord = new CleanUpRecord(cleanFile, relativeName) { LastOperateTime = DateTime.Now };
                         dbContext.CleanUpRecords.Add(newRecord);
                         dbContext.SaveChanges();
@@ -359,8 +359,8 @@ namespace Lekco.Promissum.Model.Sync
                 {
                     verList = record?.ReservedVersionList ?? verList;
                     int version = verList.LastOrDefault() + 1;
-                    string relativeName = record?.RelativeFileName ?? Destination.GetRelativePath(cleanFile);
-                    reservedPath = GenerateVersionedFileName(relativeName, version);
+                    string relativePath = record?.RelativeFileName ?? Destination.GetRelativePath(cleanFile);
+                    reservedPath = GenerateVersionedFileName(relativePath, version);
                     reservedFile = CleanUpBehavior.ReservedPath!.GetFile(reservedPath);
                     verList.Add(version);
                 }
@@ -383,12 +383,12 @@ namespace Lekco.Promissum.Model.Sync
                 {
                     if (record == null)
                     {
-                        record = new CleanUpRecord(cleanFile, reservedPath);
+                        record = new CleanUpRecord(cleanFile, relativeName);
                         dbContext.CleanUpRecords.Add(record);
                     }
                     else
                     {
-                        dbContext.CleanUpRecords.Attach(record);
+                        dbContext.CleanUpRecords.Update(record);
                     }
                     record.LastOperateTime = DateTime.Now;
                     record.ReservedVersionList = verList;
@@ -485,8 +485,8 @@ namespace Lekco.Promissum.Model.Sync
                 // Save record to database if modified.
                 if (modified)
                 {
-                    dbContext.CleanUpRecords.Attach(record);
                     record.ReservedVersionList = verList;
+                    dbContext.CleanUpRecords.Update(record);
                     dbContext.SaveChanges();
                 }
             });
@@ -536,8 +536,7 @@ namespace Lekco.Promissum.Model.Sync
             using var dbContext = GetDbContext();
             foreach (var record in modifiedRecords)
             {
-                dbContext.CleanUpRecords.Attach(record);
-                dbContext.CleanUpRecords.Entry(record).State = EntityState.Modified;
+                dbContext.CleanUpRecords.Update(record);
             }
             dbContext.SaveChanges();
         }

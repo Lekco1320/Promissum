@@ -31,21 +31,21 @@ namespace Lekco.Promissum.Control
 
         public ObservableCollection<FileSystemBaseVM> ViewModels { get; }
 
-        public RelayCommand ChangeDriveCommand => new RelayCommand(ChangeDrive);
+        public RelayCommand ChangeDriveCommand { get; }
 
-        public RelayCommand GoBackCommand => new RelayCommand(() => GoTo(Directory.Parent));
+        public RelayCommand GoBackCommand { get; }
 
-        public RelayCommand RefreshCommand => new RelayCommand(Refresh);
+        public RelayCommand RefreshCommand { get; }
 
-        public RelayCommand<FileSystemBaseVM> OpenCommand => new RelayCommand<FileSystemBaseVM>(vm => DoubleClick(vm.FileSystemBase));
+        public RelayCommand<FileSystemBaseVM> OpenCommand { get; }
 
-        public RelayCommand<FileSystemBaseVM> CopyToCommand => new RelayCommand<FileSystemBaseVM>(vm => CopyTo(vm.FileSystemBase));
+        public RelayCommand<FileSystemBaseVM> CopyToCommand { get; }
 
-        public RelayCommand<FileSystemBaseVM> MoveToCommand => new RelayCommand<FileSystemBaseVM>(vm => MoveTo(vm.FileSystemBase));
+        public RelayCommand<FileSystemBaseVM> MoveToCommand { get; }
 
-        public RelayCommand<FileSystemBaseVM> DeleteCommand => new RelayCommand<FileSystemBaseVM>(vm => Delete(vm.FileSystemBase));
+        public RelayCommand<FileSystemBaseVM> DeleteCommand { get; }
 
-        public RelayCommand CreateDirectoryCommand => new RelayCommand(CreateDirectory);
+        public RelayCommand CreateDirectoryCommand { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -60,6 +60,15 @@ namespace Lekco.Promissum.Control
             InitializeComponent();
             Title = Directory.Name.Length > 0 ? $"{Directory.Name} ({Drive.Name})" : Drive.Name;
             DataContext = this;
+
+            ChangeDriveCommand = new RelayCommand(ChangeDrive);
+            GoBackCommand = new RelayCommand(() => GoTo(Directory.Parent));
+            RefreshCommand = new RelayCommand(Refresh);
+            OpenCommand = new RelayCommand<FileSystemBaseVM>(vm => DoubleClick(vm.FileSystemBase));
+            CopyToCommand = new RelayCommand<FileSystemBaseVM>(vm => CopyTo(vm.FileSystemBase));
+            MoveToCommand = new RelayCommand<FileSystemBaseVM>(vm => MoveTo(vm.FileSystemBase));
+            DeleteCommand = new RelayCommand<FileSystemBaseVM>(vm => Delete(vm.FileSystemBase));
+            CreateDirectoryCommand = new RelayCommand(CreateDirectory);
         }
 
         private void GetEntities()

@@ -23,11 +23,13 @@ namespace Lekco.Wpf.Control
 
         public DialogStartUpLocation DialogStartUpLocation { get; }
 
-        public ICommand OKCommand => new RelayCommand(OK);
+        public ICommand OKCommand { get; }
 
-        public ICommand CancelCommand => new RelayCommand(Cancel);
+        public ICommand CancelCommand { get; }
 
         public RelayCommand? LinkCommand { get; }
+
+        public Action? LinkAction { get; }
 
         public bool AutoCountDown { get; }
 
@@ -45,6 +47,8 @@ namespace Lekco.Wpf.Control
         private string _countDownString;
 
         private int _remainSeconds;
+
+        private bool _clickedLink;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -73,12 +77,15 @@ namespace Lekco.Wpf.Control
             AutoCountDown = autoCountDown;
             Title = title;
             Link = link;
-            LinkCommand = linkAction != null ? new RelayCommand(linkAction) : null;
+            LinkAction = linkAction;
             _remainSeconds = 30;
             _countDownString = "";
             Width = size.Width;
             Height = size.Height;
 
+            LinkCommand = new RelayCommand(ClickLink);
+            OKCommand = new RelayCommand(OK);
+            CancelCommand = new RelayCommand(Cancel);
             DataContext = this;
             StartUp();
         }
@@ -92,6 +99,12 @@ namespace Lekco.Wpf.Control
                 MessageDialogButtonStyle.OKCancel => false,
                 _ => throw new InvalidOperationException(),
             };
+        }
+
+        private void ClickLink()
+        {
+            _clickedLink = true;
+            LinkAction?.Invoke();
         }
 
         private void OK()
@@ -136,6 +149,11 @@ namespace Lekco.Wpf.Control
         {
             while (_remainSeconds > 0)
             {
+                if (_clickedLink)
+                {
+                    CountDownString = "";
+                    return;
+                }
                 CountDownString = $"{_remainSeconds--}秒后自动{(DialogButtonStyle == MessageDialogButtonStyle.OK ? "确定" : "取消")}";
                 await Task.Delay(1000);
             }
