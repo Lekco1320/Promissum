@@ -28,15 +28,17 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public RelayCommand SaveCommand => new RelayCommand(Save);
 
-        public string SourceDriveName => $"{SyncTask.Source.Drive.Name} ({SyncTask.Source.Drive.DriveType.GetDiscription()})";
+        public string SourceDriveName => $"{SyncTask.Source.Drive.Name} ({SyncTask.Source.Drive.DriveType.GetDiscription()}, {SyncTask.Source.Drive.DriveFormat})";
 
         public string SourcePath => SyncTask.Source.RelativePath;
 
-        public string DestinationDriveName => $"{SyncTask.Destination.Drive.Name} ({SyncTask.Destination.Drive.DriveType.GetDiscription()})";
+        public string DestinationDriveName => $"{SyncTask.Destination.Drive.Name} ({SyncTask.Destination.Drive.DriveType.GetDiscription()}, {SyncTask.Destination.Drive.DriveFormat})";
 
         public string DestinationPath => SyncTask.Destination.RelativePath;
 
         public int FileSyncModeIndex { get; set; }
+
+        public bool IsCaseSensitive { get; set; }
 
         public bool EnableCleanUp { get; set; }
 
@@ -99,6 +101,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
             TaskName = SyncTask.Name;
             FileSyncModeIndex = (int)SyncTask.FileSyncMode;
+            IsCaseSensitive = SyncTask.IsCaseSensitive;
             EnableCleanUp = SyncTask.EnableCleanUpBehavior;
             EnableReserve = SyncTask.CleanUpBehavior.EnableReserve;
             ReservePath = SyncTask.CleanUpBehavior.ReservedPath;
@@ -192,6 +195,7 @@ namespace Lekco.Promissum.ViewModel.Sync
         {
             SyncTask.Name = TaskName;
             SyncTask.FileSyncMode = (FileSyncMode)FileSyncModeIndex;
+            SyncTask.IsCaseSensitive = IsCaseSensitive;
             SyncTask.EnableCleanUpBehavior = EnableCleanUp;
             SyncTask.CleanUpBehavior.EnableReserve = EnableReserve;
             SyncTask.CleanUpBehavior.ReservedPath = EnableReserve ? ReservePath : null;

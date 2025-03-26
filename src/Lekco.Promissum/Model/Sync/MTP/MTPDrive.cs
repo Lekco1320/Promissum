@@ -89,6 +89,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
             Device = mediaDevice;
             mediaDevice.Connect();
             isReady = mediaDevice.IsConnected;
+            DriveFormat = DriveFormat.Unknown;
             Name = Model = Device.Model;
             DriveType = (Base.DriveType)((int)Device.DeviceType + 7);
             ID = $"MTP_{Device.SerialNumber}";

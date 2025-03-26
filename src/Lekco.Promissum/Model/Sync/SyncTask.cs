@@ -79,6 +79,12 @@ namespace Lekco.Promissum.Model.Sync
         public CleanUpBehavior CleanUpBehavior { get; set; }
 
         /// <summary>
+        /// Indicates whether the comparison of path is case-sensitive.
+        /// </summary>
+        [DataMember]
+        public bool IsCaseSensitive { get; set; }
+
+        /// <summary>
         /// The parent project of the task.
         /// </summary>
         public SyncProject ParentProject { get; set; }
@@ -284,7 +290,7 @@ namespace Lekco.Promissum.Model.Sync
             srcConTask.Start();
             dstConTask.Start();
             Task.WaitAll(srcConTask, dstConTask);
-            var result = srcDirTree.CompareTo(dstDirTree, (FileCompareMode)FileSyncMode);
+            var result = srcDirTree.CompareTo(dstDirTree, (FileCompareMode)FileSyncMode, IsCaseSensitive);
 
             // Generate corresponding path of file in destination path.
             data.NeedSyncFiles = result.DifferentFiles;
@@ -432,7 +438,7 @@ namespace Lekco.Promissum.Model.Sync
             }
 
             // Construct a tree of reserved path and group all reserved files by their versions if needs.
-            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory);
+            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory, null);
             reservedTree.Construct();
             var reservedFileGroups = reservedTree.QueryFiles().Select(file =>
             {
@@ -521,7 +527,7 @@ namespace Lekco.Promissum.Model.Sync
             });
 
             // Delete empty directories in reserved path.
-            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory);
+            var reservedTree = new DirectoryTree(CleanUpBehavior.ReservedPath!.Directory, null);
             reservedTree.Construct();
             var emptyDirs = reservedTree.QueryEmptyDirectories();
             Parallel.ForEach(emptyDirs, option, emptyDir =>

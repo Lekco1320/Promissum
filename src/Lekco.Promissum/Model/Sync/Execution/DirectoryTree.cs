@@ -2,6 +2,7 @@
 using Lekco.Wpf.Utility;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,6 +38,11 @@ namespace Lekco.Promissum.Model.Sync.Execution
         public List<ExclusionRule>? ExclusionRules { get; }
 
         /// <summary>
+        /// Indicates whether the comparison of path is case-sensitive.
+        /// </summary>
+        public bool IsCaseSensitive { get; }
+
+        /// <summary>
         /// Files in the directory.
         /// </summary>
         public Dictionary<string, FileBase> Files { get; protected set; }
@@ -50,15 +56,6 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// Directory trees in the directory.
         /// </summary>
         public Dictionary<string, DirectoryTree> DirectoryTrees { get; protected set; }
-
-        /// <summary>
-        /// Create an instance.
-        /// </summary>
-        /// <param name="directory">Intrinsic directory.</param>
-        public DirectoryTree(DirectoryBase directory)
-            : this(directory, null)
-        {
-        }
 
         /// <summary>
         /// Create an instance.
@@ -154,10 +151,10 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// <param name="other">Given tree.</param>
         /// <param name="compareMode">Mode for comparing files.</param>
         /// <returns>Result of comparison.</returns>
-        public ComparisonResult CompareTo(DirectoryTree other, FileCompareMode compareMode)
+        public ComparisonResult CompareTo(DirectoryTree other, FileCompareMode compareMode, bool caseSensitive)
         {
             var result = new ComparisonResult();
-            CompareTo(result, other, compareMode);
+            CompareTo(result, other, compareMode, caseSensitive);
             return result;
         }
 
@@ -167,20 +164,20 @@ namespace Lekco.Promissum.Model.Sync.Execution
         /// <param name="result">Result of comparison.</param>
         /// <param name="other">Given tree.</param>
         /// <param name="compareMode">Mode for comparing files.</param>
-        protected void CompareTo(ComparisonResult result, DirectoryTree other, FileCompareMode compareMode)
+        protected void CompareTo(ComparisonResult result, DirectoryTree other, FileCompareMode compareMode, bool caseSensitive)
         {
-            var unshotDirs = new HashSet<string>(other.Directories.Keys);
+            var data = new ComparisonData(this, other, caseSensitive);
             var tasks = new List<Task>();
             foreach (var pair in DirectoryTrees)
             {
                 string thisDirName = pair.Key;
                 DirectoryTree thisTree = pair.Value;
-                if (other.DirectoryTrees.TryGetValue(thisDirName, out DirectoryTree? otherTree))
+                if (data.OtherDirectoryTrees.TryGetValue(thisDirName, out DirectoryTree? otherTree))
                 {
-                    var compareTask = new Task(() => thisTree.CompareTo(result, otherTree, compareMode));
+                    var compareTask = new Task(() => thisTree.CompareTo(result, otherTree, compareMode, caseSensitive));
                     tasks.Add(compareTask);
                     compareTask.Start();
-                    unshotDirs.Remove(otherTree.Name);
+                    data.UnshotDirectories.Remove(otherTree.Name);
                 }
                 else
                 {
@@ -188,18 +185,17 @@ namespace Lekco.Promissum.Model.Sync.Execution
                     thisTree.HandledAsNewTree(result);
                 }
             }
-            foreach (string unshotDirName in unshotDirs)
+            foreach (string unshotDirName in data.UnshotDirectories)
             {
-                result.DeletedDirectories.Add(other.Directories[unshotDirName]);
-                other.DirectoryTrees[unshotDirName].HandledAsDeleteTree(result);
+                result.DeletedDirectories.Add(data.OtherDirectories[unshotDirName]);
+                data.OtherDirectoryTrees[unshotDirName].HandledAsDeleteTree(result);
             }
 
-            var unshotFiles = new HashSet<string>(other.Files.Keys);
             foreach (var pair in Files)
             {
                 string thisFileName = pair.Key;
                 FileBase thisFile = pair.Value;
-                if (other.Files.TryGetValue(thisFileName, out FileBase? otherFile))
+                if (data.OtherFiles.TryGetValue(thisFileName, out FileBase? otherFile))
                 {
                     if (thisFile.CompareTo(otherFile, compareMode))
                     {
@@ -209,16 +205,16 @@ namespace Lekco.Promissum.Model.Sync.Execution
                     {
                         result.SameFiles.Add(thisFile);
                     }
-                    unshotFiles.Remove(otherFile.Name);
+                    data.UnshotFiles.Remove(otherFile.Name);
                 }
                 else
                 {
                     result.NewFiles.Add(thisFile);
                 }
             }
-            foreach (string unshotFileName in unshotFiles)
+            foreach (string unshotFileName in data.UnshotFiles)
             {
-                result.DeletedFiles.Add(other.Files[unshotFileName]);
+                result.DeletedFiles.Add(data.OtherFiles[unshotFileName]);
             }
             Task.WaitAll(tasks.ToArray());
         }
@@ -290,7 +286,7 @@ namespace Lekco.Promissum.Model.Sync.Execution
         }
 
         /// <summary>
-        /// Stores result of <see cref="CompareTo(DirectoryTree, FileCompareMode)"/>.
+        /// Stores result of <see cref="CompareTo(DirectoryTree, FileCompareMode, bool)"/>.
         /// </summary>
         public class ComparisonResult
         {
@@ -323,6 +319,75 @@ namespace Lekco.Promissum.Model.Sync.Execution
             /// Deleted directories in source directory tree.
             /// </summary>
             public ConcurrentBag<DirectoryBase> DeletedDirectories { get; } = new();
+        }
+
+        /// <summary>
+        /// Stores data of <see cref="CompareTo(DirectoryTree, FileCompareMode, bool)"/>.
+        /// </summary>
+        public class ComparisonData
+        {
+            /// <summary>
+            /// Indicates whether comparison is case-sensitive.
+            /// </summary>
+            public bool IsCaseSensitive { get; }
+
+            /// <summary>
+            /// Files in this directory.
+            /// </summary>
+            public FrozenDictionary<string, FileBase> ThisFiles { get; }
+
+            /// <summary>
+            /// Directories in this directory.
+            /// </summary>
+            public FrozenDictionary<string, DirectoryBase> ThisDirectories { get; }
+
+            /// <summary>
+            /// Directory trees in this directory.
+            /// </summary>
+            public FrozenDictionary<string, DirectoryTree> ThisDirectoryTrees { get; }
+
+            /// <summary>
+            /// Files in this directory.
+            /// </summary>
+            public FrozenDictionary<string, FileBase> OtherFiles { get; }
+
+            /// <summary>
+            /// Directories in this directory.
+            /// </summary>
+            public FrozenDictionary<string, DirectoryBase> OtherDirectories { get; }
+
+            /// <summary>
+            /// Directory trees in this directory.
+            /// </summary>
+            public FrozenDictionary<string, DirectoryTree> OtherDirectoryTrees { get; }
+
+            /// <summary>
+            /// Unshot files.
+            /// </summary>
+            public HashSet<string> UnshotFiles { get; }
+
+            /// <summary>
+            /// Unshot directories.
+            /// </summary>
+            public HashSet<string> UnshotDirectories { get; }
+
+            /// <summary>
+            /// Create an instance.
+            /// </summary>
+            /// <param name="caseSensitive">Indicates whether comparison is case-sensitive.</param>
+            public ComparisonData(DirectoryTree thisTree, DirectoryTree otherTree, bool caseSensitive)
+            {
+                IsCaseSensitive = caseSensitive;
+                var comparer = IsCaseSensitive ? null : new CaseInsensitiveStringComparer();
+                ThisFiles = thisTree.Files.ToFrozenDictionary(comparer);
+                ThisDirectories = thisTree.Directories.ToFrozenDictionary(comparer);
+                ThisDirectoryTrees = thisTree.DirectoryTrees.ToFrozenDictionary(comparer);
+                OtherFiles = otherTree.Files.ToFrozenDictionary(comparer);
+                OtherDirectories = otherTree.Directories.ToFrozenDictionary(comparer);
+                OtherDirectoryTrees = otherTree.DirectoryTrees.ToFrozenDictionary(comparer);
+                UnshotFiles = new HashSet<string>(OtherFiles.Keys, comparer);
+                UnshotDirectories = new HashSet<string>(OtherDirectories.Keys, comparer);
+            }
         }
     }
 }

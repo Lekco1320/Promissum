@@ -11,9 +11,6 @@ using System.Linq;
 
 namespace Lekco.Promissum.View.Sync
 {
-    /// <summary>
-    /// NewTaskWindow.xaml 的交互逻辑
-    /// </summary>
     public partial class NewSyncTaskDialog : CustomWindow, INotifyPropertyChanged
     {
         public SyncProject SyncProject { get; }
@@ -22,6 +19,8 @@ namespace Lekco.Promissum.View.Sync
 
         public int FileSyncModeIndex { get; set; }
 
+        public bool IsCaseSensitive { get; set; }
+
         public RelayCommand ChangeSourcePathCommand => new RelayCommand(ChangeSourcePath);
 
         public RelayCommand ChangeDestinationPathCommand => new RelayCommand(ChangeDestinationPath);
@@ -29,7 +28,10 @@ namespace Lekco.Promissum.View.Sync
         public PathBase? SourcePath { get; set; }
 
         [DependsOn(nameof(SourcePath))]
-        public string SourceDriveType => SourcePath?.Drive.DriveType.GetDiscription() ?? "无";
+        public DriveType SourceDriveType => SourcePath?.Drive.DriveType ?? DriveType.Unknown;
+
+        [DependsOn(nameof(SourcePath))]
+        public string SourceDriveTypeName => SourcePath?.Drive.DriveType.GetDiscription() ?? "无";
 
         [DependsOn(nameof(SourcePath))]
         public string SourceDriveModel => SourcePath?.Drive.Model ?? "无";
@@ -40,10 +42,16 @@ namespace Lekco.Promissum.View.Sync
         [DependsOn(nameof(SourcePath))]
         public string SourceRelativePath => SourcePath?.RelativePath ?? "无";
 
+        [DependsOn(nameof(SourcePath))]
+        public DriveFormat SourceFormat => SourcePath?.Drive.DriveFormat ?? DriveFormat.Unknown;
+
         public PathBase? DestinationPath { get; set; }
 
         [DependsOn(nameof(DestinationPath))]
-        public string DestinationDriveType => DestinationPath?.Drive.DriveType.GetDiscription() ?? "无";
+        public DriveType DestinationDriveType => DestinationPath?.Drive.DriveType ?? DriveType.Unknown;
+
+        [DependsOn(nameof(DestinationPath))]
+        public string DestinationDriveTypeName => DestinationPath?.Drive.DriveType.GetDiscription() ?? "无";
 
         [DependsOn(nameof(DestinationPath))]
         public string DestinationDriveModel => DestinationPath?.Drive.Model ?? "无";
@@ -53,6 +61,9 @@ namespace Lekco.Promissum.View.Sync
 
         [DependsOn(nameof(DestinationPath))]
         public string DestinationRelativePath => DestinationPath?.RelativePath ?? "无";
+
+        [DependsOn(nameof(DestinationPath))]
+        public DriveFormat DestinationFormat => DestinationPath?.Drive.DriveFormat ?? DriveFormat.Unknown;
 
         public bool IsOK { get; protected set; }
 
@@ -85,6 +96,7 @@ namespace Lekco.Promissum.View.Sync
             if (PathSelectorDialog.Select(out var path))
             {
                 DestinationPath = path;
+                IsCaseSensitive = (int)DestinationPath.Drive.DriveFormat >= 6;
             }
         }
 
@@ -130,7 +142,10 @@ namespace Lekco.Promissum.View.Sync
             var dialog = new NewSyncTaskDialog(syncProject);
             dialog.ShowDialog();
             newTask = dialog.IsOK ? new SyncTask(dialog.TaskName, dialog.SourcePath!, dialog.DestinationPath!, syncProject)
-            { FileSyncMode = (FileSyncMode)dialog.FileSyncModeIndex } : null;
+            {
+                FileSyncMode = (FileSyncMode)dialog.FileSyncModeIndex,
+                IsCaseSensitive = dialog.IsCaseSensitive,
+            } : null;
             return dialog.IsOK;
         }
     }

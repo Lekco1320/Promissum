@@ -77,6 +77,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         {
             isReady = driveInfo.IsReady;
             Name = driveInfo.VolumeLabel;
+            DriveFormat = GetDriveFormat(driveInfo.DriveFormat);
             info = driveInfo;
             driveLetter = info.Name;
             GetSNAndModel(driveInfo, out var sn, out var model);
