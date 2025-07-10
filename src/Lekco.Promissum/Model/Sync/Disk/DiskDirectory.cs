@@ -32,23 +32,24 @@ namespace Lekco.Promissum.Model.Sync.Disk
         {
             get
             {
-                var info = new DirectoryInfo(FullName);
+                info ??= new DirectoryInfo(FullName);
                 var parent = info.Parent ?? info;
                 return new DiskDirectory(parent);
             }
         }
 
         /// <summary>
+        /// A protected field for getting current info of the directory.
+        /// </summary>
+        protected DirectoryInfo? info;
+
+        /// <summary>
         /// Create an instance.
         /// </summary>
         /// <param name="fullName">Full name of the directory.</param>
         public DiskDirectory(string fullName)
-            : base(fullName)
+            : this(new DirectoryInfo(fullName))
         {
-            if (Exists)
-            {
-                LastWriteTime = Directory.GetLastWriteTime(FullName);
-            }
         }
 
         /// <summary>
@@ -56,8 +57,13 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// </summary>
         /// <param name="directoryInfo">Information of the directory.</param>
         public DiskDirectory(DirectoryInfo directoryInfo)
-            : this(directoryInfo.FullName)
+            : base(directoryInfo.FullName)
         {
+            info = directoryInfo;
+            if (info.Exists)
+            {
+                LastWriteTime = info.LastWriteTime;
+            }
         }
 
         /// <inheritdoc />
@@ -113,13 +119,15 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// <inheritdoc />
         public override IEnumerable<DirectoryBase> EnumerateDirectories(string searchPattern = "*")
         {
-            return Directory.EnumerateDirectories(FullName, searchPattern).Select(s => new DiskDirectory(s));
+            info ??= new DirectoryInfo(FullName);
+            return info.EnumerateDirectories(searchPattern).Select(i => new DiskDirectory(i));
         }
 
         /// <inheritdoc />
         public override IEnumerable<FileBase> EnumerateFiles(string searchPattern = "*")
         {
-            return Directory.EnumerateFiles(FullName, searchPattern).Select(s => new DiskFile(s));
+            info ??= new DirectoryInfo(FullName);
+            return info.EnumerateFiles(searchPattern).Select(i => new DiskFile(i));
         }
     }
 }

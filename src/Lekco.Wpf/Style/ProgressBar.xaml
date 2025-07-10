@@ -5,6 +5,9 @@
 
     <Style TargetType="{x:Type ProgressBar}">
 
+        <Setter Property="Foreground"
+                Value="White" />
+
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -40,10 +43,6 @@
                 <ControlTemplate TargetType="{x:Type ProgressBar}">
 
                     <Grid Background="Transparent">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
                         <Grid Height="{TemplateBinding Height}">
 
                             <Border BorderBrush="{TemplateBinding BorderBrush}"
@@ -69,52 +68,13 @@
 
                                         <Grid.RenderTransform>
                                             <TransformGroup>
-
-                                                <ScaleTransform ScaleX="1" ScaleY="-1" />
-                                                <SkewTransform AngleX="0" AngleY="0" />
-                                                <RotateTransform Angle="180" />
-                                                <TranslateTransform />
-
+                                                <TranslateTransform x:Name="DummyTransform" />
                                             </TransformGroup>
                                         </Grid.RenderTransform>
 
                                         <Border Name="border"
                                                 Background="{TemplateBinding Background}"
-                                                CornerRadius="3">
-
-                                            <Viewbox Margin="{TemplateBinding Padding}"
-                                                     HorizontalAlignment="Left"
-                                                     VerticalAlignment="Center"
-                                                     SnapsToDevicePixels="True"
-                                                     Stretch="None">
-
-                                                <TextBlock VerticalAlignment="Center"
-                                                           FontSize="{TemplateBinding FontSize}"
-                                                           Foreground="White"
-                                                           RenderTransformOrigin="0.5,0.5"
-                                                           SnapsToDevicePixels="True"
-                                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, StringFormat={}{0:0.#}%}"
-                                                           TextWrapping="WrapWithOverflow">
-
-                                                    <TextBlock.RenderTransform>
-                                                        <TransformGroup>
-                                                            <ScaleTransform ScaleX="-1" ScaleY="1" />
-                                                            <SkewTransform AngleX="0" AngleY="0" />
-                                                            <RotateTransform Angle="0" />
-                                                            <TranslateTransform />
-                                                        </TransformGroup>
-                                                    </TextBlock.RenderTransform>
-
-                                                </TextBlock>
-
-                                            </Viewbox>
-
-                                        </Border>
-
-                                        <Border BorderBrush="#000000"
-                                                BorderThickness="1"
-                                                CornerRadius="3"
-                                                Opacity="0.1" />
+                                                CornerRadius="3" />
 
                                     </Grid>
 
@@ -134,19 +94,18 @@
 
                                     <Storyboard RepeatBehavior="Forever">
 
-                                        <PointAnimationUsingKeyFrames Storyboard.TargetName="Animation"
-                                                                      Storyboard.TargetProperty="(UIElement.RenderTransformOrigin)">
+                                        <DoubleAnimation AutoReverse="True"
+                                                         Storyboard.TargetName="border"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.6"
+                                                         To="1"
+                                                         Duration="0:0:0.8">
 
-                                            <EasingPointKeyFrame KeyTime="0:0:0"
-                                                                 Value="0.5,0.5" />
+                                            <DoubleAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
 
-                                            <EasingPointKeyFrame KeyTime="0:0:1.5"
-                                                                 Value="1.95,0.5" />
-
-                                            <EasingPointKeyFrame KeyTime="0:0:3"
-                                                                 Value="0.5,0.5" />
-
-                                        </PointAnimationUsingKeyFrames>
+                                        </DoubleAnimation>
 
                                     </Storyboard>
 
@@ -159,20 +118,11 @@
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsEnabled" Value="False">
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+
                             <Setter Property="Background"
                                     Value="LightGray" />
-                        </Trigger>
-
-                        <Trigger Property="IsIndeterminate" Value="true">
-
-                            <Setter TargetName="width1"
-                                    Property="Width"
-                                    Value="0.25*" />
-
-                            <Setter TargetName="width2"
-                                    Property="Width"
-                                    Value="0.725*" />
 
                         </Trigger>
 
@@ -181,8 +131,11 @@
                 </ControlTemplate>
 
             </Setter.Value>
+
         </Setter>
+
     </Style>
+
 
     <cvt:ConstantSpeedDurationHelper x:Key="ConstantSpeedDurationHelper" />
 

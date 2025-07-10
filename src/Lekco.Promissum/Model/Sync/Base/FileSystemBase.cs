@@ -13,18 +13,18 @@ namespace Lekco.Promissum.Model.Sync.Base
     public abstract partial class FileSystemBase
     {
         /// <summary>
-        /// Full name of the directory.
+        /// Full name of the entity.
         /// </summary>
         [DataMember]
         public string FullName { get; protected set; }
 
         /// <summary>
-        /// Name of directory.
+        /// Name of entity.
         /// </summary>
         public abstract string Name { get; }
 
         /// <summary>
-        /// Whether the directory exists.
+        /// Whether the entity exists.
         /// </summary>
         public abstract bool Exists { get; }
 
@@ -55,15 +55,17 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// <returns>Full name of this entity in a general format.</returns>
         public static string FormatFullName(string fullName)
         {
+            ReadOnlySpan<char> span = fullName;
+
             if (fullName.EndsWith('\\') && !fullName.EndsWith(@":\"))
             {
-                fullName = fullName[..^1];
+                span = span[..^1];
             }
-            if (fullName.StartsWith('\\'))
+            if (fullName.StartsWith('\\') && span.Length > 1)
             {
-                fullName = fullName[1..];
+                span = span[1..];
             }
-            return fullName;
+            return span.ToString();
         }
 
         /// <summary>

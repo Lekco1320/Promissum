@@ -1,5 +1,4 @@
 ﻿using Lekco.Wpf.MVVM.Command;
-using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;

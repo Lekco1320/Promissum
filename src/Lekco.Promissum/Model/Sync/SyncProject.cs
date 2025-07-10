@@ -32,12 +32,12 @@ namespace Lekco.Promissum.Model.Sync
         /// <summary>
         /// The file holding the sync project.
         /// </summary>
-        public SyncProjectFile SyncProjectFile { get; set; }
+        public SyncProjectFile ParentFile { get; set; }
 
         /// <summary>
         /// The file's name of the project.
         /// </summary>
-        public string ProjectFileName => SyncProjectFile.FileName;
+        public string ParentFileName => ParentFile.FileName;
 
         /// <summary>
         /// Create an instance of this type.
@@ -77,7 +77,7 @@ namespace Lekco.Promissum.Model.Sync
         public void AddTask(SyncTask task)
         {
             Tasks.Add(task);
-            SyncProjectFile.Save();
+            SaveWhole();
         }
 
         /// <summary>
@@ -89,14 +89,21 @@ namespace Lekco.Promissum.Model.Sync
             if (task.IsBusy)
                 throw new TaskIsBusyException($"\"{task.Name}\"正忙，任务删除失败，请稍后再试。", task);
 
-            Tasks.Remove(task);
-            string fileName = SyncProjectFile.GetWorkFileName($"{task.ID}.db");
-            if (File.Exists(fileName))
+            try
             {
-                File.Delete(fileName);
+                string fileName = ParentFile.GetWorkFileName($"{task.ID}.db");
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+            }
+            catch
+            {
+                return false;
             }
 
-            SyncProjectFile.Save();
+            Tasks.Remove(task);
+            SaveWhole();
             return true;
         }
 
@@ -107,7 +114,7 @@ namespace Lekco.Promissum.Model.Sync
         public void RenameProject(string newName)
         {
             Name = newName;
-            SyncProjectFile.Save();
+            SaveWhole();
         }
 
         /// <summary>
@@ -127,7 +134,7 @@ namespace Lekco.Promissum.Model.Sync
         }
 
         /// <summary>
-        /// Save the project as a file.
+        /// Save the project instance as xml file.
         /// </summary>
         /// <exception cref="TaskIsBusyException"></exception>
         public override void Save()
@@ -141,6 +148,16 @@ namespace Lekco.Promissum.Model.Sync
                 { "d", @"http://schemas.datacontract.org/2004/07/Lekco.Promissum.Model.Sync.Disk" },
                 { "m", @"http://schemas.datacontract.org/2004/07/Lekco.Promissum.Model.Sync.Base" },
             });
+        }
+
+        /// <summary>
+        /// Save the whole project as a prms file.
+        /// </summary>
+        /// <returns><see langword="true"/> if success; otherwise, returns <see langword="false"/>.</returns>
+        public bool SaveWhole()
+        {
+            Save();
+            return ParentFile.Save();
         }
     }
 }

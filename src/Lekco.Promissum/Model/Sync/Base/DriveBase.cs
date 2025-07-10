@@ -142,6 +142,12 @@ namespace Lekco.Promissum.Model.Sync.Base
             => HashCode.Combine(ID, Model);
 
         /// <summary>
+        /// Check the drive whether is ready.
+        /// </summary>
+        /// <returns><see langword="true"/> if is ready; otherwise, returns <see langword="false"/>.</returns>
+        public abstract bool CheckIsReady();
+
+        /// <summary>
         /// Get a file in the drive.
         /// </summary>
         /// <param name="path">The file's relative path to the drive.</param>

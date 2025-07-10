@@ -102,7 +102,7 @@ namespace Lekco.Promissum.Model.Sync
         /// <summary>
         /// The file name of the database.
         /// </summary>
-        public string DataBaseFileName => ParentProject.SyncProjectFile.GetWorkFileName($"{ID}.db");
+        public string DataBaseFileName => ParentProject.ParentFile.GetWorkFileName($"{ID}.db");
 
         /// <inheritdoc />
         public override bool IsReady => Source.IsReady && Destination.IsReady &&
@@ -336,6 +336,11 @@ namespace Lekco.Promissum.Model.Sync
                 var cleanFile = tuple.Item1;
                 var relativeName = tuple.Item2;
                 var record = tuple.Item3;
+                if (!cleanFile.Exists)
+                {
+                    return;
+                }
+
                 ExceptionRecord? exRecord;
                 using var dbContext = GetDbContext();
 
@@ -646,7 +651,7 @@ namespace Lekco.Promissum.Model.Sync
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            ParentProject.SyncProjectFile.Save();
+            ParentProject.SaveWhole();
         }
     }
 }

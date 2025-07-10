@@ -56,7 +56,7 @@ namespace Lekco.Promissum.ViewModel
 
             try
             {
-                CurrentProject.SyncProjectFile.Save();
+                CurrentProject.SaveWhole();
                 DialogHelper.ShowSuccess($"项目\"{CurrentProject.Name}\"保存成功。");
             }
             catch (Exception ex)
@@ -113,9 +113,9 @@ namespace Lekco.Promissum.ViewModel
         public void OpenProject(string projectPath)
         {
             AccessedFileManager.AddAccessedFile(projectPath);
-            if (OpenProjects.Any(proj => proj.ProjectFileName == projectPath))
+            if (OpenProjects.Any(proj => proj.ParentFileName == projectPath))
             {
-                var project = OpenProjects.Select(proj => proj.ProjectFileName == projectPath);
+                var project = OpenProjects.Select(proj => proj.ParentFileName == projectPath);
                 NavigationService.Navigate(project);
             }
             else

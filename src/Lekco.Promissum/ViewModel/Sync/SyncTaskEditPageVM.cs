@@ -143,7 +143,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             if (ValidateTaskName() && ValidateReservePath())
             {
                 SyncTask.BusyAction(DumpToTask);
-                SyncTask.ParentProject.SyncProjectFile.Save();
+                SyncTask.ParentProject.SaveWhole();
                 GoBack();
             }
         }

@@ -20,7 +20,7 @@ namespace Lekco.Promissum.Model.Sync
             CheckDirectory();
             string tempFileName = WorkDirectory + @"\project.xml";
             SyncProject = SyncProject.ReadFromFile(tempFileName);
-            SyncProject.SyncProjectFile = this;
+            SyncProject.ParentFile = this;
         }
 
         public SyncProjectFile(string fileName, string projectName, bool isAutoLoad)
@@ -28,11 +28,12 @@ namespace Lekco.Promissum.Model.Sync
             FileName = fileName;
             WorkDirectory = $"{App.Promissum.TempDir}\\{DateTime.Now.GetHashCode()}";
             CheckDirectory();
-            SyncProject = new SyncProject(projectName, $"{WorkDirectory}\\project.xml")
+            SyncProject = new SyncProject(projectName, WorkDirectory + @"\project.xml")
             {
                 IsAutoLoad = isAutoLoad,
-                SyncProjectFile = this,
+                ParentFile = this,
             };
+            SyncProject.Save();
             Save();
         }
 
@@ -54,7 +55,6 @@ namespace Lekco.Promissum.Model.Sync
         public bool Save()
         {
             CheckDirectory();
-            SyncProject.Save();
             try
             {
                 using var fileStream = new FileStream(FileName, FileMode.Create);

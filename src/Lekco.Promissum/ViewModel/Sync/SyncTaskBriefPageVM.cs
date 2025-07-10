@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using DriveType = Lekco.Promissum.Model.Sync.Base.DriveType;
 
 namespace Lekco.Promissum.ViewModel.Sync
 {
@@ -108,40 +107,45 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         protected void SuspendTask()
         {
+            bool suspended = SyncTask.IsSuspended;
             SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
-            if (!SyncTask.ParentProject.SyncProjectFile.Save())
+            if (!SyncTask.ParentProject.SaveWhole())
             {
-                SyncTask.BusyAction(() => SyncTask.IsSuspended = false);
+                SyncTask.BusyAction(() => SyncTask.IsSuspended = suspended);
             }
         }
 
         protected void RestoreTask()
         {
+            bool suspended = SyncTask.IsSuspended;
             SyncTask.BusyAction(() => SyncTask.IsSuspended = false);
-            if (!SyncTask.ParentProject.SyncProjectFile.Save())
+            if (!SyncTask.ParentProject.SaveWhole())
             {
-                SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
+                SyncTask.BusyAction(() => SyncTask.IsSuspended = suspended);
             }
         }
 
         protected void ModifyTask()
         {
-            SuspendTask();
+            SyncTask.BusyAction(() => SyncTask.IsSuspended = true);
             var vm = new SyncTaskEditPageVM(SyncTask);
             var view = new SyncTaskEditPage(vm);
             var oldView = NavigationService.ChangeView(SyncTask, view);
             vm.OldView = oldView;
         }
 
-        protected void OpenDirectory(DriveBase drive, DirectoryBase directory)
+        protected static void OpenDirectory(DriveBase drive, DirectoryBase directory)
         {
-            try
+            if (drive.CheckIsReady())
             {
-                drive.OpenInExplorer(directory);
-            }
-            catch (Exception ex)
-            {
-                DialogHelper.ShowError(ex);
+                try
+                {
+                    drive.OpenInExplorer(directory);
+                }
+                catch (Exception ex)
+                {
+                    DialogHelper.ShowError(ex);
+                }
             }
         }
 

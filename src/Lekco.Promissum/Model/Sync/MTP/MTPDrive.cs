@@ -111,6 +111,10 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// Invokes when any drive connects or disconnects.
         /// </summary>
         private void CheckIsReady(object? sender, EventArgs e)
+            => CheckIsReady();
+
+        /// <inheritdoc />
+        public override bool CheckIsReady()
         {
             foreach (var device in MediaDevice.GetDevices())
             {
@@ -134,9 +138,10 @@ namespace Lekco.Promissum.Model.Sync.MTP
                     device.DeviceRemoved += CheckIsReady;
                     device.DeviceReset += CheckIsReady;
                     device.Connect();
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         /// <inheritdoc />

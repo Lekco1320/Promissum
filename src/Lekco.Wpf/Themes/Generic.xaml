@@ -2,12 +2,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Lekco.Wpf;component/Themes/AnimatedProgressBar.xaml" />
+        <ResourceDictionary Source="Lekco.Wpf;component/Themes/BreadcrumbBar.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/CustomWindow.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/MultiComboBox.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NavigationItem.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/Navigator.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NavigatedFrame.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NumericUpDown.xaml" />
+        <ResourceDictionary Source="Lekco.Wpf;component/Themes/LabeledProgressBar.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

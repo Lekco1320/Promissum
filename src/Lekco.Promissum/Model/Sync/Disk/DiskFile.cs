@@ -40,19 +40,17 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override DirectoryBase Parent => new DiskDirectory(Path.GetDirectoryName(FullName)!);
 
         /// <summary>
+        /// A protected field for getting current info of the directory.
+        /// </summary>
+        protected FileInfo? info;
+
+        /// <summary>
         /// Create an instance.
         /// </summary>
         /// <param name="fullName">Full name of the file.</param>
         public DiskFile(string fullName)
-            : base(fullName)
+            : this(new FileInfo(fullName))
         {
-            if (Exists)
-            {
-                var info = new FileInfo(fullName);
-                Size = info.Length;
-                CreationTime = info.CreationTime;
-                LastWriteTime = info.LastWriteTime;
-            }
         }
 
         /// <summary>
@@ -62,12 +60,30 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public DiskFile(FileInfo fileInfo)
             : base(fileInfo.FullName)
         {
-            if (fileInfo.Exists)
+            info = fileInfo;
+            if (info.Exists)
             {
-                Size = fileInfo.Length;
-                CreationTime = fileInfo.CreationTime;
-                LastWriteTime = fileInfo.LastWriteTime;
+                Size = info.Length;
+                CreationTime = info.CreationTime;
+                LastWriteTime = info.LastWriteTime;
             }
+        }
+
+        public bool TryDeleteReadOnly([MaybeNullWhen(true)] out ExceptionRecord exRecord)
+        {
+            exRecord = null;
+            info ??= new FileInfo(FullName);
+            try
+            {
+                info.IsReadOnly = false;
+                info.Delete();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                exRecord = new ExceptionRecord(FullName, OperationType.Delete, ExceptionType.UnauthorizedAccess, ex.Message);
+            }
+            return false;
         }
 
         /// <inheritdoc />
@@ -96,15 +112,15 @@ namespace Lekco.Promissum.Model.Sync.Disk
             }
             catch (NotConnectedException ex)
             {
-                exRecord = new ExceptionRecord(FullName, OperationType.Copy, ExceptionType.DriveMissing, ex.Message);
+                exRecord = new ExceptionRecord(FullName, OperationType.Move, ExceptionType.DriveMissing, ex.Message);
             }
             catch (SecurityException ex)
             {
                 exRecord = new ExceptionRecord(FullName, OperationType.Move, ExceptionType.NoPermission, ex.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
-                exRecord = new ExceptionRecord(FullName, OperationType.Move, ExceptionType.UnauthorizedAccess, ex.Message);
+                return TryDeleteReadOnly(out exRecord);                
             }
             catch (FileNotFoundException ex)
             {

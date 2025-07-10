@@ -37,6 +37,8 @@ namespace Lekco.Promissum.Control
 
         public RelayCommand RefreshCommand { get; }
 
+        public RelayCommand<string> GotoCommand { get; }
+
         public RelayCommand<FileSystemBaseVM> OpenCommand { get; }
 
         public RelayCommand<FileSystemBaseVM> CopyToCommand { get; }
@@ -64,6 +66,7 @@ namespace Lekco.Promissum.Control
             ChangeDriveCommand = new RelayCommand(ChangeDrive);
             GoBackCommand = new RelayCommand(() => GoTo(Directory.Parent));
             RefreshCommand = new RelayCommand(Refresh);
+            GotoCommand = new RelayCommand<string>(path => GoTo(Drive.GetDirectory(path)));
             OpenCommand = new RelayCommand<FileSystemBaseVM>(vm => DoubleClick(vm.FileSystemBase));
             CopyToCommand = new RelayCommand<FileSystemBaseVM>(vm => CopyTo(vm.FileSystemBase));
             MoveToCommand = new RelayCommand<FileSystemBaseVM>(vm => MoveTo(vm.FileSystemBase));

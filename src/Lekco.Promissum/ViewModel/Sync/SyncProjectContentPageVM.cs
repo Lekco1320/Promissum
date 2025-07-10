@@ -65,7 +65,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             Project.IsAutoLoad = !Project.IsAutoLoad;
             try
             {
-                Project.SyncProjectFile.Save();
+                Project.SaveWhole();
             }
             catch (Exception ex)
             {

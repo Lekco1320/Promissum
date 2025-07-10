@@ -11,7 +11,9 @@ using Lekco.Wpf.Utility.Helper;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -89,6 +91,11 @@ namespace Lekco.Promissum.App
         /// Static command for showing <see cref="AboutWindow" />.
         /// </summary>
         public static ICommand ShowAboutWindowCommand => new RelayCommand(AboutWindow.ShowAbout);
+
+        /// <summary>
+        /// Static command for checking update.
+        /// </summary>
+        public static ICommand CheckUpdateCommand => new RelayCommand(static async () => await CheckForUpdatesAsync());
 
         /// <summary>
         /// Static command for opening the repository in browser.
@@ -310,6 +317,71 @@ namespace Lekco.Promissum.App
             _pipeServer.Stop();
             SyncEngine.Dispose();
             _mutex.ReleaseMutex();
+        }
+
+        /// <summary>
+        /// Checks whether a new version of the application is available by comparing the current version with the latest release on GitHub.
+        /// If a new version is found, prompts the user to download it; otherwise, notifies that the application is up to date.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public static async Task CheckForUpdatesAsync()
+        {
+            var currentVersion = App.Promissum.Version;
+
+            var latestTag = await FetchLatestReleaseTagAsync();
+            if (string.IsNullOrEmpty(latestTag) ||
+                !Version.TryParse(latestTag.TrimStart('v', 'V'), out var latestVersion))
+            {
+                DialogHelper.ShowError("版本更新检查失败。");
+                return;
+            }
+
+            if (latestVersion > currentVersion)
+            {
+                if (DialogHelper.ShowInformation($"检测到新版本：{latestVersion}{Environment.NewLine}当前版本：{currentVersion}{Environment.NewLine}是否前往Github下载？"))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://github.com/Lekco1320/Promissum/releases/latest",
+                        UseShellExecute = true
+                    });
+                }
+            }
+            else
+            {
+                DialogHelper.ShowInformation(
+                    message: $"当前已是最新版本：{latestVersion}。",
+                    buttonStyle: MessageDialogButtonStyle.OK
+                );
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the latest release tag of the Promissum project from GitHub using the GitHub API.
+        /// </summary>
+        /// <returns>The tag name of the latest release if successful; otherwise, <see langword="null"/>.</returns>
+        public static async Task<string?> FetchLatestReleaseTagAsync()
+        {
+            using var client = new HttpClient
+            {
+                DefaultRequestHeaders = { { "User-Agent", "Promissum-Updater" } }
+            };
+
+            var url = $"https://api.github.com/repos/Lekco1320/Promissum/releases/latest";
+            var resp = await client.GetAsync(url);
+            if (!resp.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            using var stream = await resp.Content.ReadAsStreamAsync();
+            using var doc    = await JsonDocument.ParseAsync(stream);
+            if (doc.RootElement.TryGetProperty("tag_name", out var tagElem))
+            {
+                return tagElem.GetString();
+            }
+
+            return null;
         }
     }
 }

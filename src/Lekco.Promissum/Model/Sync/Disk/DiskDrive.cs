@@ -1,6 +1,7 @@
 ﻿using Lekco.Promissum.Model.Engine;
 using Lekco.Promissum.Model.Sync.Base;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Management;
@@ -131,6 +132,10 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// Invokes when any drive connects or disconnects.
         /// </summary>
         protected void CheckIsReady(object? sender, EventArgs e)
+            => CheckIsReady();
+
+        /// <inheritdoc />
+        public override bool CheckIsReady()
         {
             using var pDrives = new ManagementObjectSearcher($"SELECT * FROM Win32_DiskDrive WHERE Model = '{Model}'");
             foreach (var pDrive in pDrives.Get())
@@ -151,13 +156,14 @@ namespace Lekco.Promissum.Model.Sync.Disk
                                 driveLetter = lDrive["Name"].ToString() ?? string.Empty;
                                 info = new DriveInfo(driveLetter);
                                 isReady = true;
-                                return;
+                                return true;
                             }
                         }
                     }
                 }
             }
             isReady = false;
+            return false;
         }
 
         /// <inheritdoc />
@@ -180,7 +186,23 @@ namespace Lekco.Promissum.Model.Sync.Disk
             if (!file.Exists)
                 throw new FileNotFoundException($"文件\"{file.FullName}\"不存在。", file.FullName);
 
-            Process.Start(new ProcessStartInfo(file.FullName) { UseShellExecute = true });
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = file.FullName,
+                    UseShellExecute = true,
+                });
+            }
+            catch (Win32Exception)
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "rundll32.exe",
+                    UseShellExecute = true,
+                    Arguments = $"shell32.dll,OpenAs_RunDLL \"{file.FullName}\"",
+                });
+            }
         }
 
         /// <inheritdoc />

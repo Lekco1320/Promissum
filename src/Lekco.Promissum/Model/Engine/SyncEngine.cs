@@ -161,13 +161,13 @@ namespace Lekco.Promissum.Model.Engine
         {
             if (project.IsAutoLoad)
             {
-                if (AutoLoadProjectPaths.Add(project.ProjectFileName))
+                if (AutoLoadProjectPaths.Add(project.ParentFileName))
                 {
                     SaveConfigFile();
                 }
-                if (!LoadedProjects.TryGetValue(project.ProjectFileName, out var _))
+                if (!LoadedProjects.TryGetValue(project.ParentFileName, out var _))
                 {
-                    LoadedProjects.TryAdd(project.ProjectFileName, project);
+                    LoadedProjects.TryAdd(project.ParentFileName, project);
                     foreach (var task in project.Tasks)
                     {
                         LoadTask(task);
@@ -182,11 +182,11 @@ namespace Lekco.Promissum.Model.Engine
         /// <param name="project">A project.</param>
         public static void UnloadProject(SyncProject project)
         {
-            if (AutoLoadProjectPaths.TryRemove(project.ProjectFileName))
+            if (AutoLoadProjectPaths.TryRemove(project.ParentFileName))
             {
                 SaveConfigFile();
             }
-            if (LoadedProjects.TryGetValue(project.ProjectFileName, out var _))
+            if (LoadedProjects.TryGetValue(project.ParentFileName, out var _))
             {
                 foreach (var task in project.Tasks)
                 {
@@ -425,7 +425,10 @@ namespace Lekco.Promissum.Model.Engine
                 {
                     UnreadyScheduledTasks.TryRemove(task);
                     ReadyScheduledTasks.Add(task);
-                    TryExecuteTask(task, ExecutionTrigger.OnDriveReady);
+                    if (task.Schedule.OnDriveReady && task.IsOnDaysDue)
+                    {
+                        TryExecuteTask(task, ExecutionTrigger.OnDriveReady);
+                    }
                 }
             }
         }
@@ -477,7 +480,7 @@ namespace Lekco.Promissum.Model.Engine
             }
             finally
             {
-                task.ParentProject.SyncProjectFile.Save();
+                task.ParentProject.SaveWhole();
             }
 
             string message = $"任务\"{task.Name}\"执行成功。";

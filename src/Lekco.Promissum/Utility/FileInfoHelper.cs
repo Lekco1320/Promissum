@@ -54,9 +54,17 @@ namespace Lekco.Promissum.Utility
 
         public static readonly Icon SmallFolderIcon;
 
+        public static readonly Icon LargeUnknownFileIcon;
+
+        public static readonly Icon SmallUnknownFileIcon;
+
         public static readonly ImageSource LargeFolderIconImage;
 
         public static readonly ImageSource SmallFolderIconImage;
+
+        public static readonly ImageSource LargeUnknownFileIconImage;
+
+        public static readonly ImageSource SmallUnknownFileIconImage;
 
         public static readonly string FolderInfo = "文件夹";
 
@@ -87,20 +95,36 @@ namespace Lekco.Promissum.Utility
         /// </summary>
         static SHFileInfoHelper()
         {
-            var largeSHInfo = new SHFileInfo();
-            var smallSHInfo = new SHFileInfo();
+            var largeFolderSHInfo = new SHFileInfo();
+            var smallFolderSHInfo = new SHFileInfo();
+            var largeUnknownFileSHInfo = new SHFileInfo();
+            var smallUnknownFileSHInfo = new SHFileInfo();
 
             uint uFlags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
-            _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref largeSHInfo, (uint)Marshal.SizeOf(largeSHInfo), uFlags | SHGFI_LARGEICON);
-            _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref smallSHInfo, (uint)Marshal.SizeOf(smallSHInfo), uFlags | SHGFI_SMALLICON);
+            _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref largeFolderSHInfo, (uint)Marshal.SizeOf(largeFolderSHInfo), uFlags | SHGFI_LARGEICON);
+            _ = SHGetFileInfo(Environment.SystemDirectory, SHGFI_USEFILEATTRIBUTES, ref smallFolderSHInfo, (uint)Marshal.SizeOf(smallFolderSHInfo), uFlags | SHGFI_SMALLICON);
+            _ = SHGetFileInfo(".unknown", 0x80, ref largeUnknownFileSHInfo, (uint)Marshal.SizeOf(largeUnknownFileSHInfo), uFlags | SHGFI_LARGEICON);
+            _ = SHGetFileInfo(".unknown", 0x80, ref smallUnknownFileSHInfo, (uint)Marshal.SizeOf(smallUnknownFileSHInfo), uFlags | SHGFI_SMALLICON);
 
-            LargeFolderIcon = Icon.FromHandle(largeSHInfo.hIcon);
-            SmallFolderIcon = Icon.FromHandle(smallSHInfo.hIcon);
+            LargeFolderIcon = Icon.FromHandle(largeFolderSHInfo.hIcon);
+            SmallFolderIcon = Icon.FromHandle(smallFolderSHInfo.hIcon);
+            LargeUnknownFileIcon = Icon.FromHandle(largeUnknownFileSHInfo.hIcon);
+            SmallUnknownFileIcon = Icon.FromHandle(smallUnknownFileSHInfo.hIcon);
+
             LargeFolderIconImage = ((Icon)LargeFolderIcon.Clone()).ToImageSource();
             SmallFolderIconImage = ((Icon)SmallFolderIcon.Clone()).ToImageSource();
+            LargeUnknownFileIconImage = ((Icon)LargeUnknownFileIcon.Clone()).ToImageSource();
+            SmallUnknownFileIconImage = ((Icon)SmallUnknownFileIcon.Clone()).ToImageSource();
 
-            _ = DestroyIcon(largeSHInfo.hIcon);
-            _ = DestroyIcon(smallSHInfo.hIcon);
+            LargeUnknownFileIconImage.Freeze();
+            SmallFolderIconImage.Freeze();
+            LargeUnknownFileIconImage.Freeze();
+            SmallUnknownFileIconImage.Freeze();
+
+            _ = DestroyIcon(largeFolderSHInfo.hIcon);
+            _ = DestroyIcon(smallFolderSHInfo.hIcon);
+            _ = DestroyIcon(largeUnknownFileSHInfo.hIcon);
+            _ = DestroyIcon(smallUnknownFileSHInfo.hIcon);
         }
 
         /// <summary>
@@ -119,6 +143,11 @@ namespace Lekco.Promissum.Utility
         /// <returns>The default icon of the file.</returns>
         public static Icon GetFileIcon(string extension, bool largeIcon)
         {
+            if (!extension.StartsWith('.'))
+            {
+                return largeIcon ? LargeUnknownFileIcon : SmallUnknownFileIcon;
+            }
+
             var cache = largeIcon ? _largeIconCache : _smallIconCache;
             if (cache.TryGetValue(extension, out var icon))
             {
@@ -145,6 +174,11 @@ namespace Lekco.Promissum.Utility
         /// <returns>Image of the default icon of the file.</returns>
         public static ImageSource GetFileIconImage(string extension, bool largeIcon)
         {
+            if (!extension.StartsWith('.'))
+            {
+                return largeIcon ? LargeUnknownFileIconImage : SmallUnknownFileIconImage;
+            }
+
             var cache = largeIcon ? _largeIconImageCache : _smallIconImageCache;
             if (cache.TryGetValue(extension, out var image))
             {
@@ -153,6 +187,7 @@ namespace Lekco.Promissum.Utility
 
             var icon = GetFileIcon(extension, largeIcon);
             image = icon.ToImageSource();
+            image.Freeze();
             cache.Add(extension, image);
             return image;
         }
@@ -201,6 +236,11 @@ namespace Lekco.Promissum.Utility
         /// <returns>Extension info of file.</returns>
         public static string FileExtentionInfo(string extension, AssocStr assocStr)
         {
+            if (!extension.StartsWith('.'))
+            {
+                return "文件";
+            }
+
             uint pcchOut = 0;
             _ = AssocQueryString(AssocF.Verify, assocStr, extension, null, null, ref pcchOut);
 
@@ -216,6 +256,11 @@ namespace Lekco.Promissum.Utility
         /// <returns>Type name of the file.</returns>
         public static string GetTypeInfo(string extension)
         {
+            if (!extension.StartsWith('.'))
+            {
+                return "文件";
+            }
+
             if (_typeInfoCache.TryGetValue(extension, out var info))
             {
                 return info;
