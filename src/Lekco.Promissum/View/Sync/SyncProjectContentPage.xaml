@@ -171,7 +171,8 @@
 
                                     <ControlTemplate.Triggers>
 
-                                        <Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
 
                                             <Setter TargetName="border"
                                                     Property="Background">
@@ -186,7 +187,8 @@
 
                                         </Trigger>
 
-                                        <Trigger Property="IsSelected" Value="True">
+                                        <Trigger Property="IsSelected"
+                                                 Value="True">
 
                                             <Setter TargetName="border"
                                                     Property="Background"
@@ -239,9 +241,9 @@
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
 
-            <ctrl:NavigatedFrame x:Name="NavigatedFrame"
-                                 HorizontalAlignment="Left"
-                                 NavigationService="{Binding NavigationService}" />
+            <ctrl:AnimatedNavigatedFrame HorizontalAlignment="Left"
+                                         AnimationType="FadeOut"
+                                         NavigationService="{Binding NavigationService}" />
 
         </ScrollViewer>
 

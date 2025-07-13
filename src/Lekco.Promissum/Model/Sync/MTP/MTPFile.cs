@@ -22,7 +22,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// <summary>
         /// Parent device of the directory.
         /// </summary>
-        public MediaDevice Device { get; protected set; }
+        public MediaDevice Device { get; }
 
         /// <inheritdoc />
         public override string Name => Path.GetFileName(FullName);
@@ -31,7 +31,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public override string Extension => Path.GetExtension(Name);
 
         /// <inheritdoc />
-        public override bool Exists => Device.SafeFileExists(FullName);
+        public override bool Exists => Drive.IsReady && Device.SafeFileExists(FullName);
 
         /// <inheritdoc />
         public override DateTime LastWriteTime { get; protected set; }
@@ -50,9 +50,12 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 if (info == null)
                     throw new DriveNotReadyException($"Parent drive of \"{FullName}\" is not ready.");
 
-                return new MTPDirectory(info.Directory, Device);
+                return new MTPDirectory(info.Directory, (MTPDrive)Drive);
             }
         }
+
+        /// <inheritdoc />
+        public override DriveBase Drive { get; }
 
         /// <summary>
         /// A protected field for getting current info of the file.
@@ -63,12 +66,13 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// Create an instance.
         /// </summary>
         /// <param name="fileInfo">Info of the file.</param>
-        /// <param name="device">Parent drive of the file.</param>
-        public MTPFile(MediaFileInfo fileInfo, MediaDevice device)
+        /// <param name="drive">Parent drive of the file.</param>
+        public MTPFile(MediaFileInfo fileInfo, MTPDrive drive)
             : base(fileInfo.FullName)
         {
             info = fileInfo;
-            Device = device;
+            Drive = drive;
+            Device = drive.Device;
             Size = (long)info.Length;
             CreationTime = info.CreationTime ?? default;
             LastWriteTime = info.LastWriteTime ?? default;
@@ -78,15 +82,16 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// Create an instance.
         /// </summary>
         /// <param name="filePath">Path of the file.</param>
-        /// <param name="device">Parent drive of the file.</param>
-        public MTPFile(string filePath, MediaDevice device)
+        /// <param name="drive">Parent drive of the file.</param>
+        public MTPFile(string filePath, MTPDrive drive)
             : base(filePath)
         {
-            if (device.FileExists(filePath))
+            Drive = drive;
+            Device = drive.Device;
+            if (Device.FileExists(filePath))
             {
-                info = device.GetFileInfo(filePath);
+                info = Device.GetFileInfo(filePath);
             }
-            Device = device;
         }
 
         /// <inheritdoc />

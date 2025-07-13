@@ -11,6 +11,7 @@
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NavigatedFrame.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NumericUpDown.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/LabeledProgressBar.xaml" />
+        <ResourceDictionary Source="Lekco.Wpf;component/Themes/LoadingRing.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

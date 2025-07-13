@@ -4,8 +4,11 @@
 
     <Style TargetType="{x:Type ctrl:NumericUpDown}">
 
-        <Setter Property="MinWidth"
+        <Setter Property="Width"
                 Value="50" />
+
+        <Setter Property="BorderBrush"
+                Value="LightGray" />
 
         <Setter Property="Stylus.IsPressAndHoldEnabled"
                 Value="false" />
@@ -34,7 +37,7 @@
                                 BorderThickness="1,1,0,1"
                                 CornerRadius="3,0,0,3" />
 
-                        <TextBox x:Name="textbox"
+                        <TextBox x:Name="PART_TextBox"
                                  Grid.RowSpan="2"
                                  Grid.Column="0"
                                  Height="{TemplateBinding Height}"
@@ -63,7 +66,8 @@
                                 <Style TargetType="{x:Type TextBox}">
                                     <Style.Triggers>
 
-                                        <Trigger Property="IsEnabled" Value="False">
+                                        <Trigger Property="IsEnabled"
+                                                 Value="False">
 
                                             <Setter Property="Opacity"
                                                     Value="0.5" />
@@ -78,7 +82,8 @@
 
                         </TextBox>
 
-                        <RepeatButton Grid.Row="0"
+                        <RepeatButton x:Name="PART_IncreaseButton"
+                                      Grid.Row="0"
                                       Grid.Column="2"
                                       Command="{x:Static Slider.IncreaseSmall}"
                                       Focusable="False"
@@ -115,24 +120,20 @@
 
                                                 <ControlTemplate.Triggers>
 
-                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                    <Trigger Property="IsMouseOver"
+                                                             Value="True">
 
                                                         <Setter Property="Opacity"
                                                                 Value="0.8" />
 
                                                     </Trigger>
 
-                                                    <Trigger Property="IsEnabled" Value="False">
+                                                    <Trigger Property="IsEnabled"
+                                                             Value="False">
 
                                                         <Setter TargetName="border"
-                                                                Property="Background">
-                                                            <Setter.Value>
-                                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                                    <GradientStop Offset="0" Color="White" />
-                                                                    <GradientStop Offset="1" Color="#F7F7F7" />
-                                                                </LinearGradientBrush>
-                                                            </Setter.Value>
-                                                        </Setter>
+                                                                Property="Background"
+                                                                Value="{DynamicResource GWhiteToCLightGrayBrush}" />
 
                                                         <Setter TargetName="mark"
                                                                 Property="Fill"
@@ -150,7 +151,8 @@
 
                         </RepeatButton>
 
-                        <RepeatButton Grid.Row="1"
+                        <RepeatButton x:Name="PART_DecreaseButton"
+                                      Grid.Row="1"
                                       Grid.Column="2"
                                       Command="{x:Static Slider.DecreaseSmall}"
                                       IsEnabled="{TemplateBinding IsEnabled}"
@@ -185,14 +187,16 @@
 
                                                 <ControlTemplate.Triggers>
 
-                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                    <Trigger Property="IsMouseOver"
+                                                             Value="True">
 
                                                         <Setter Property="Opacity"
                                                                 Value="0.8" />
 
                                                     </Trigger>
 
-                                                    <Trigger Property="IsEnabled" Value="False">
+                                                    <Trigger Property="IsEnabled"
+                                                             Value="False">
 
                                                         <Setter TargetName="border"
                                                                 Property="Background">

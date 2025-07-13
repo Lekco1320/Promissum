@@ -148,7 +148,7 @@ namespace Lekco.Promissum.ViewModel
             var directoryInfo = new DirectoryInfo(path);
             var driveInfo = new DriveInfo(directoryInfo.FullName[..2]);
             var drive = new DiskDrive(driveInfo);
-            var directory = new DiskDirectory(directoryInfo);
+            var directory = new DiskDirectory(directoryInfo, drive);
             new ExplorerWindow(drive, directory).Show();
         }
 

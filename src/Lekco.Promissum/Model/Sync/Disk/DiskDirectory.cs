@@ -22,7 +22,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override string Name => Path.GetFileName(FullName) ?? "";
 
         /// <inheritdoc />
-        public override bool Exists => Directory.Exists(FullName);
+        public override bool Exists => Drive.IsReady && Directory.Exists(FullName);
 
         /// <inheritdoc />
         public override DateTime LastWriteTime { get; protected set; }
@@ -34,9 +34,12 @@ namespace Lekco.Promissum.Model.Sync.Disk
             {
                 info ??= new DirectoryInfo(FullName);
                 var parent = info.Parent ?? info;
-                return new DiskDirectory(parent);
+                return new DiskDirectory(parent, (DiskDrive)Drive);
             }
         }
+
+        /// <inheritdoc />
+        public override DriveBase Drive { get; }
 
         /// <summary>
         /// A protected field for getting current info of the directory.
@@ -47,8 +50,9 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// Create an instance.
         /// </summary>
         /// <param name="fullName">Full name of the directory.</param>
-        public DiskDirectory(string fullName)
-            : this(new DirectoryInfo(fullName))
+        /// <param name="drive">Parent drive of the directory.</param>
+        public DiskDirectory(string fullName, DiskDrive drive)
+            : this(new DirectoryInfo(fullName), drive)
         {
         }
 
@@ -56,9 +60,11 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// Create an instance.
         /// </summary>
         /// <param name="directoryInfo">Information of the directory.</param>
-        public DiskDirectory(DirectoryInfo directoryInfo)
+        /// <param name="drive">Parent drive of the directory.</param>
+        public DiskDirectory(DirectoryInfo directoryInfo, DiskDrive drive)
             : base(directoryInfo.FullName)
         {
+            Drive = drive;
             info = directoryInfo;
             if (info.Exists)
             {
@@ -120,14 +126,16 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override IEnumerable<DirectoryBase> EnumerateDirectories(string searchPattern = "*")
         {
             info ??= new DirectoryInfo(FullName);
-            return info.EnumerateDirectories(searchPattern).Select(i => new DiskDirectory(i));
+            return info.EnumerateDirectories(searchPattern)
+                       .Select(i => new DiskDirectory(i, (DiskDrive)Drive));
         }
 
         /// <inheritdoc />
         public override IEnumerable<FileBase> EnumerateFiles(string searchPattern = "*")
         {
             info ??= new DirectoryInfo(FullName);
-            return info.EnumerateFiles(searchPattern).Select(i => new DiskFile(i));
+            return info.EnumerateFiles(searchPattern)
+                       .Select(i => new DiskFile(i, (DiskDrive)Drive));
         }
     }
 }

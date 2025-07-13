@@ -1,7 +1,7 @@
 ﻿// Lekco Promissum
 // Lukaß Zhang, 2023/12/25
 
-using Lekco.Promissum.Control;
+using Hardcodet.Wpf.TaskbarNotification;
 using Lekco.Promissum.Model.Engine;
 using Lekco.Promissum.View;
 using Lekco.Promissum.ViewModel;
@@ -73,6 +73,11 @@ namespace Lekco.Promissum.App
         public static ICommand OpenProjectCommand => MainWindowVM.OpenProjectCommand;
 
         /// <summary>
+        /// Static command for opening main window.
+        /// </summary>
+        public static ICommand ShowMainWindowCommand => new RelayCommand(((Promissum)Application.Current).ShowMainWindow);
+
+        /// <summary>
         /// Static command for opening a specified project.
         /// </summary>
         public static ICommand OpenSpecifiedProjectCommand => new RelayCommand<string>(MainWindowVM.OpenProject);
@@ -108,9 +113,9 @@ namespace Lekco.Promissum.App
         public static ICommand QuitCommand => new RelayCommand(Quit);
 
         /// <summary>
-        /// The notify icon in task bar.
+        /// The icon in task bar.
         /// </summary>
-        private static NotifyIcon? NotifyIcon;
+        private static readonly TaskbarIcon TaskbarIcon;
 
         /// <summary>
         /// Pipe server for corresponding with other instances of Promissum.
@@ -140,6 +145,7 @@ namespace Lekco.Promissum.App
 
             _pipeServer = new NamedPipeServer(Name);
             _ = _pipeServer.StartUpAsync();
+            TaskbarIcon = new TaskbarIcon();
         }
 
         /// <summary>
@@ -158,7 +164,7 @@ namespace Lekco.Promissum.App
             var page = new StartPage(vm);
             MainWindowVM.NavigationService.DefaultView = page;
 
-            NotifyIcon = new NotifyIcon();
+            TaskbarIcon.Style = (Style)Resources[typeof(TaskbarIcon)];
         }
 
         /// <summary>
@@ -349,7 +355,7 @@ namespace Lekco.Promissum.App
             }
             else
             {
-                DialogHelper.ShowInformation(
+                DialogHelper.ShowSuccess(
                     message: $"当前已是最新版本：{latestVersion}。",
                     buttonStyle: MessageDialogButtonStyle.OK
                 );

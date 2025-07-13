@@ -16,7 +16,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public override string FullPath => RelativePath;
 
         /// <inheritdoc />
-        public override DirectoryBase Directory => new MTPDirectory(FullPath, ((MTPDrive)Drive).Device);
+        public override DirectoryBase Directory => new MTPDirectory(FullPath, (MTPDrive)Drive);
 
         /// <summary>
         /// Create an instance.
@@ -34,10 +34,10 @@ namespace Lekco.Promissum.Model.Sync.MTP
 
         /// <inheritdoc />
         public override FileBase GetFile(string relativePath)
-            => new MTPFile(Path.Combine(FullPath, relativePath), ((MTPDrive)Drive).Device);
+            => new MTPFile(Path.Combine(FullPath, relativePath), (MTPDrive)Drive);
 
         /// <inheritdoc />
         public override DirectoryBase GetDirectory(string relativePath)
-            => new MTPDirectory(Path.Combine(FullPath, relativePath), ((MTPDrive)Drive).Device);
+            => new MTPDirectory(Path.Combine(FullPath, relativePath), (MTPDrive)Drive);
     }
 }

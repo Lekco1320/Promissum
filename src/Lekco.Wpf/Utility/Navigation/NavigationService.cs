@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 namespace Lekco.Wpf.Utility.Navigation
 {
@@ -19,7 +20,7 @@ namespace Lekco.Wpf.Utility.Navigation
         }
         private object? _currentKey;
 
-        public object? CurrentView
+        public FrameworkElement? CurrentView
         {
             get => _currentView;
             protected set
@@ -29,9 +30,9 @@ namespace Lekco.Wpf.Utility.Navigation
                 OnPropertyChanged(nameof(CurrentView));
             }
         }
-        private object? _currentView;
+        private FrameworkElement? _currentView;
 
-        public object? DefaultView
+        public FrameworkElement? DefaultView
         {
             get => _defaultView;
             set
@@ -41,7 +42,7 @@ namespace Lekco.Wpf.Utility.Navigation
                 OnPropertyChanged(nameof(DefaultView));
             }
         }
-        private object? _defaultView;
+        private FrameworkElement? _defaultView;
 
         public Dictionary<object, NavigationData> NavigationMapping { get; protected set; }
 
@@ -53,7 +54,7 @@ namespace Lekco.Wpf.Utility.Navigation
 
         public event EventHandler<object>? CurrentKeyChanged;
 
-        public event EventHandler<object?>? CurrentViewChanged;
+        public event EventHandler<FrameworkElement?>? CurrentViewChanged;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -62,7 +63,7 @@ namespace Lekco.Wpf.Utility.Navigation
             NavigationMapping = new Dictionary<object, NavigationData>();
         }
 
-        public void Register(object key, object view, object? vm = null)
+        public virtual void Register(object key, FrameworkElement view, object? vm = null)
         {
             var data = new NavigationData(key, view, vm);
             NavigationMapping[key] = data;
@@ -72,7 +73,7 @@ namespace Lekco.Wpf.Utility.Navigation
             CurrentView = view;
         }
 
-        public void Unregister(object key)
+        public virtual void Unregister(object key)
         {
             var data = NavigationMapping[key];
             NavigationMapping.Remove(key);
@@ -85,7 +86,7 @@ namespace Lekco.Wpf.Utility.Navigation
             }
         }
 
-        public void Navigate(object key)
+        public virtual void Navigate(object key)
         {
             if (NavigationMapping.TryGetValue(key, out NavigationData? value))
             {
@@ -94,7 +95,7 @@ namespace Lekco.Wpf.Utility.Navigation
             }
         }
 
-        public object ChangeView(object key, object newView)
+        public virtual FrameworkElement ChangeView(object key, FrameworkElement newView)
         {
             var oldView = NavigationMapping[key].View;
             NavigationMapping[key].View = newView;

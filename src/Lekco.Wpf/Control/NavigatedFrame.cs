@@ -44,14 +44,6 @@ namespace Lekco.Wpf.Control
             }
         }
 
-        private static void OnDefaultViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is NavigatedFrame frame && frame.Content != null && e.NewValue != null)
-            {
-                frame.Content = e.NewValue;
-            }
-        }
-
         private void OnServicePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(NavigationService.CurrentView))
@@ -61,7 +53,7 @@ namespace Lekco.Wpf.Control
             }
         }
 
-        public void ChangeView(object? newView)
+        public virtual void ChangeView(FrameworkElement? newView)
         {
             Content = newView;
         }

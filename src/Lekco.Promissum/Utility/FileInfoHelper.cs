@@ -84,11 +84,47 @@ namespace Lekco.Promissum.Utility
             public string szTypeName;
         }
 
+        [Flags]
+        public enum AssocF
+        {
+            Init_NoRemapCLSID = 0x1,
+            Init_ByExeName = 0x2,
+            Open_ByExeName = 0x2,
+            Init_DefaultToStar = 0x4,
+            Init_DefaultToFolder = 0x8,
+            NoUserSettings = 0x10,
+            NoTruncate = 0x20,
+            Verify = 0x40,
+            RemapRunDll = 0x80,
+            NoFixUps = 0x100,
+            IgnoreBaseClass = 0x200
+        }
+
+        /// <summary>
+        /// Associated string.
+        /// </summary>
+        public enum AssocStr
+        {
+            Command = 1,
+            Executable,
+            FriendlyDocName,
+            FriendlyAppName,
+            NoOpen,
+            ShellNewValue,
+            DDECommand,
+            DDEIfExec,
+            DDEApplication,
+            DDETopic
+        }
+
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFileInfo psfi, uint cbFileInfo, uint uFlags);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern bool DestroyIcon(IntPtr handle);
+
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern uint AssocQueryString(AssocF flags, AssocStr str, string? pszAssoc, string? pszExtra, [Out] StringBuilder? pszOut, [In][Out] ref uint pcchOut);
 
         /// <summary>
         /// Static constructer. Initialize all cache.
@@ -143,7 +179,7 @@ namespace Lekco.Promissum.Utility
         /// <returns>The default icon of the file.</returns>
         public static Icon GetFileIcon(string extension, bool largeIcon)
         {
-            if (!extension.StartsWith('.'))
+            if (!extension.StartsWith('.') || extension.Length > 6)
             {
                 return largeIcon ? LargeUnknownFileIcon : SmallUnknownFileIcon;
             }
@@ -174,7 +210,7 @@ namespace Lekco.Promissum.Utility
         /// <returns>Image of the default icon of the file.</returns>
         public static ImageSource GetFileIconImage(string extension, bool largeIcon)
         {
-            if (!extension.StartsWith('.'))
+            if (!extension.StartsWith('.') || extension.Length > 6)
             {
                 return largeIcon ? LargeUnknownFileIconImage : SmallUnknownFileIconImage;
             }
@@ -192,42 +228,6 @@ namespace Lekco.Promissum.Utility
             return image;
         }
 
-        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern uint AssocQueryString(AssocF flags, AssocStr str, string? pszAssoc, string? pszExtra, [Out] StringBuilder? pszOut, [In][Out] ref uint pcchOut);
-
-        [Flags]
-        public enum AssocF
-        {
-            Init_NoRemapCLSID = 0x1,
-            Init_ByExeName = 0x2,
-            Open_ByExeName = 0x2,
-            Init_DefaultToStar = 0x4,
-            Init_DefaultToFolder = 0x8,
-            NoUserSettings = 0x10,
-            NoTruncate = 0x20,
-            Verify = 0x40,
-            RemapRunDll = 0x80,
-            NoFixUps = 0x100,
-            IgnoreBaseClass = 0x200
-        }
-
-        /// <summary>
-        /// Associated string.
-        /// </summary>
-        public enum AssocStr
-        {
-            Command = 1,
-            Executable,
-            FriendlyDocName,
-            FriendlyAppName,
-            NoOpen,
-            ShellNewValue,
-            DDECommand,
-            DDEIfExec,
-            DDEApplication,
-            DDETopic
-        }
-
         /// <summary>
         /// Get extension info of file.
         /// </summary>
@@ -236,7 +236,7 @@ namespace Lekco.Promissum.Utility
         /// <returns>Extension info of file.</returns>
         public static string FileExtentionInfo(string extension, AssocStr assocStr)
         {
-            if (!extension.StartsWith('.'))
+            if (!extension.StartsWith('.') || extension.Length > 6)
             {
                 return "文件";
             }
@@ -256,7 +256,7 @@ namespace Lekco.Promissum.Utility
         /// <returns>Type name of the file.</returns>
         public static string GetTypeInfo(string extension)
         {
-            if (!extension.StartsWith('.'))
+            if (!extension.StartsWith('.') || extension.Length > 6)
             {
                 return "文件";
             }

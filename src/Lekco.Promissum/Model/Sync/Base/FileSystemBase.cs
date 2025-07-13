@@ -40,6 +40,11 @@ namespace Lekco.Promissum.Model.Sync.Base
         public abstract DirectoryBase Parent { get; }
 
         /// <summary>
+        /// The parent drive of the entity.
+        /// </summary>
+        public abstract DriveBase Drive { get; }
+
+        /// <summary>
         /// Create an instance.
         /// </summary>
         /// <param name="fullName">Full name of the directory.</param>

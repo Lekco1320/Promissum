@@ -22,22 +22,22 @@
                    Text="{Binding FirstText, Mode=OneWay}"
                    TextTrimming="CharacterEllipsis" />
 
-        <ProgressBar Height="10"
-                     Margin="0,3,0,0"
-                     IsIndeterminate="{Binding FirstIsIndeterminate}"
-                     Style="{StaticResource DianogalProgressBarStyle}"
-                     Value="{Binding FirstValue, Mode=OneWay}" />
+        <ctrl:AnimatedProgressBar Height="10"
+                                  Margin="0,3,0,0"
+                                  IsIndeterminate="{Binding FirstIsIndeterminate}"
+                                  Style="{StaticResource DianogalProgressBarStyle}"
+                                  Value="{Binding FirstValue, Mode=OneWay}" />
 
         <TextBlock Margin="2,12,2,0"
                    VerticalAlignment="Center"
                    Text="{Binding SecondText, Mode=OneWay}"
                    TextTrimming="CharacterEllipsis" />
 
-        <ProgressBar Height="10"
-                     Margin="0,3,0,0"
-                     IsIndeterminate="{Binding SecondIsIndeterminate}"
-                     Style="{StaticResource DianogalProgressBarStyle}"
-                     Value="{Binding SecondValue, Mode=OneWay}" />
+        <ctrl:AnimatedProgressBar Height="10"
+                                  Margin="0,3,0,0"
+                                  IsIndeterminate="{Binding SecondIsIndeterminate}"
+                                  Style="{StaticResource DianogalProgressBarStyle}"
+                                  Value="{Binding SecondValue, Mode=OneWay}" />
 
     </StackPanel>
 

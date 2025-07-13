@@ -145,7 +145,7 @@
                                     Minimum="0"
                                     Value="{Binding RetentionPeriodDay}">
 
-                    <Slider.IsEnabled>
+                    <ctrl:NumericUpDown.IsEnabled>
                         <MultiBinding Converter="{StaticResource ANDOperation}"
                                       Mode="OneWay">
                             <Binding ElementName="EnableRetentionPeriod"
@@ -153,7 +153,7 @@
                             <Binding ElementName="EnableRetentionPeriod"
                                      Path="IsChecked" />
                         </MultiBinding>
-                    </Slider.IsEnabled>
+                    </ctrl:NumericUpDown.IsEnabled>
 
                 </ctrl:NumericUpDown>
 
@@ -213,7 +213,7 @@
                                     Minimum="1"
                                     Value="{Binding MaxVersion}">
 
-                    <Slider.IsEnabled>
+                    <ctrl:NumericUpDown.IsEnabled>
                         <MultiBinding Converter="{StaticResource ANDOperation}"
                                       Mode="OneWay">
                             <Binding ElementName="EnableMaxVersionRetention"
@@ -221,7 +221,7 @@
                             <Binding ElementName="EnableMaxVersionRetention"
                                      Path="IsChecked" />
                         </MultiBinding>
-                    </Slider.IsEnabled>
+                    </ctrl:NumericUpDown.IsEnabled>
 
                 </ctrl:NumericUpDown>
 

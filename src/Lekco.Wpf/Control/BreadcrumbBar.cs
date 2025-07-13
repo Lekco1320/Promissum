@@ -24,32 +24,32 @@ namespace Lekco.Wpf.Control
             get => (string)GetValue(PathProperty);
             set => SetValue(PathProperty, value);
         }
-        public static readonly DependencyProperty PathProperty =
-            DependencyProperty.Register(nameof(Path), typeof(string), typeof(BreadcrumbBar), new PropertyMetadata("", OnPathChanged));
+        public static readonly DependencyProperty PathProperty
+            = DependencyProperty.Register(nameof(Path), typeof(string), typeof(BreadcrumbBar), new PropertyMetadata("", OnPathChanged));
 
         public bool IsEditing
         {
             get => (bool)GetValue(IsEditingProperty);
             set => SetValue(IsEditingProperty, value);
         }
-        public static readonly DependencyProperty IsEditingProperty =
-            DependencyProperty.Register(nameof(IsEditing), typeof(bool), typeof(BreadcrumbBar), new PropertyMetadata(false));
+        public static readonly DependencyProperty IsEditingProperty
+            = DependencyProperty.Register(nameof(IsEditing), typeof(bool), typeof(BreadcrumbBar), new PropertyMetadata(false));
 
         public string PlaceHolder
         {
             get => (string)GetValue(PlaceHolderProperty);
             set => SetValue(PlaceHolderProperty, value);
         }
-        public static readonly DependencyProperty PlaceHolderProperty =
-            DependencyProperty.Register(nameof(PlaceHolder), typeof(string), typeof(BreadcrumbBar), new PropertyMetadata(""));
+        public static readonly DependencyProperty PlaceHolderProperty
+            = DependencyProperty.Register(nameof(PlaceHolder), typeof(string), typeof(BreadcrumbBar), new PropertyMetadata(""));
 
         public ICommand? NavigatedCommand
         {
             get => (ICommand?)GetValue(NavigatedCommandProperty);
             set => SetValue(NavigatedCommandProperty, value);
         }
-        public static readonly DependencyProperty NavigatedCommandProperty =
-            DependencyProperty.Register(nameof(NavigatedCommand), typeof(ICommand), typeof(BreadcrumbBar), new PropertyMetadata(null));
+        public static readonly DependencyProperty NavigatedCommandProperty
+            = DependencyProperty.Register(nameof(NavigatedCommand), typeof(ICommand), typeof(BreadcrumbBar), new PropertyMetadata(null));
 
         public event EventHandler<BreadcrumbNavigatedEventArgs> Navigated
         {

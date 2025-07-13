@@ -1,0 +1,39 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:app="clr-namespace:Lekco.Promissum.App"
+                    xmlns:hcd="http://www.hardcodet.net/taskbar">
+
+    <Style TargetType="{x:Type hcd:TaskbarIcon}">
+
+        <Setter Property="IconSource"
+                Value="/Resources/Logo.ico" />
+
+        <Setter Property="ToolTipText"
+                Value="Lekco Promissum" />
+
+        <Setter Property="LeftClickCommand"
+                Value="{x:Static app:Promissum.ShowMainWindowCommand}" />
+
+        <Setter Property="DoubleClickCommand"
+                Value="{x:Static app:Promissum.ShowMainWindowCommand}" />
+
+        <Setter Property="ContextMenu">
+            <Setter.Value>
+                <ContextMenu BorderBrush="{StaticResource CGrayBrush}"
+                             BorderThickness="1">
+
+                    <MenuItem Command="{x:Static app:Promissum.ShowSyncEngineWindowCommand}"
+                              Header="任务引擎" />
+
+                    <Separator />
+
+                    <MenuItem Command="{x:Static app:Promissum.QuitCommand}"
+                              Header="退出" />
+
+                </ContextMenu>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+</ResourceDictionary>

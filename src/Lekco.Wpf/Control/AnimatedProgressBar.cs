@@ -1,11 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 
 namespace Lekco.Wpf.Control
 {
+    [TemplatePart(Name = "PART_Indicator", Type = typeof(Border))]
+    [TemplatePart(Name = "PART_Track", Type = typeof(Border))]
     public class AnimatedProgressBar : ProgressBar
     {
         static AnimatedProgressBar()
@@ -18,8 +19,8 @@ namespace Lekco.Wpf.Control
             get => (double)GetValue(AnimationSpeedProperty);
             set => SetValue(AnimationSpeedProperty, value);
         }
-        public static readonly DependencyProperty AnimationSpeedProperty =
-            DependencyProperty.Register(nameof(AnimationSpeed), typeof(double), typeof(AnimatedProgressBar), new PropertyMetadata(10d));
+        public static readonly DependencyProperty AnimationSpeedProperty
+            = DependencyProperty.Register(nameof(AnimationSpeed), typeof(double), typeof(AnimatedProgressBar), new PropertyMetadata(10d));
 
         private Border? _indicator;
 
@@ -32,12 +33,15 @@ namespace Lekco.Wpf.Control
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
+            Loaded += (s, e) => SetupAnimation();
+        }
 
+        private void SetupAnimation()
+        {
             _indicator = GetTemplateChild("PART_Indicator") as Border;
             _track = GetTemplateChild("PART_Track") as Border;
 
             // Setup value-change animation
-
             SetupDiagonalAnimation();
             UpdateIndicatorWidth();
 
@@ -81,21 +85,32 @@ namespace Lekco.Wpf.Control
                 return;
             }
 
+            TimeSpan newDuration = TimeSpan.FromSeconds(_indicator.ActualWidth / AnimationSpeed);
+            if (_animation.Duration == newDuration)
+            {
+                return;
+            }
+
             _animation.To = _indicator.ActualHeight;
-            _animation.Duration = TimeSpan.FromSeconds(_indicator.ActualWidth / AnimationSpeed);
+            _animation.Duration = newDuration;
             _diagonalStoryboard.Begin(_indicator, true);
         }
 
         private void UpdateIndicatorWidth()
         {
             if (_indicator == null || _track == null ||
-                IsIndeterminate && _track.ActualWidth == _indicator.Width)
+                (IsIndeterminate && _track.ActualWidth == _indicator.Width))
             {
                 return;
             }
 
             double trackWidth = _track.ActualWidth;
             double targetWidth = IsIndeterminate ? trackWidth : trackWidth * (Value - Minimum) / (Maximum - Minimum);
+
+            if (double.IsNaN(targetWidth) || double.IsNaN(targetWidth) || targetWidth < 0)
+            {
+                return;
+            }
 
             var anim = new DoubleAnimation
             {

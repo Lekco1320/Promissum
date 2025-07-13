@@ -25,12 +25,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public MediaDevice Device { get; protected set; }
 
         /// <inheritdoc />
-        public override bool IsReady => isReady;
-
-        /// <summary>
-        /// Indicates whether the drive is ready.
-        /// </summary>
-        protected bool isReady;
+        public override bool IsReady => _isReady;
 
         /// <inheritdoc />
         public override long AvailableSpace
@@ -70,7 +65,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 if (!IsReady)
                     throw new DriveNotReadyException($"Drive \"{Name}\" is not ready.", this);
 
-                return new MTPDirectory(Device.GetRootDirectory(), Device);
+                return new MTPDirectory(Device.GetRootDirectory(), this);
             }
         }
 
@@ -80,6 +75,14 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// <inheritdoc />
         public override PathBase RootPath => new MTPPath(this, Root);
 
+        /// <inheritdoc />
+        public override event EventHandler<bool>? IsReadyChanged;
+
+        /// <summary>
+        /// Indicates whether the drive is ready.
+        /// </summary>
+        private volatile bool _isReady;
+
         /// <summary>
         /// Create an instance.
         /// </summary>
@@ -88,7 +91,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
         {
             Device = mediaDevice;
             mediaDevice.Connect();
-            isReady = mediaDevice.IsConnected;
+            _isReady = mediaDevice.IsConnected;
             DriveFormat = DriveFormat.Unknown;
             Name = Model = Device.Model;
             DriveType = (Base.DriveType)((int)Device.DeviceType + 7);
@@ -103,7 +106,20 @@ namespace Lekco.Promissum.Model.Sync.MTP
         public void OnDeserialized(StreamingContext context)
         {
             SyncEngine.DrivesChanged += CheckIsReady;
-            CheckIsReady(null, new EventArgs());
+            CheckIsReady();
+        }
+
+        /// <summary>
+        /// Updates the readiness state and raises the <see cref="IsReadyChanged"/> event if the state changes.
+        /// </summary>
+        /// <param name="isReady">A value indicating the new readiness state.</param>
+        protected void SetIsReady(bool isReady)
+        {
+            if (_isReady != isReady)
+            {
+                _isReady = isReady;
+                IsReadyChanged?.Invoke(this, isReady);
+            }
         }
 
         /// <summary>
@@ -134,7 +150,9 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 if (Model == model && ID == sn)
                 {
                     Device = device;
-                    isReady = true;
+                    SetIsReady(true);
+                    device.DeviceRemoved -= CheckIsReady;
+                    device.DeviceReset -= CheckIsReady;
                     device.DeviceRemoved += CheckIsReady;
                     device.DeviceReset += CheckIsReady;
                     device.Connect();
@@ -146,11 +164,11 @@ namespace Lekco.Promissum.Model.Sync.MTP
 
         /// <inheritdoc />
         public override DirectoryBase GetDirectory(string path)
-            => new MTPDirectory(Device.GetDirectoryInfo(path), Device);
+            => new MTPDirectory(Device.GetDirectoryInfo(path), this);
 
         /// <inheritdoc />
         public override FileBase GetFile(string path)
-            => new MTPFile(Device.GetFileInfo(path), Device);
+            => new MTPFile(Device.GetFileInfo(path), this);
 
         /// <inheritdoc />
         public override void OpenFile(FileBase file)
@@ -159,7 +177,8 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 throw new InvalidOperationException($"文件(夹)\"{file.FullName}\"不在设备\"{Name}\"中。");
 
             var diskInfo = new FileInfo(App.Promissum.TempDir + '\\' + file.Name);
-            var diskFile = new DiskFile(diskInfo);
+            var diskDrive = new DiskDrive(new DriveInfo(App.Promissum.TempDir[..2]));
+            var diskFile = new DiskFile(diskInfo, diskDrive);
             if (mtpFile.TryCopyTo(diskFile, out var exRecord))
             {
                 diskInfo.IsReadOnly = true;

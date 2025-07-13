@@ -16,7 +16,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override string FullPath => Path.Combine(Drive.Root, RelativePath);
 
         // <inheritdoc />
-        public override DirectoryBase Directory => new DiskDirectory(FullPath);
+        public override DirectoryBase Directory => new DiskDirectory(FullPath, (DiskDrive)Drive);
 
         /// <summary>
         /// Create an instance.
@@ -34,10 +34,10 @@ namespace Lekco.Promissum.Model.Sync.Disk
 
         // <inheritdoc />
         public override FileBase GetFile(string relativePath)
-            => new DiskFile(Path.Combine(FullPath, relativePath));
+            => new DiskFile(Path.Combine(FullPath, relativePath), (DiskDrive)Drive);
 
         // <inheritdoc />
         public override DirectoryBase GetDirectory(string relativePath)
-            => new DiskDirectory(Path.Combine(FullPath, relativePath));
+            => new DiskDirectory(Path.Combine(FullPath, relativePath), (DiskDrive)Drive);
     }
 }

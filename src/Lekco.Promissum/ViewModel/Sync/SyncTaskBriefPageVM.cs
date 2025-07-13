@@ -3,17 +3,12 @@ using Lekco.Promissum.Model.Sync;
 using Lekco.Promissum.Model.Sync.Base;
 using Lekco.Promissum.Model.Sync.Execution;
 using Lekco.Promissum.View.Sync;
-using Lekco.Wpf.Control;
 using Lekco.Wpf.MVVM;
 using Lekco.Wpf.MVVM.Command;
 using Lekco.Wpf.Utility;
 using Lekco.Wpf.Utility.Helper;
 using Lekco.Wpf.Utility.Navigation;
-using Lekco.Wpf.Utility.Progress;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Lekco.Promissum.ViewModel.Sync
@@ -84,7 +79,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public bool EnableCleanUp => SyncTask.EnableCleanUpBehavior;
 
-        public ICommand ViewRecordsCommand => new RelayCommand(async () => await ViewFilesRecords());
+        public ICommand ViewRecordsCommand => new RelayCommand(ViewFilesRecords);
 
         public SyncTaskBriefPageVM(SyncTask task)
         {
@@ -149,83 +144,11 @@ namespace Lekco.Promissum.ViewModel.Sync
             }
         }
 
-        protected async Task ViewFilesRecords()
+        protected void ViewFilesRecords()
         {
-            var reporter = new LoadRecordsProgressReporter();
-            try
-            {
-                reporter.Begin();
-                using var context = SyncTask.GetDbContextReadonly();
-                reporter.PushProgress();
-                var fileRecords = await context.FileRecords.ToListAsync();
-                reporter.PushProgress();
-                var cleanUpRecords = await context.CleanUpRecords.ToListAsync();
-                reporter.PushProgress();
-                var executionRecords = await context.ExecutionRecords.Include(record => record.ExceptionRecords).ToListAsync();
-                reporter.End();
-                var vm = new SyncRecordsWindowVM(SyncTask, fileRecords, cleanUpRecords, executionRecords);
-                new SyncRecordsWindow(vm).Show();
-            }
-            catch (Exception ex)
-            {
-                DialogHelper.ShowError($"数据查询失败：{ex.Message}");
-            }
-            finally
-            {
-                reporter.End();
-
-                SqliteConnection.ClearAllPools();
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-            }
-        }
-
-        protected class LoadRecordsProgressReporter : ISingleProgressReporter
-        {
-            public event EventHandler<double>? OnProgressValueChanged;
-
-            public event EventHandler<string>? OnProgressTextChanged;
-
-            public event EventHandler? OnProgressBegin;
-
-            public event EventHandler? OnProgressEnd;
-
-            protected int ProgressState;
-
-            private readonly STAThreadHolder<SingleProgressDialog> _STAThreadHolder;
-
-            public LoadRecordsProgressReporter()
-            {
-                _STAThreadHolder = new STAThreadHolder<SingleProgressDialog>(() => new SingleProgressDialog(this));
-            }
-
-            public void Begin()
-            {
-                OnProgressTextChanged?.Invoke(this, "正在连接数据库……");
-                OnProgressValueChanged?.Invoke(this, 20d);
-                OnProgressBegin?.Invoke(this, EventArgs.Empty);
-            }
-
-            public void End()
-            {
-                OnProgressTextChanged?.Invoke(this, "正在完成……");
-                OnProgressValueChanged?.Invoke(this, 100d);
-                OnProgressEnd?.Invoke(this, EventArgs.Empty);
-                _STAThreadHolder.Dispose();
-            }
-
-            public void PushProgress()
-            {
-                var (text, value) = ++ProgressState switch
-                {
-                    1 => ("读取同步记录……", 40d),
-                    2 => ("读取清理记录……", 60d),
-                    3 => ("读取执行记录……", 80d),
-                    _ => ("", double.NaN),
-                };
-                OnProgressTextChanged?.Invoke(this, text);
-                OnProgressValueChanged?.Invoke(this, value);
-            }
+            var context = SyncTask.GetDbContextReadonly();
+            var vm = new SyncRecordsWindowVM(SyncTask, context);
+            new SyncRecordsWindow(vm).Show();
         }
     }
 }

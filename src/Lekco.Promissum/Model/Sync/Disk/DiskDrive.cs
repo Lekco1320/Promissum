@@ -17,12 +17,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
     public class DiskDrive : DriveBase
     {
         /// <inheritdoc />
-        public override bool IsReady => isReady;
-
-        /// <summary>
-        /// Indicates whether the drive is ready.
-        /// </summary>
-        protected bool isReady;
+        public override bool IsReady => _isReady;
 
         /// <inheritdoc />
         public override long AvailableSpace
@@ -31,7 +26,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
             {
                 if (IsReady)
                 {
-                    _availableSpace = info.AvailableFreeSpace;
+                    _availableSpace = _info.AvailableFreeSpace;
                 }
                 return _availableSpace;
             }
@@ -44,31 +39,39 @@ namespace Lekco.Promissum.Model.Sync.Disk
             {
                 if (IsReady)
                 {
-                    _totalSpace = info.TotalSize;
+                    _totalSpace = _info.TotalSize;
                 }
                 return _totalSpace;
             }
         }
 
         /// <inheritdoc />
-        public override DirectoryBase RootDirectory => IsReady ? new DiskDirectory(info.RootDirectory)
+        public override DirectoryBase RootDirectory => IsReady ? new DiskDirectory(_info.RootDirectory, this)
                                                        : throw new DriveNotReadyException($"设备\"{Name}\"尚未就绪。", this);
 
         /// <inheritdoc />
-        public override string Root => IsReady ? info.RootDirectory.FullName : "";
+        public override string Root => IsReady ? _info.RootDirectory.FullName : "";
 
         /// <inheritdoc />
         public override PathBase RootPath => new DiskPath(this, Root);
 
+        /// <inheritdoc />
+        public override event EventHandler<bool>? IsReadyChanged;
+
+        /// <summary>
+        /// Indicates whether the drive is ready.
+        /// </summary>
+        private volatile bool _isReady;
+
         /// <summary>
         /// A protected field for getting current info of the drive.
         /// </summary>
-        protected DriveInfo info;
+        private DriveInfo _info;
 
         /// <summary>
         /// Letter of the drive.
         /// </summary>
-        protected string driveLetter;
+        private string _driveLetter;
 
         /// <summary>
         /// Create an instance.
@@ -76,15 +79,15 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// <param name="driveInfo">DiveInfo of the hard disk.</param>
         public DiskDrive(DriveInfo driveInfo)
         {
-            isReady = driveInfo.IsReady;
+            _isReady = driveInfo.IsReady;
             Name = driveInfo.VolumeLabel;
             DriveFormat = GetDriveFormat(driveInfo.DriveFormat);
-            info = driveInfo;
-            driveLetter = info.Name;
+            _info = driveInfo;
+            _driveLetter = _info.Name;
             GetSNAndModel(driveInfo, out var sn, out var model);
             ID = $"DISK_{sn}";
             Model = model;
-            DriveType = (Base.DriveType)(int)info.DriveType;
+            DriveType = (Base.DriveType)(int)_info.DriveType;
         }
 
         /// <summary>
@@ -128,6 +131,19 @@ namespace Lekco.Promissum.Model.Sync.Disk
         }
 
         /// <summary>
+        /// Updates the readiness state and raises the <see cref="IsReadyChanged"/> event if the state changes.
+        /// </summary>
+        /// <param name="isReady">A value indicating the new readiness state.</param>
+        protected void SetIsReady(bool isReady)
+        {
+            if (_isReady != isReady)
+            {
+                _isReady = isReady;
+                IsReadyChanged?.Invoke(this, isReady);
+            }
+        }
+
+        /// <summary>
         /// Check the drive whether gets ready and get current volume letter of the drive.
         /// Invokes when any drive connects or disconnects.
         /// </summary>
@@ -153,26 +169,26 @@ namespace Lekco.Promissum.Model.Sync.Disk
                             string label = lDrive["VolumeName"].ToString() ?? string.Empty;
                             if (label == Name)
                             {
-                                driveLetter = lDrive["Name"].ToString() ?? string.Empty;
-                                info = new DriveInfo(driveLetter);
-                                isReady = true;
+                                _driveLetter = lDrive["Name"].ToString() ?? string.Empty;
+                                _info = new DriveInfo(_driveLetter);
+                                SetIsReady(true);
                                 return true;
                             }
                         }
                     }
                 }
             }
-            isReady = false;
+            SetIsReady(false);
             return false;
         }
 
         /// <inheritdoc />
         public override FileBase GetFile(string path)
-            => new DiskFile(GetFullPath(path));
+            => new DiskFile(GetFullPath(path), this);
 
         /// <inheritdoc />
         public override DirectoryBase GetDirectory(string path)
-            => new DiskDirectory(GetFullPath(path));
+            => new DiskDirectory(GetFullPath(path), this);
 
         /// <inheritdoc />
         public override void OpenFile(FileBase file)
@@ -223,7 +239,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// <inheritdoc />
         public override string GetRelativePath(FileSystemBase entity)
         {
-            if (entity is not (DiskFile or DiskDirectory) || !entity.FullName.StartsWith(driveLetter))
+            if (entity is not (DiskFile or DiskDirectory) || !entity.FullName.StartsWith(_driveLetter))
                 throw new InvalidOperationException($"文件(夹)\"{entity.FullName}\"不在设备\"{Name}\"中。");
 
             return entity.FullName.Length > 3 ? entity.FullName[3..] : "";

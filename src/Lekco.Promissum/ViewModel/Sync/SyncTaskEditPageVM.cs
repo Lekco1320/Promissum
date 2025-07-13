@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 
 namespace Lekco.Promissum.ViewModel.Sync
 {
@@ -18,7 +19,7 @@ namespace Lekco.Promissum.ViewModel.Sync
     {
         public SyncTask SyncTask { get; }
 
-        public object? OldView { get; set; }
+        public FrameworkElement? OldView { get; set; }
 
         public INavigationService NavigationService { get; set; }
 

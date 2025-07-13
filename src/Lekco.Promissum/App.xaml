@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="/Style/Font.xaml" />
                 <ResourceDictionary Source="/Style/Image.xaml" />
                 <ResourceDictionary Source="/Style/DataGrid.xaml" />
+                <ResourceDictionary Source="/Style/TaskbarIcon.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

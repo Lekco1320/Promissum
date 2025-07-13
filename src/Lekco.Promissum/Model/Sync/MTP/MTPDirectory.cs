@@ -20,13 +20,13 @@ namespace Lekco.Promissum.Model.Sync.MTP
     public class MTPDirectory : DirectoryBase, IMTPDevice
     {
         /// <inheritdoc />
-        public MediaDevice Device { get; protected set; }
+        public MediaDevice Device { get; }
 
         /// <inheritdoc />
         public override string Name => Path.GetFileName(FullName);
 
         /// <inheritdoc />
-        public override bool Exists => Device.SafeDirectoryExists(FullName);
+        public override bool Exists => Drive.IsReady && Device.SafeDirectoryExists(FullName);
 
         /// <inheritdoc />
         public override DateTime LastWriteTime { get; protected set; }
@@ -39,9 +39,12 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 if (info == null)
                     throw new DriveNotReadyException($"目录\"{FullName}\"的设备尚未就绪。");
 
-                return new MTPDirectory(info.Parent, Device);
+                return new MTPDirectory(info.Parent, (MTPDrive)Drive);
             }
         }
+
+        /// <inheritdoc />
+        public override DriveBase Drive { get; }
 
         /// <summary>
         /// A protected field for getting current info of the directory.
@@ -52,12 +55,13 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// Create an instance.
         /// </summary>
         /// <param name="directoryInfo">Info of the directory.</param>
-        /// <param name="device">Parent drive of the directory.</param>
-        public MTPDirectory(MediaDirectoryInfo directoryInfo, MediaDevice device)
+        /// <param name="drive">Parent drive of the directory.</param>
+        public MTPDirectory(MediaDirectoryInfo directoryInfo, MTPDrive drive)
             : base(directoryInfo.FullName)
         {
             info = directoryInfo;
-            Device = device;
+            Drive = drive;
+            Device = drive.Device;
             LastWriteTime = info.LastWriteTime ?? default;
         }
 
@@ -65,15 +69,16 @@ namespace Lekco.Promissum.Model.Sync.MTP
         /// Create an instance.
         /// </summary>
         /// <param name="directoryPath">Path of the directory.</param>
-        /// <param name="device">Parent drive of the directory.</param>
-        public MTPDirectory(string directoryPath, MediaDevice device)
+        /// <param name="drive">Parent drive of the directory.</param>
+        public MTPDirectory(string directoryPath, MTPDrive drive)
             : base(directoryPath)
         {
-            if (device.DirectoryExists(directoryPath))
+            Drive = drive;
+            Device = drive.Device;
+            if (Device.DirectoryExists(directoryPath))
             {
-                info = device.GetDirectoryInfo(directoryPath);
+                info = Device.GetDirectoryInfo(directoryPath);
             }
-            Device = device;
         }
 
         /// <inheritdoc />
@@ -83,7 +88,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 throw new DriveNotReadyException($"目录\"{FullName}\"的设备尚未就绪。");
 
             return info.SafeEnumerateDirectories(searchPattern)
-                       .Select(info => new MTPDirectory(info, Device));
+                       .Select(info => new MTPDirectory(info, (MTPDrive)Drive));
         }
 
         /// <inheritdoc />
@@ -93,7 +98,7 @@ namespace Lekco.Promissum.Model.Sync.MTP
                 throw new DriveNotReadyException($"目录\"{FullName}\"的设备尚未就绪。");
 
             return info.SafeEnumerateFiles(searchPattern)
-                       .Select(info => new MTPFile(info, Device));
+                       .Select(info => new MTPFile(info, (MTPDrive)Drive));
         }
 
         /// <inheritdoc />

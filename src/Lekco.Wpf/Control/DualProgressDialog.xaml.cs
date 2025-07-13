@@ -115,7 +115,6 @@ namespace Lekco.Wpf.Control
         {
             this.SafelyDo(() =>
             {
-
                 reporter.OnProgressBegin -= ProgressBegin;
                 reporter.OnProgressEnd -= ProgressEnd;
                 reporter.OnFirstProgressValueChanged -= FirstProgressValueChanged;

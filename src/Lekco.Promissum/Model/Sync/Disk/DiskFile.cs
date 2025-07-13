@@ -25,7 +25,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override string Extension => Path.GetExtension(FullName);
 
         /// <inheritdoc />
-        public override bool Exists => File.Exists(FullName);
+        public override bool Exists => Drive.IsReady && File.Exists(FullName);
 
         /// <inheritdoc />
         public override DateTime LastWriteTime { get; protected set; }
@@ -37,7 +37,10 @@ namespace Lekco.Promissum.Model.Sync.Disk
         public override string NameWithoutExtension => Path.GetFileNameWithoutExtension(FullName);
 
         /// <inheritdoc />
-        public override DirectoryBase Parent => new DiskDirectory(Path.GetDirectoryName(FullName)!);
+        public override DirectoryBase Parent => new DiskDirectory(Path.GetDirectoryName(FullName)!, (DiskDrive)Drive);
+
+        /// <inheritdoc />
+        public override DriveBase Drive { get; }
 
         /// <summary>
         /// A protected field for getting current info of the directory.
@@ -48,8 +51,9 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// Create an instance.
         /// </summary>
         /// <param name="fullName">Full name of the file.</param>
-        public DiskFile(string fullName)
-            : this(new FileInfo(fullName))
+        /// <param name="drive">Parent drive of the file.</param>
+        public DiskFile(string fullName, DiskDrive drive)
+            : this(new FileInfo(fullName), drive)
         {
         }
 
@@ -57,9 +61,11 @@ namespace Lekco.Promissum.Model.Sync.Disk
         /// Create an instance.
         /// </summary>
         /// <param name="fileInfo">Information of the file.</param>
-        public DiskFile(FileInfo fileInfo)
+        /// <param name="drive">Parent drive of the file.</param>
+        public DiskFile(FileInfo fileInfo, DiskDrive drive)
             : base(fileInfo.FullName)
         {
+            Drive = drive;
             info = fileInfo;
             if (info.Exists)
             {
@@ -69,6 +75,11 @@ namespace Lekco.Promissum.Model.Sync.Disk
             }
         }
 
+        /// <summary>
+        /// Try to delete this read-only file.
+        /// </summary>
+        /// <param name="exRecord">Exception record when operation fails.</param>
+        /// <returns><see langword="true"/> when delete successfully; otherwise, returns <see langword="false"/>.</returns>
         public bool TryDeleteReadOnly([MaybeNullWhen(true)] out ExceptionRecord exRecord)
         {
             exRecord = null;
@@ -185,7 +196,7 @@ namespace Lekco.Promissum.Model.Sync.Disk
                 {
                 case DiskFile:
                     File.Copy(FullName, newFile.FullName, true);
-                    newFile = new DiskFile(FullName);
+                    newFile = new DiskFile(FullName, (DiskDrive)Drive);
                     return true;
 
                 case MTPFile mtpFile:

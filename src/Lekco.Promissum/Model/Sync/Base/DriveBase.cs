@@ -86,6 +86,11 @@ namespace Lekco.Promissum.Model.Sync.Base
         /// </summary>
         public virtual long UsedSpace => TotalSpace - AvailableSpace;
 
+        /// <summary>
+        /// Occurs when the readiness state changes.
+        /// </summary>
+        public abstract event EventHandler<bool>? IsReadyChanged;
+
         /// <inheritdoc />
         public event PropertyChangedEventHandler? PropertyChanged;
 

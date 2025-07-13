@@ -7,6 +7,9 @@ using System.Windows.Threading;
 
 namespace Lekco.Wpf.Control
 {
+    [TemplatePart(Name = "PART_Label", Type = typeof(TextBlock))]
+    [TemplatePart(Name = "PART_Indicator", Type = typeof(Grid))]
+    [TemplatePart(Name = "PART_Track", Type = typeof(Border))]
     public class LabeledProgressBar : ProgressBar
     {
         static LabeledProgressBar()
@@ -19,24 +22,24 @@ namespace Lekco.Wpf.Control
             get => (string)GetValue(FormatStringProperty);
             set => SetValue(FormatStringProperty, value);
         }
-        public static readonly DependencyProperty FormatStringProperty =
-            DependencyProperty.Register(nameof(FormatString), typeof(string), typeof(LabeledProgressBar), new PropertyMetadata("{0:0}%"));
+        public static readonly DependencyProperty FormatStringProperty
+            = DependencyProperty.Register(nameof(FormatString), typeof(string), typeof(LabeledProgressBar), new PropertyMetadata("{0:0}%"));
 
         public double LabelSpacing
         {
             get => (double)GetValue(LabelSpacingProperty);
             set => SetValue(LabelSpacingProperty, value);
         }
-        public static readonly DependencyProperty LabelSpacingProperty =
-            DependencyProperty.Register(nameof(LabelSpacing), typeof(double), typeof(LabeledProgressBar), new PropertyMetadata(2d));
+        public static readonly DependencyProperty LabelSpacingProperty
+            = DependencyProperty.Register(nameof(LabelSpacing), typeof(double), typeof(LabeledProgressBar), new PropertyMetadata(2d));
 
         public Brush InsideTextBrush
         {
             get => (Brush)GetValue(InsideTextBrushProperty);
             set => SetValue(InsideTextBrushProperty, value);
         }
-        public static readonly DependencyProperty InsideTextBrushProperty =
-            DependencyProperty.Register(nameof(InsideTextBrush), typeof(Brush), typeof(LabeledProgressBar), new PropertyMetadata(Brushes.White));
+        public static readonly DependencyProperty InsideTextBrushProperty
+            = DependencyProperty.Register(nameof(InsideTextBrush), typeof(Brush), typeof(LabeledProgressBar), new PropertyMetadata(Brushes.White));
 
         public Brush OutsideTextBrush
         {
