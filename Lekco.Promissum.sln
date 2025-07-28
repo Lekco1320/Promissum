@@ -1,13 +1,14 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Promissum", "Lekco.Promissum\Lekco.Promissum.csproj", "{92095988-B756-4631-A4A3-5200BB60F0FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Promissum", "src\Lekco.Promissum\Lekco.Promissum.csproj", "{92095988-B756-4631-A4A3-5200BB60F0FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Promissum.Agens", "Lekco.Promissum.Agens\Lekco.Promissum.Agens.csproj", "{90BCDEFD-A9C2-45AB-8992-F95AD479A42A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Promissum.Agens", "src\Lekco.Promissum.Agens\Lekco.Promissum.Agens.csproj", "{90BCDEFD-A9C2-45AB-8992-F95AD479A42A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Wpf", "Lekco.Wpf\Lekco.Wpf.csproj", "{40C5866D-5BD3-4035-A6F1-83A03EB36A94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lekco.Wpf", "src\Lekco.Wpf\Lekco.Wpf.csproj", "{40C5866D-5BD3-4035-A6F1-83A03EB36A94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lekco.Promissum.DemoHarness", "test\Lekco.Promissum.DemoHarness\Lekco.Promissum.DemoHarness.csproj", "{036D2455-EA1E-4093-A1AA-526B709C2127}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +84,26 @@ Global
 		{40C5866D-5BD3-4035-A6F1-83A03EB36A94}.Release|x64.Build.0 = Release|Any CPU
 		{40C5866D-5BD3-4035-A6F1-83A03EB36A94}.Release|x86.ActiveCfg = Release|Any CPU
 		{40C5866D-5BD3-4035-A6F1-83A03EB36A94}.Release|x86.Build.0 = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|ARM.Build.0 = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|x64.Build.0 = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Debug|x86.Build.0 = Debug|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|ARM.ActiveCfg = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|ARM.Build.0 = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|ARM64.Build.0 = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|x64.ActiveCfg = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|x64.Build.0 = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|x86.ActiveCfg = Release|Any CPU
+		{036D2455-EA1E-4093-A1AA-526B709C2127}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

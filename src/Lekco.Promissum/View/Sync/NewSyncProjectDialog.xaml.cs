@@ -1,7 +1,10 @@
 ﻿using Lekco.Promissum.Model.Sync;
+using Lekco.Promissum.Model.Sync.Record;
 using Lekco.Wpf.Control;
 using Lekco.Wpf.MVVM.Command;
 using Lekco.Wpf.Utility.Helper;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;

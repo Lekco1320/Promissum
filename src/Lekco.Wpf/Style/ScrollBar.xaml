@@ -18,7 +18,7 @@
                 <ControlTemplate TargetType="{x:Type Thumb}">
 
                     <Grid>
-                        <!-- 滚动条颜色 -->
+                        <!--  滚动条颜色  -->
                         <Border Background="#646465"
                                 CornerRadius="2.5" />
                     </Grid>
@@ -96,7 +96,7 @@
         </Setter>
     </Style>
 
-    <!-- 滚动条上下按钮 -->
+    <!--  滚动条上下按钮  -->
     <Style x:Key="VerticalScrollBarPageButton2"
            TargetType="{x:Type RepeatButton}">
 
@@ -208,7 +208,8 @@
 
         <Style.Triggers>
 
-            <Trigger Property="Orientation" Value="Horizontal">
+            <Trigger Property="Orientation"
+                     Value="Horizontal">
                 <Setter Property="Background"
                         Value="Transparent" />
                 <Setter Property="Height"
@@ -281,6 +282,8 @@
                         <Grid Background="{TemplateBinding Background}">
 
                             <ScrollContentPresenter Margin="{TemplateBinding Padding}"
+                                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                     ContentTemplate="{TemplateBinding ContentTemplate}"
                                                     Cursor="{TemplateBinding Cursor}" />
 
@@ -389,11 +392,11 @@
 
     </Style>
 
-    <!-- 默认ScrollBar -->
+    <!--  默认ScrollBar  -->
     <Style BasedOn="{StaticResource for_scrollbar}"
            TargetType="ScrollBar" />
 
-    <!-- 默认ScrollView -->
+    <!--  默认ScrollView  -->
     <Style BasedOn="{StaticResource for_scrollviewer}"
            TargetType="ScrollViewer" />
 

@@ -161,7 +161,7 @@
 
                 </Button>
 
-                <local:IconButton Width="15"
+                <local:MaterialIconButton Width="15"
                                   Height="15"
                                   Margin="10,0,0,0"
                                   VerticalAlignment="Center"
@@ -169,7 +169,7 @@
                                   Kind="ArrowUp"
                                   ToolTip="上一级" />
 
-                <local:IconButton Width="15"
+                <local:MaterialIconButton Width="15"
                                   Height="15"
                                   Margin="7.5,0,0,0"
                                   VerticalAlignment="Center"
@@ -188,7 +188,7 @@
                                 Path="{Binding Path, Mode=TwoWay}"
                                 PlaceHolder="{}{根目录}" />
 
-            <local:IconButton Grid.Column="2"
+            <local:MaterialIconButton Grid.Column="2"
                               Width="13"
                               Height="13"
                               Margin="7.5,0,15,0"

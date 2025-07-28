@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Calendar.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Color.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/DatePicker.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Menu.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Text.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Style/Button.xaml" />

@@ -1,0 +1,143 @@
+﻿<ctrl:CustomWindow x:Class="Lekco.Promissum.View.Sync.SyncRecordsFilterDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:ctrl="clr-namespace:Lekco.Wpf.Control;assembly=Lekco.Wpf"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:sync="clr-namespace:Lekco.Promissum.Model.Sync"
+                   Title="筛选与排序"
+                   Width="290"
+                   Height="350"
+                   EnableMaximize="False"
+                   EnableMinimize="False"
+                   EnableRestore="False"
+                   Icon="/Resources/Logo.png"
+                   ResizeMode="NoResize"
+                   ShowInTaskbar="False"
+                   Topmost="True"
+                   WindowStartupLocation="CenterScreen"
+                   mc:Ignorable="d">
+
+    <ctrl:CustomWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </ctrl:CustomWindow.Resources>
+
+    <StackPanel Margin="20,15,20,10"
+                Orientation="Vertical">
+
+        <CheckBox x:Name="IsFilterCheckBox"
+                  Content="筛选"
+                  IsChecked="{Binding IsFilter}" />
+
+        <ctrl:PropertyFilterView Height="220"
+                                 Margin="0,5,0,0"
+                                 AddFilterCommand="{Binding AddFilterCommand}"
+                                 FilterGroupNode="{Binding PropertyFilterVM}"
+                                 IsEnabled="{Binding IsChecked, ElementName=IsFilterCheckBox}" />
+
+        <DockPanel Margin="0,5,0,0">
+
+            <CheckBox x:Name="IsSortCheckBox"
+                      Content="排序"
+                      IsChecked="{Binding IsSort}" />
+
+            <CheckBox Margin="5,0,0,0"
+                      Visibility="{Binding IsChecked, ElementName=IsSortCheckBox, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <CheckBox.Template>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+
+                        <ToggleButton x:Name="Button"
+                                      Width="17"
+                                      Height="17"
+                                      Padding="1.5"
+                                      IsChecked="{TemplateBinding IsChecked}">
+
+                            <Viewbox>
+
+                                <icon:PackIconMaterial x:Name="Icon"
+                                                       Margin="1,0,0,0"
+                                                       Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
+                                                       Kind="SortAlphabeticalAscending" />
+
+                            </Viewbox>
+
+                        </ToggleButton>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger SourceName="Button"
+                                     Property="IsChecked"
+                                     Value="True">
+
+                                <Setter TargetName="Icon"
+                                        Property="Kind"
+                                        Value="SortAlphabeticalDescending" />
+
+                            </Trigger>
+
+                            <Trigger SourceName="Button"
+                                     Property="IsPressed"
+                                     Value="True">
+
+                                <Setter TargetName="Icon"
+                                        Property="Foreground"
+                                        Value="{DynamicResource CWhiteBrush}" />
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </CheckBox.Template>
+
+            </CheckBox>
+
+            <TextBlock Margin="5,0,0,0"
+                       VerticalAlignment="Center"
+                       Text="字段："
+                       Visibility="{Binding IsChecked, ElementName=IsSortCheckBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <ComboBox ItemsSource="{Binding DisplayNames}"
+                      SelectedValue="{Binding PropertyName}"
+                      Visibility="{Binding IsChecked, ElementName=IsSortCheckBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        </DockPanel>
+
+        <Grid Margin="0,10,0,0">
+
+            <Button Width="70"
+                    HorizontalAlignment="Right"
+                    Command="{Binding CancelCommand}"
+                    Content="取消(_C)">
+
+                <Button.InputBindings>
+
+                    <KeyBinding Command="{Binding CancelCommand}"
+                                Gesture="Alt+C" />
+
+                </Button.InputBindings>
+
+            </Button>
+
+            <Button Width="70"
+                    Margin="0,0,85,0"
+                    HorizontalAlignment="Right"
+                    Command="{Binding OKCommand}"
+                    Content="确定(_O)">
+
+                <Button.InputBindings>
+
+                    <KeyBinding Command="{Binding OKCommand}"
+                                Gesture="Alt+O" />
+
+                </Button.InputBindings>
+
+            </Button>
+
+        </Grid>
+
+    </StackPanel>
+
+</ctrl:CustomWindow>

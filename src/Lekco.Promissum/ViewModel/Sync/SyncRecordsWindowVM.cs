@@ -1,9 +1,12 @@
 ﻿using Lekco.Promissum.Model.Sync;
 using Lekco.Promissum.Model.Sync.Record;
 using Lekco.Promissum.View;
+using Lekco.Promissum.View.Sync;
 using Lekco.Wpf.MVVM;
 using Lekco.Wpf.MVVM.Command;
+using Lekco.Wpf.MVVM.Filter;
 using Lekco.Wpf.Utility;
+using Lekco.Wpf.Utility.Filter;
 using Lekco.Wpf.Utility.Helper;
 using Microsoft.EntityFrameworkCore;
 using MiniExcelLibs;
@@ -11,7 +14,6 @@ using PropertyChanged;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,8 +23,6 @@ namespace Lekco.Promissum.ViewModel.Sync
 {
     public class SyncRecordsWindowVM : ViewModelBase
     {
-        public string FilterString { get; set; }
-
         [OnChangedMethod(nameof(SwitchCategory))]
         public int CategoryIndex { get; set; }
 
@@ -54,7 +54,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public RelayCommand LoadedCommand => new RelayCommand(SwitchCategory);
 
-        public RelayCommand FilterCommand => new RelayCommand(LoadPage);
+        public RelayCommand FilterCommand => new RelayCommand(FilterAndSort);
 
         public RelayCommand OutputCommand => new RelayCommand(Output);
 
@@ -68,116 +68,42 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         public static readonly int[] PageSizes = [15, 20, 50, 100];
 
+        protected IPropertyFilterVM? RootFilterVM;
+
         protected SyncTask SyncTask;
 
         protected SyncDbContext SyncDbContext;
 
-        protected ObservableCollection<FileRecord> FileRecords;
-
-        protected ObservableCollection<CleanUpRecord> CleanUpRecords;
-
-        protected ObservableCollection<ExecutionRecord> ExecutionRecords;
+        protected SyncDataSetType DataSetType;
 
         public SyncRecordsWindowVM(SyncTask task, SyncDbContext dbContext)
         {
             SyncTask = task;
-            FilterString = "";
             SyncDbContext = dbContext;
-            FileRecords = new ObservableCollection<FileRecord>();
-            CleanUpRecords = new ObservableCollection<CleanUpRecord>();
-            ExecutionRecords = new ObservableCollection<ExecutionRecord>();
         }
 
-        protected async Task LoadFileRecords()
+        protected async Task LoadData<T>(IQueryable<T> dataSet, PropertyFilter<T>? filter)
         {
             IsBusy = true;
 
-            RecordsCount = await SyncDbContext.FileRecords
-                .Where(r => r.RelativeFileName.Contains(FilterString))
-                .CountAsync();
+            if (filter != null)
+            {
+                dataSet = dataSet.Where(filter.GetExpression());
+            }
+
+            RecordsCount = await dataSet.CountAsync();
             PageCount = (int)Math.Ceiling((double)RecordsCount / PageSize);
             if (PageIndex > PageCount)
             {
                 ChangePageIndexInternal(1);
             }
-            var records = await SyncDbContext.FileRecords
-                .AsNoTracking()
-                .Where(r => r.RelativeFileName.Contains(FilterString))
+
+            var records = await dataSet
                 .Skip((PageIndex - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
 
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                FileRecords.Clear();
-                foreach (var record in records)
-                {
-                    FileRecords.Add(record);
-                }
-                CurrentView = FileRecords;
-            });
-
-            IsBusy = false;
-        }
-
-        protected async Task LoadCleanUpRecords()
-        {
-            IsBusy = true;
-
-            RecordsCount = await SyncDbContext.CleanUpRecords
-                .Where(r => r.RelativeFileName.Contains(FilterString))
-                .CountAsync();
-            PageCount = (int)Math.Ceiling((double)RecordsCount / PageSize);
-            if (PageIndex > PageCount)
-            {
-                ChangePageIndexInternal(1);
-            }
-            var records = await SyncDbContext.CleanUpRecords
-                .AsNoTracking()
-                .Where(r => r.RelativeFileName.Contains(FilterString))
-                .Skip((PageIndex - 1) * PageSize)
-                .Take(PageSize)
-                .ToListAsync();
-
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                CleanUpRecords.Clear();
-                foreach (var record in records)
-                {
-                    CleanUpRecords.Add(record);
-                }
-                CurrentView = CleanUpRecords;
-            });
-
-            IsBusy = false;
-        }
-
-        protected async Task LoadExecutionRecords()
-        {
-            IsBusy = true;
-
-            RecordsCount = await SyncDbContext.ExecutionRecords.CountAsync();
-            PageCount = (int)Math.Ceiling((double)RecordsCount / PageSize);
-            if (PageIndex > PageCount)
-            {
-                ChangePageIndexInternal(1);
-            }
-            var records = await SyncDbContext.ExecutionRecords
-                .AsNoTracking()
-                .Include(record => record.ExceptionRecords)
-                .Skip((PageIndex - 1) * PageSize)
-                .Take(PageSize)
-                .ToListAsync();
-
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                ExecutionRecords.Clear();
-                foreach (var record in records)
-                {
-                    ExecutionRecords.Add(record);
-                }
-                CurrentView = ExecutionRecords;
-            });
+            await Application.Current.Dispatcher.InvokeAsync(() => CurrentView = records);
 
             IsBusy = false;
         }
@@ -190,7 +116,7 @@ namespace Lekco.Promissum.ViewModel.Sync
             }
 
             CurrentView = null;
-            FilterString = "";
+            RootFilterVM = null;
             ChangePageIndexInternal(1);
             await Task.Run(LoadPage);
         }
@@ -225,20 +151,44 @@ namespace Lekco.Promissum.ViewModel.Sync
             }
         }
 
+        protected async void FilterAndSort()
+        {
+            var dialog = new SyncRecordsFilterDialog(DataSetType, RootFilterVM);
+            dialog.ShowDialog();
+            if (dialog.IsOK)
+            {
+                RootFilterVM = dialog.PropertyFilterVM;
+                ChangePageIndexInternal(1);
+            }
+
+            await Task.Run(LoadPage);
+        }
+
         protected async void LoadPage()
         {
             switch (CategoryIndex)
             {
             case 0:
-                await Task.Run(LoadFileRecords);
+                DataSetType = SyncDataSetType.FileRecordDataSet;
+                var filter1 = RootFilterVM?.GetFilter() as PropertyFilter<FileRecord>;
+                var dataSet1 = SyncDbContext.FileRecords.AsNoTracking();
+                await Task.Run(() => LoadData(dataSet1, filter1));
                 break;
 
             case 1:
-                await Task.Run(LoadCleanUpRecords);
+                DataSetType = SyncDataSetType.CleanUpDataSet;
+                var filter2 = RootFilterVM?.GetFilter() as PropertyFilter<CleanUpRecord>;
+                var dataSet2 = SyncDbContext.CleanUpRecords.AsNoTracking();
+                await Task.Run(() => LoadData(dataSet2, filter2));
                 break;
 
             case 2:
-                await Task.Run(LoadExecutionRecords);
+                DataSetType = SyncDataSetType.ExecutionDataSet;
+                var filter3 = RootFilterVM?.GetFilter() as PropertyFilter<ExecutionRecord>;
+                var dataSet3 = SyncDbContext.ExecutionRecords
+                    .AsNoTracking()
+                    .Include(record => record.ExceptionRecords);
+                await Task.Run(() => LoadData(dataSet3, filter3));
                 break;
 
             default:
@@ -341,9 +291,6 @@ namespace Lekco.Promissum.ViewModel.Sync
             if (DialogHelper.ShowWarning("是否要清除该任务关联的所有数据？此操作将无法撤销。"))
             {
                 SyncTask.DeleteDataSet(SyncDataSetType.AllDataSets);
-                FileRecords?.Clear();
-                CleanUpRecords?.Clear();
-                ExecutionRecords?.Clear();
                 RecordsCount = 0;
             }
         }

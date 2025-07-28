@@ -71,72 +71,20 @@
 
         </StackPanel>
 
-        <StackPanel Grid.Row="0"
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal">
+        <ctrl:LoadingRing Width="20"
+                          Height="20"
+                          Margin="0,0,10,0"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Bottom"
+                          Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
-            <TextBlock VerticalAlignment="Center"
-                       Text="筛选：" />
-
-            <Grid>
-
-                <TextBox x:Name="FilterTextBox"
-                         Width="130"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Top"
-                         IsEnabled="{Binding IsBusy, Converter={StaticResource NOTOperation}, Mode=OneWay}"
-                         Text="{Binding FilterString, UpdateSourceTrigger=PropertyChanged}">
-
-                    <TextBox.InputBindings>
-                        <KeyBinding Key="Enter"
-                                    Command="{Binding FilterCommand}" />
-                    </TextBox.InputBindings>
-
-                </TextBox>
-
-                <TextBlock Margin="4,0,0,0"
-                           VerticalAlignment="Center"
-                           FontSize="11"
-                           Foreground="{StaticResource CDarkGrayBrush}"
-                           IsEnabled="{Binding IsBusy, Converter={StaticResource NOTOperation}, Mode=OneWay}"
-                           IsHitTestVisible="False"
-                           Text="输入内容以筛选…">
-
-                    <TextBlock.Style>
-                        <Style BasedOn="{StaticResource {x:Type TextBlock}}"
-                               TargetType="TextBlock">
-
-                            <Setter Property="Visibility"
-                                    Value="Collapsed" />
-
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Text, ElementName=FilterTextBox}"
-                                             Value="">
-
-                                    <Setter Property="Visibility"
-                                            Value="Visible" />
-
-                                </DataTrigger>
-                            </Style.Triggers>
-
-                        </Style>
-                    </TextBlock.Style>
-
-                </TextBlock>
-
-            </Grid>
-
-            <local:IconButton Width="14"
-                              Height="14"
-                              Margin="3,0,0,0"
-                              Command="{Binding FilterCommand}"
-                              IsEnabled="{Binding IsBusy, Converter={StaticResource NOTOperation}, Mode=OneWay}"
-                              Kind="Magnify"
-                              ToolTip="搜索" />
-
-        </StackPanel>
+        <Button Grid.Row="0"
+                Grid.Column="1"
+                Width="80"
+                HorizontalAlignment="Right"
+                Command="{Binding FilterCommand}"
+                Content="筛选(_F)…"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource NOTOperation}, Mode=OneWay}" />
 
         <DataGrid Grid.Row="1"
                   Grid.ColumnSpan="2"
@@ -320,13 +268,6 @@
                     Content="清除数据(_C)…"
                     IsEnabled="{Binding IsBusy, Converter={StaticResource NOTOperation}, Mode=OneWay}"
                     Style="{StaticResource RedTextButton}" />
-
-            <ctrl:LoadingRing Width="20"
-                              Height="20"
-                              Margin="15,0,0,0"
-                              HorizontalAlignment="Right"
-                              VerticalAlignment="Bottom"
-                              Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
 
         </StackPanel>
 

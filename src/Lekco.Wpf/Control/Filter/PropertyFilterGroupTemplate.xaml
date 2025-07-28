@@ -1,0 +1,32 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter"
+                    xmlns:flt="clr-namespace:Lekco.Wpf.Utility.Filter"
+                    xmlns:vm="clr-namespace:Lekco.Wpf.MVVM.Filter">
+
+    <cvt:EnumIntConverter x:Key="EnumIntConverter" />
+
+    <HierarchicalDataTemplate x:Key="PropertyFilterGroupTemplate"
+                              DataType="{x:Type vm:IFilterGroupNode}"
+                              ItemsSource="{Binding Children}">
+
+        <StackPanel Margin="3,0"
+                    Orientation="Horizontal">
+
+            <TextBlock VerticalAlignment="Center"
+                       Text="条件组：" />
+
+            <ComboBox MinWidth="40"
+                      MaxWidth="50"
+                      SelectedIndex="{Binding Mode, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type flt:LogicalOperator}}">
+
+                <ComboBoxItem Content="且" />
+                <ComboBoxItem Content="或" />
+
+            </ComboBox>
+
+        </StackPanel>
+
+    </HierarchicalDataTemplate>
+
+</ResourceDictionary>

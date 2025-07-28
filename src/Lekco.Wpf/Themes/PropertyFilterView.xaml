@@ -1,0 +1,300 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctrl="clr-namespace:Lekco.Wpf.Control"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter"
+                    xmlns:flt="clr-namespace:Lekco.Wpf.Utility.Filter"
+                    xmlns:local="clr-namespace:Lekco.Wpf.Control.Filter">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyFilterTemplates.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+    <cvt:NullableBooleanConverter x:Key="NullableBooleanConverter" />
+
+    <cvt:EnumIntConverter x:Key="EnumIntConverter" />
+
+    <local:PropertyFilterNodeTemplateSelector x:Key="PropertyFilterNodeSelector"
+                                              DateTimeTemplate="{StaticResource PropertyDateTimeFilterTemplate}"
+                                              FileSizeTemplate="{StaticResource PropertyFileSizeFilterTemplate}"
+                                              GroupTemplate="{StaticResource PropertyFilterGroupTemplate}"
+                                              NumericTemplate="{StaticResource PropertyNumericFilterTemplate}"
+                                              StringTemplate="{StaticResource PropertyStringFilterTemplate}" />
+
+    <Style TargetType="{x:Type ctrl:PropertyFilterView}">
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource CGrayBrush}" />
+
+        <Setter Property="Background"
+                Value="{DynamicResource CWhiteBrush}" />
+
+        <Setter Property="Padding"
+                Value="0,2" />
+
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                Value="Auto" />
+
+        <Setter Property="ItemTemplateSelector"
+                Value="{StaticResource PropertyFilterNodeSelector}" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ctrl:PropertyFilterView}">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Border x:Name="PART_ButtonDock"
+                                Padding="0,2"
+                                Background="{DynamicResource GWhiteToCLightGrayBrush}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1,1,1,0"
+                                CornerRadius="3,3,0,0">
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel HorizontalAlignment="Center"
+                                            Orientation="Horizontal">
+
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="逻辑：" />
+
+                                    <ComboBox MinWidth="40"
+                                              MaxWidth="50"
+                                              SelectedIndex="{Binding FilterGroupNode.Mode, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type flt:LogicalOperator}}">
+
+                                        <ComboBoxItem Content="且" />
+                                        <ComboBoxItem Content="或" />
+
+                                    </ComboBox>
+
+                                </StackPanel>
+
+                                <ctrl:IconButton Grid.Column="1"
+                                                 HorizontalAlignment="Center"
+                                                 Command="{x:Static ctrl:PropertyFilterView.AddFilter}"
+                                                 IconData="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z"
+                                                 ToolTip="添加条件" />
+
+                                <ctrl:IconButton Grid.Column="2"
+                                                 HorizontalAlignment="Center"
+                                                 Command="{x:Static ctrl:PropertyFilterView.AddFilterGroup}"
+                                                 IconData="M21 8H3V6H21V8M13.81 16H10V18H13.09C13.21 17.28 13.46 16.61 13.81 16M18 11H6V13H18V11M18 15V18H15V20H18V23H20V20H23V18H20V15H18Z"
+                                                 ToolTip="添加条件组" />
+
+                                <ctrl:IconButton Grid.Column="3"
+                                                 HorizontalAlignment="Center"
+                                                 Command="{x:Static ctrl:PropertyFilterView.RemoveFilter}"
+                                                 IconData="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M9,8H11V17H9V8M13,8H15V17H13V8Z"
+                                                 IsEnabled="{TemplateBinding SelectedItem,
+                                                                             Converter={StaticResource NullableBooleanConverter}}"
+                                                 ToolTip="删除" />
+
+                            </Grid>
+
+                        </Border>
+
+                        <Border Grid.Row="1"
+                                Padding="{TemplateBinding Padding}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="0,0,3,3">
+
+                            <ScrollViewer x:Name="PART_ScrollViewer"
+                                          Focusable="false"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+
+                                <ItemsPresenter />
+
+                            </ScrollViewer>
+
+                        </Border>
+
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel Margin="0"
+                                            IsItemsHost="True" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TreeViewItem}">
+
+                    <Setter Property="Margin"
+                            Value="0,0.5" />
+
+                    <Setter Property="Padding"
+                            Value="0,1.5" />
+
+                    <Setter Property="BorderThickness"
+                            Value="0" />
+
+                    <Setter Property="Background"
+                            Value="White" />
+
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Left" />
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TreeViewItem">
+
+                                <StackPanel x:Name="ItemRoot"
+                                            Margin="{TemplateBinding Margin}"
+                                            Orientation="Vertical">
+
+                                    <Border x:Name="Border"
+                                            Padding="{TemplateBinding Padding}"
+                                            HorizontalAlignment="Left"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="3"
+                                            SnapsToDevicePixels="true">
+
+                                        <Grid Margin="5,0,0,0">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <ToggleButton x:Name="Expander"
+                                                          Foreground="{TemplateBinding Foreground}"
+                                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                                          Style="{DynamicResource TreeViewToggleButtonStyle}"
+                                                          Visibility="{TemplateBinding HasItems,
+                                                                                       Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                            <ContentPresenter x:Name="PART_Header"
+                                                              Grid.Column="1"
+                                                              Margin="5,0,0,0"
+                                                              ContentSource="Header"
+                                                              RecognizesAccessKey="True" />
+
+                                        </Grid>
+
+                                    </Border>
+
+                                    <Grid>
+
+                                        <ItemsPresenter x:Name="ItemsHost"
+                                                        Margin="7,0,0,0"
+                                                        Visibility="Collapsed" />
+
+                                        <Border Width="1"
+                                                Height="{Binding Height, ElementName=ItemsHost}"
+                                                Margin="10.5,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                Background="#FFCCCCCC" />
+
+                                    </Grid>
+
+                                </StackPanel>
+
+                                <ControlTemplate.Triggers>
+
+                                    <Trigger Property="IsExpanded"
+                                             Value="True">
+
+                                        <Setter TargetName="ItemsHost"
+                                                Property="Visibility"
+                                                Value="Visible" />
+
+                                    </Trigger>
+
+                                    <Trigger SourceName="Border"
+                                             Property="IsMouseOver"
+                                             Value="True">
+
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource CLightGrayBrush}" />
+
+                                    </Trigger>
+
+                                    <MultiTrigger>
+
+                                        <MultiTrigger.Conditions>
+
+                                            <Condition Property="IsSelected"
+                                                       Value="True" />
+
+                                            <Condition Property="IsEnabled"
+                                                       Value="True" />
+
+                                            <Condition Property="Selector.IsSelectionActive"
+                                                       Value="True" />
+
+                                        </MultiTrigger.Conditions>
+
+                                        <MultiTrigger.Setters>
+
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
+
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource CWhiteBrush}" />
+
+                                        </MultiTrigger.Setters>
+
+                                    </MultiTrigger>
+
+                                    <MultiTrigger>
+
+                                        <MultiTrigger.Conditions>
+
+                                            <Condition Property="Selector.IsSelectionActive"
+                                                       Value="False" />
+
+                                            <Condition Property="IsSelected"
+                                                       Value="True" />
+
+                                            <Condition Property="IsEnabled"
+                                                       Value="True" />
+
+                                        </MultiTrigger.Conditions>
+
+                                        <MultiTrigger.Setters>
+
+                                            <Setter Property="Background"
+                                                    Value="#EAEAEA" />
+
+                                        </MultiTrigger.Setters>
+
+                                    </MultiTrigger>
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                </Style>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+</ResourceDictionary>

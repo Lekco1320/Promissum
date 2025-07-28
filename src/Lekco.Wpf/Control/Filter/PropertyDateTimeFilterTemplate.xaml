@@ -1,0 +1,41 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctrl="clr-namespace:Lekco.Wpf.Control"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter"
+                    xmlns:flt="clr-namespace:Lekco.Wpf.Utility.Filter"
+                    xmlns:vm="clr-namespace:Lekco.Wpf.MVVM.Filter">
+
+    <cvt:EnumIntConverter x:Key="EnumIntConverter" />
+
+    <DataTemplate x:Key="PropertyDateTimeFilterTemplate"
+                  DataType="{x:Type vm:PropertyNumericFilterVM`2}">
+
+        <StackPanel Margin="3,0"
+                    Orientation="Horizontal">
+
+            <TextBlock VerticalAlignment="Center">
+
+                <Run Text="{Binding DisplayName}" /><Run Text="：" />
+
+            </TextBlock>
+
+            <ComboBox MinWidth="50"
+                      MaxWidth="80"
+                      SelectedIndex="{Binding FilterType, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type flt:DateTimeFilterType}}">
+
+                <ComboBoxItem Content="等于" />
+                <ComboBoxItem Content="早于" />
+                <ComboBoxItem Content="早于或等于" />
+                <ComboBoxItem Content="晚于" />
+                <ComboBoxItem Content="晚于或等于" />
+
+            </ComboBox>
+
+            <ctrl:DateTimePicker Margin="5,0,0,0"
+                                 SelectedDateTime="{Binding Value, Mode=TwoWay}" />
+
+        </StackPanel>
+
+    </DataTemplate>
+
+</ResourceDictionary>

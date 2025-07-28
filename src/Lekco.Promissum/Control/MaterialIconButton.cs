@@ -1,15 +1,14 @@
-﻿using Lekco.Wpf.Control;
-using MahApps.Metro.IconPacks;
+﻿using MahApps.Metro.IconPacks;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Lekco.Promissum.Control
 {
-    public class IconButton : Button
+    public class MaterialIconButton : Button
     {
-        static IconButton()
+        static MaterialIconButton()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(IconButton), new FrameworkPropertyMetadata(typeof(IconButton)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MaterialIconButton), new FrameworkPropertyMetadata(typeof(MaterialIconButton)));
         }
 
         public PackIconMaterialKind Kind
@@ -18,7 +17,7 @@ namespace Lekco.Promissum.Control
             set => SetValue(KindProperty, value);
         }
         public readonly static DependencyProperty KindProperty =
-            DependencyProperty.Register(nameof(Kind), typeof(PackIconMaterialKind), typeof(IconButton));
+            DependencyProperty.Register(nameof(Kind), typeof(PackIconMaterialKind), typeof(MaterialIconButton));
 
         public bool Spin
         {
@@ -26,6 +25,6 @@ namespace Lekco.Promissum.Control
             set => SetValue(SpinProperty, value);
         }
         public readonly static DependencyProperty SpinProperty =
-            DependencyProperty.Register(nameof(Spin), typeof(bool), typeof(IconButton));
+            DependencyProperty.Register(nameof(Spin), typeof(bool), typeof(MaterialIconButton));
     }
 }

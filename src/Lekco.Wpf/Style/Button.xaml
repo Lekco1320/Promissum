@@ -14,7 +14,7 @@
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="Button">
+                <ControlTemplate TargetType="{x:Type Button}">
 
                     <Border Width="{TemplateBinding Width}"
                             Height="{TemplateBinding Height}"
@@ -38,7 +38,8 @@
 
         <Style.Triggers>
 
-            <Trigger Property="IsMouseOver" Value="True">
+            <Trigger Property="IsMouseOver"
+                     Value="True">
 
                 <Setter Property="BorderBrush"
                         Value="{DynamicResource CDeepBlueBrush}" />
@@ -48,7 +49,8 @@
 
             </Trigger>
 
-            <Trigger Property="IsPressed" Value="True">
+            <Trigger Property="IsPressed"
+                     Value="True">
 
                 <Setter Property="Background"
                         Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
@@ -61,7 +63,8 @@
 
             </Trigger>
 
-            <Trigger Property="IsEnabled" Value="False">
+            <Trigger Property="IsEnabled"
+                     Value="False">
 
                 <Setter Property="Foreground"
                         Value="{DynamicResource CGrayBrush}" />
@@ -78,7 +81,8 @@
 
         <Style.Triggers>
 
-            <Trigger Property="IsMouseOver" Value="True">
+            <Trigger Property="IsMouseOver"
+                     Value="True">
 
                 <Setter Property="BorderBrush"
                         Value="{DynamicResource CRedBrush}" />
@@ -88,7 +92,8 @@
 
             </Trigger>
 
-            <Trigger Property="IsPressed" Value="True">
+            <Trigger Property="IsPressed"
+                     Value="True">
 
                 <Setter Property="Background"
                         Value="{DynamicResource GCLightRedToCRedBrush}" />
@@ -101,7 +106,8 @@
 
             </Trigger>
 
-            <Trigger Property="IsEnabled" Value="False">
+            <Trigger Property="IsEnabled"
+                     Value="False">
 
                 <Setter Property="Foreground"
                         Value="{DynamicResource CGrayBrush}" />
@@ -129,7 +135,8 @@
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
 
                             <Setter TargetName="checkmark"
                                     Property="Stroke"
@@ -149,7 +156,7 @@
     </Style>
 
     <Style x:Key="TreeViewToggleButtonStyle"
-           TargetType="ToggleButton">
+           TargetType="{x:Type ToggleButton}">
 
         <Setter Property="Background"
                 Value="Transparent" />
@@ -159,7 +166,7 @@
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
 
                     <Grid>
 
@@ -176,11 +183,13 @@
                               Data="M 6.5,0 L 0,6.5 L 6.5,6.5 Z"
                               Fill="{TemplateBinding Foreground}"
                               StrokeThickness="1" />
+
                     </Grid>
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked"
+                                 Value="True">
 
                             <Setter TargetName="ExpandPath"
                                     Property="Visibility"
@@ -192,7 +201,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsChecked" Value="False">
+                        <Trigger Property="IsChecked"
+                                 Value="False">
 
                             <Setter TargetName="ExpandPath"
                                     Property="Visibility"
@@ -201,6 +211,14 @@
                             <Setter TargetName="CollapsePath"
                                     Property="Visibility"
                                     Value="Collapsed" />
+
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource CDarkGrayBrush}" />
 
                         </Trigger>
 
@@ -224,6 +242,80 @@
 
         <Setter Property="VerticalAlignment"
                 Value="Center" />
+
+    </Style>
+
+    <Style TargetType="{x:Type ToggleButton}">
+
+        <Setter Property="Background"
+                Value="{DynamicResource GWhiteToCLightGrayBrush}" />
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource CGrayBrush}" />
+
+        <Setter Property="MinHeight"
+                Value="18.8" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+
+                    <Border Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3">
+
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Content="{TemplateBinding Content}"
+                                          Focusable="False"
+                                          RecognizesAccessKey="True" />
+
+                    </Border>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver"
+                     Value="True">
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CDeepBlueBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CDeepBlueBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsPressed"
+                     Value="True">
+
+                <Setter Property="Background"
+                        Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource CGrayBrush}" />
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CWhiteBrush}" />
+
+            </Trigger>
+
+            <Trigger Property="IsEnabled"
+                     Value="False">
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CGrayBrush}" />
+
+            </Trigger>
+
+        </Style.Triggers>
 
     </Style>
 

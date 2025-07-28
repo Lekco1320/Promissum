@@ -6,7 +6,8 @@
 
         <Style.Triggers>
 
-            <Trigger Property="IsEnabled" Value="False">
+            <Trigger Property="IsEnabled"
+                     Value="False">
 
                 <Setter Property="Opacity"
                         Value="0.5" />
@@ -33,7 +34,8 @@
 
         <Style.Triggers>
 
-            <Trigger Property="IsMouseOver" Value="True">
+            <Trigger Property="IsMouseOver"
+                     Value="True">
 
                 <Setter Property="Foreground"
                         Value="#006AEF" />
@@ -48,7 +50,8 @@
 
             </Trigger>
 
-            <Trigger Property="IsEnabled" Value="False">
+            <Trigger Property="IsEnabled"
+                     Value="False">
 
                 <Setter Property="Opacity"
                         Value="0.5" />
@@ -84,6 +87,9 @@
         <Setter Property="SelectionTextBrush"
                 Value="White" />
 
+        <Setter Property="HorizontalContentAlignment"
+                Value="Stretch" />
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">
@@ -100,7 +106,8 @@
                         <ScrollViewer x:Name="PART_ContentHost"
                                       Width="{TemplateBinding Width}"
                                       Height="{TemplateBinding Height}"
-                                      Padding="2,1,0,0"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                       CanContentScroll="True"
                                       HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto" />
@@ -109,7 +116,8 @@
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsMouseOver" Value="true">
+                        <Trigger Property="IsMouseOver"
+                                 Value="true">
 
                             <Setter TargetName="border"
                                     Property="BorderBrush"
@@ -117,7 +125,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsKeyboardFocused" Value="true">
+                        <Trigger Property="IsKeyboardFocused"
+                                 Value="true">
 
                             <Setter TargetName="border"
                                     Property="BorderBrush"
@@ -125,7 +134,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="Validation.HasError" Value="True">
+                        <Trigger Property="Validation.HasError"
+                                 Value="True">
 
                             <Setter TargetName="border"
                                     Property="BorderBrush"
@@ -133,7 +143,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsEnabled" Value="False">
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
 
                             <Setter Property="Foreground"
                                     Value="DarkGray" />
@@ -151,9 +162,6 @@
                 <ControlTemplate TargetType="{x:Type Control}" />
             </Setter.Value>
         </Setter>
-
-        <Setter Property="VerticalAlignment"
-                Value="Center" />
 
         <Setter Property="VerticalAlignment"
                 Value="Center" />

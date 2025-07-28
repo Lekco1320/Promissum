@@ -3,11 +3,11 @@
                     xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:local="clr-namespace:Lekco.Promissum.Control">
 
-    <Style TargetType="{x:Type local:IconButton}">
+    <Style TargetType="{x:Type local:MaterialIconButton}">
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:IconButton}">
+                <ControlTemplate TargetType="{x:Type local:MaterialIconButton}">
 
                     <icon:PackIconMaterial Name="icon"
                                            Width="{TemplateBinding Width}"

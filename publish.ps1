@@ -12,16 +12,16 @@ if (Test-Path $outputDir) {
 }
 New-Item -ItemType Directory -Path $outputDir | Out-Null
 
-Write-Host "`nnPublishing Lekco.Promissum..."
-dotnet publish ./Lekco.Promissum/Lekco.Promissum.csproj `
+Write-Host "Publishing Lekco.Promissum..."
+dotnet publish ./src/Lekco.Promissum/Lekco.Promissum.csproj `
     -c $configuration `
     -r $runtime `
     --self-contained false `
     /p:PublishSingleFile=false `
     -o "$outputDir/Lekco.Promissum"
 
-Write-Host "`nPublishing Lekco.Promissum.Agens..."
-dotnet publish ./Lekco.Promissum.Agens/Lekco.Promissum.Agens.csproj `
+Write-Host "Publishing Lekco.Promissum.Agens..."
+dotnet publish ./src/Lekco.Promissum.Agens/Lekco.Promissum.Agens.csproj `
     -c $configuration `
     -r $runtime `
     --self-contained false `

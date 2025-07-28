@@ -1,0 +1,57 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctrl="clr-namespace:Lekco.Wpf.Control"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter"
+                    xmlns:flt="clr-namespace:Lekco.Wpf.Utility.Filter"
+                    xmlns:util="clr-namespace:Lekco.Wpf.Utility"
+                    xmlns:vm="clr-namespace:Lekco.Wpf.MVVM.Filter">
+
+    <cvt:EnumIntConverter x:Key="EnumIntConverter" />
+
+    <DataTemplate x:Key="PropertyFileSizeFilterTemplate"
+                  DataType="{x:Type vm:PropertyFileSizeFilterVM`1}">
+
+        <StackPanel Margin="3,0"
+                    Orientation="Horizontal">
+
+            <TextBlock VerticalAlignment="Center">
+
+                <Run Text="{Binding DisplayName}" /><Run Text="：" />
+
+            </TextBlock>
+
+            <ComboBox MinWidth="50"
+                      MaxWidth="80"
+                      SelectedIndex="{Binding FilterType, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type flt:FileSizeFilterType}}">
+
+                <ComboBoxItem Content="等于" />
+                <ComboBoxItem Content="小于" />
+                <ComboBoxItem Content="小于等于" />
+                <ComboBoxItem Content="大于" />
+                <ComboBoxItem Content="大于等于" />
+
+            </ComboBox>
+
+            <TextBox Width="50"
+                     Margin="5,0,0,0"
+                     Text="{Binding Fitted, Mode=TwoWay}" />
+
+            <ComboBox Width="45"
+                      Margin="5,0,0,0"
+                      SelectedIndex="{Binding Unit, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type util:FileSizeUnit}, Mode=TwoWay}">
+
+                <ComboBoxItem Content="Auto"
+                              Visibility="Collapsed" />
+                <ComboBoxItem Content="B" />
+                <ComboBoxItem Content="KB" />
+                <ComboBoxItem Content="MB" />
+                <ComboBoxItem Content="GB" />
+                <ComboBoxItem Content="TB" />
+
+            </ComboBox>
+
+        </StackPanel>
+
+    </DataTemplate>
+
+</ResourceDictionary>

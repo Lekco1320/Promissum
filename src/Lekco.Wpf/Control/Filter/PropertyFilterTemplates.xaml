@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyDateTimeFilterTemplate.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyNumericFilterTemplate.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyStringFilterTemplate.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyFilterGroupTemplate.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Lekco.Wpf;component/Control/Filter/PropertyFileSizeFilterTemplate.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

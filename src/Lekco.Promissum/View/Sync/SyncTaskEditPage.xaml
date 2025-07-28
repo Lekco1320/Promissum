@@ -22,21 +22,21 @@
                          FontWeight="Bold"
                          Text="{Binding TaskName}" />
 
-                <local:IconButton Width="13"
-                                  Height="13"
-                                  Margin="5,7,0,0"
-                                  Command="{Binding CancelCommand}"
-                                  Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
-                                  Kind="ArrowLeftCircle"
-                                  ToolTip="取消更改并返回" />
+                <local:MaterialIconButton Width="13"
+                                          Height="13"
+                                          Margin="5,7,0,0"
+                                          Command="{Binding CancelCommand}"
+                                          Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
+                                          Kind="ArrowLeftCircle"
+                                          ToolTip="取消更改并返回" />
 
-                <local:IconButton Width="13"
-                                  Height="13"
-                                  Margin="5,7,0,0"
-                                  Command="{Binding SaveCommand}"
-                                  Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
-                                  Kind="ContentSaveCheck"
-                                  ToolTip="保存更改" />
+                <local:MaterialIconButton Width="13"
+                                          Height="13"
+                                          Margin="5,7,0,0"
+                                          Command="{Binding SaveCommand}"
+                                          Foreground="{StaticResource GCBlueToCDeepBlueBrush}"
+                                          Kind="ContentSaveCheck"
+                                          ToolTip="保存更改" />
 
             </StackPanel>
 

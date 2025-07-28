@@ -6,12 +6,12 @@ namespace Lekco.Wpf.Utility
     /// <summary>
     /// A struct for describing size of file.
     /// </summary>
-    public struct FileSize
+    public readonly struct FileSize : IEquatable<FileSize>
     {
         /// <summary>
         /// Unit of the size.
         /// </summary>
-        public FileSizeUnit Unit { get; set; }
+        public FileSizeUnit Unit { get; }
 
         /// <summary>
         /// Size in bytes.
@@ -45,7 +45,7 @@ namespace Lekco.Wpf.Utility
             Unit = unit;
         }
 
-        public readonly double Fit(out FileSizeUnit unit)
+        public double Fit(out FileSizeUnit unit)
         {
             if (SizeInBytes == long.MaxValue)
             {
@@ -113,6 +113,16 @@ namespace Lekco.Wpf.Utility
 
         public static bool operator !=(FileSize left, FileSize right)
             => left.SizeInBytes != right.SizeInBytes || left.Unit != right.Unit;
+
+        public static explicit operator long(FileSize value)
+            => value.SizeInBytes;
+
+        public static implicit operator FileSize(long value)
+            => new FileSize(value);
+
+        /// <inheritdoc />
+        public readonly bool Equals(FileSize other)
+            => this == other;
 
         /// <inheritdoc />
         public override readonly bool Equals(object? obj)

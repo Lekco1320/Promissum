@@ -1,0 +1,41 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:Lekco.Wpf.Utility.Converter"
+                    xmlns:flt="clr-namespace:Lekco.Wpf.Utility.Filter"
+                    xmlns:vm="clr-namespace:Lekco.Wpf.MVVM.Filter">
+
+    <cvt:EnumIntConverter x:Key="EnumIntConverter" />
+
+    <DataTemplate x:Key="PropertyStringFilterTemplate"
+                  DataType="{x:Type vm:PropertyStringFilterVM`1}">
+
+        <StackPanel Margin="3,0"
+                    Orientation="Horizontal">
+
+            <TextBlock VerticalAlignment="Center">
+
+                <Run Text="{Binding DisplayName}" /><Run Text="：" />
+
+            </TextBlock>
+
+            <ComboBox MinWidth="50"
+                      MaxWidth="80"
+                      SelectedIndex="{Binding FilterType, Converter={StaticResource EnumIntConverter}, ConverterParameter={x:Type flt:StringFilterType}}">
+
+                <ComboBoxItem Content="等于" />
+                <ComboBoxItem Content="包含" />
+                <ComboBoxItem Content="开头是" />
+                <ComboBoxItem Content="结尾是" />
+
+            </ComboBox>
+
+            <TextBox Grid.Column="2"
+                     Width="80"
+                     Margin="5,0,0,0"
+                     Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+
+        </StackPanel>
+
+    </DataTemplate>
+
+</ResourceDictionary>
