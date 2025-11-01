@@ -143,6 +143,16 @@
             <Setter.Value>
                 <Style TargetType="{x:Type TreeViewItem}">
 
+                    <Style.Resources>
+                        <Style TargetType="{x:Type ctrl:IconToggleButton}">
+                            <Setter Property="Foreground"
+                                    Value="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}}}" />
+                        </Style>
+                    </Style.Resources>
+
+                    <Setter Property="Tag"
+                            Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
+
                     <Setter Property="Margin"
                             Value="0,0.5" />
 
@@ -160,7 +170,7 @@
 
                     <Setter Property="Template">
                         <Setter.Value>
-                            <ControlTemplate TargetType="TreeViewItem">
+                            <ControlTemplate TargetType="{x:Type TreeViewItem}">
 
                                 <StackPanel x:Name="ItemRoot"
                                             Margin="{TemplateBinding Margin}"
@@ -256,6 +266,9 @@
                                                     Value="{DynamicResource GCBlueToCDeepBlueBrush}" />
 
                                             <Setter Property="Foreground"
+                                                    Value="{DynamicResource CWhiteBrush}" />
+
+                                            <Setter Property="Tag"
                                                     Value="{DynamicResource CWhiteBrush}" />
 
                                         </MultiTrigger.Setters>

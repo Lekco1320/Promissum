@@ -9,6 +9,7 @@
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/IconButton.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/IconToggleButton.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/PropertyFilterView.xaml" />
+        <ResourceDictionary Source="Lekco.Wpf;component/Themes/PropertySorterView.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/MultiComboBox.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/NavigationItem.xaml" />
         <ResourceDictionary Source="Lekco.Wpf;component/Themes/Navigator.xaml" />

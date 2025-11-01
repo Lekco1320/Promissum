@@ -3,8 +3,11 @@ using Lekco.Promissum.Model.Sync.Record;
 using Lekco.Wpf.Control;
 using Lekco.Wpf.MVVM.Command;
 using Lekco.Wpf.MVVM.Filter;
+using Lekco.Wpf.MVVM.Sorter;
 using Lekco.Wpf.Utility;
 using Lekco.Wpf.Utility.Filter;
+using Lekco.Wpf.Utility.Sorter;
+using Org.BouncyCastle.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,11 +28,15 @@ namespace Lekco.Promissum.View.Sync
 
         public IPropertyFilterVM? PropertyFilterVM { get; set; }
 
+        public IPropertySorterGroupVM? PropertySorterGroupVM { get; set; }
+
         public List<string> PropertyNames { get; }
 
         public List<string> DisplayNames { get; }
 
         public RelayCommand<IFilterGroupNode> AddFilterCommand { get; }
+
+        public RelayCommand<ISorterGroup> AddSorterCommand { get; }
 
         public bool IsOK { get; set; }
 
@@ -71,45 +78,52 @@ namespace Lekco.Promissum.View.Sync
 
         private readonly PropertyInformation[] PropertyInfo;
 
-        private readonly Func<PropertyInformation, IPropertyFilterVM> ConsturctFunc;
+        private readonly Func<PropertyInformation, IPropertyFilterVM> FilterVMConstructer;
+
+        private readonly Func<PropertyInformation, IPropertySorterVM> SorterVMConstructer;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public SyncRecordsFilterDialog(SyncDataSetType dataSetType, IPropertyFilterVM? rootNode)
+        public SyncRecordsFilterDialog(SyncDataSetType dataSetType, IPropertyFilterVM? rootNode, IPropertySorterGroupVM? sorter)
         {
             IsFilter = rootNode != null;
+            IsSort = sorter != null;
             PropertyName = "";
             OKCommand = new RelayCommand(OK);
             CancelCommand = new RelayCommand(Cancel);
             AddFilterCommand = new RelayCommand<IFilterGroupNode>(NewFilter);
+            AddSorterCommand = new RelayCommand<ISorterGroup>(NewSorter);
 
             switch (dataSetType)
             {
             case SyncDataSetType.FileRecordDataSet:
-                var vm1 = (PropertyFilterGroupVM<FileRecord>?)rootNode ?? new PropertyFilterGroupVM<FileRecord>();
-                PropertyFilterVM = vm1;
+                PropertyFilterVM = rootNode ?? new PropertyFilterGroupVM<FileRecord>();
+                PropertySorterGroupVM = sorter ?? new PropertySorterGroupVM<FileRecord>();
                 PropertyInfo = FileRecordsPropertyInfo;
                 PropertyNames = FileRecordsPropertyInfo.Select(i => i.PropertyName).ToList();
                 DisplayNames = FileRecordsPropertyInfo.Select(i => i.DisplayName).ToList();
-                ConsturctFunc = NewRecordFilterVM<FileRecord>;
+                FilterVMConstructer = NewRecordFilterVM<FileRecord>;
+                SorterVMConstructer = NewRecordSorterVM<FileRecord>;
                 break;
 
             case SyncDataSetType.CleanUpDataSet:
-                var vm2 = (PropertyFilterGroupVM<CleanUpRecord>?)rootNode ?? new PropertyFilterGroupVM<CleanUpRecord>();
-                PropertyFilterVM = vm2;
+                PropertyFilterVM = rootNode ?? new PropertyFilterGroupVM<CleanUpRecord>();
+                PropertySorterGroupVM = sorter ?? new PropertySorterGroupVM<CleanUpRecord>();
                 PropertyInfo = CleanUpRecordsPropertyNames;
                 PropertyNames = CleanUpRecordsPropertyNames.Select(i => i.PropertyName).ToList();
                 DisplayNames = CleanUpRecordsPropertyNames.Select(i => i.DisplayName).ToList();
-                ConsturctFunc = NewRecordFilterVM<CleanUpRecord>;
+                FilterVMConstructer = NewRecordFilterVM<CleanUpRecord>;
+                SorterVMConstructer = NewRecordSorterVM<CleanUpRecord>;
                 break;
 
             case SyncDataSetType.ExecutionDataSet:
-                var vm3 = (PropertyFilterGroupVM<ExecutionRecord>?)rootNode ?? new PropertyFilterGroupVM<ExecutionRecord>();
-                PropertyFilterVM = vm3;
+                PropertyFilterVM = rootNode ?? new PropertyFilterGroupVM<ExecutionRecord>();
+                PropertySorterGroupVM = sorter ?? new PropertySorterGroupVM<ExecutionRecord>();
                 PropertyInfo = ExecutionRecordsPropertyNames;
                 PropertyNames = ExecutionRecordsPropertyNames.Select(i => i.PropertyName).ToList();
                 DisplayNames = ExecutionRecordsPropertyNames.Select(i => i.DisplayName).ToList();
-                ConsturctFunc = NewRecordFilterVM<ExecutionRecord>;
+                FilterVMConstructer = NewRecordFilterVM<ExecutionRecord>;
+                SorterVMConstructer = NewRecordSorterVM<ExecutionRecord>;
                 break;
 
             default:
@@ -164,9 +178,16 @@ namespace Lekco.Promissum.View.Sync
             return vm;
         }
 
+        private static IPropertySorterVM<T> NewRecordSorterVM<T>(PropertyInformation info)
+        {
+            var sorter = new PropertySorter<T>(info.PropertyName, false);
+            return new PropertySorterVM<T>(sorter, info.DisplayName);
+        }
+
         private void NewFilter(IFilterGroupNode node)
         {
             var dialog = new SelectPropertyDialog(DisplayNames);
+            dialog.Owner = this;
             dialog.ShowDialog();
             if (!dialog.IsOK)
             {
@@ -174,8 +195,23 @@ namespace Lekco.Promissum.View.Sync
             }
 
             int selectedIndex = dialog.SelectedIndex;
-            var newNode = ConsturctFunc(PropertyInfo[selectedIndex]);
+            var newNode = FilterVMConstructer(PropertyInfo[selectedIndex]);
             node.AddChild((IFilterNode)newNode);
+        }
+
+        private void NewSorter(ISorterGroup group)
+        {
+            var dialog = new SelectPropertyDialog(DisplayNames);
+            dialog.Owner = this;
+            dialog.ShowDialog();
+            if (!dialog.IsOK)
+            {
+                return;
+            }
+
+            int selectedIndex = dialog.SelectedIndex;
+            var newItem = SorterVMConstructer(PropertyInfo[selectedIndex]);
+            group.AddChild((ISorterItem)newItem);
         }
     }
 

@@ -3,9 +3,6 @@
 
     <Style TargetType="CheckBox">
 
-        <Setter Property="Foreground"
-                Value="{DynamicResource CBlackBrush}" />
-
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
@@ -32,21 +29,18 @@
 
                         </Border>
 
-                        <TextBlock x:Name="content"
-                                   Margin="5,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   FontSize="{TemplateBinding FontSize}"
-                                   Foreground="{TemplateBinding Foreground}"
-                                   Text="{TemplateBinding Content}" />
-
-                        <ContentPresenter Visibility="Collapsed" />
+                        <ContentPresenter x:Name="Content"
+                                          Margin="5,0,0,0"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          ContentSource="Content" />
 
                     </StackPanel>
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked"
+                                 Value="True">
 
                             <Setter TargetName="checkmark"
                                     Property="Visibility"
@@ -54,7 +48,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
 
                             <Setter TargetName="border"
                                     Property="Background"
@@ -62,9 +57,10 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsEnabled" Value="False">
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
 
-                            <Setter TargetName="content"
+                            <Setter TargetName="Content"
                                     Property="Opacity"
                                     Value="0.5" />
 
@@ -121,7 +117,8 @@
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked"
+                                 Value="True">
 
                             <Setter TargetName="checkmark"
                                     Property="Visibility"
@@ -129,7 +126,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
 
                             <Setter TargetName="border"
                                     Property="Background"
@@ -137,7 +135,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsEnabled" Value="False">
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
 
                             <Setter TargetName="checkmark"
                                     Property="Stroke"
@@ -153,7 +152,7 @@
 
     </Style>
 
-    <!-- https://www.cnblogs.com/weivyuan/p/SliderCheckBox.html -->
+    <!--  https://www.cnblogs.com/weivyuan/p/SliderCheckBox.html  -->
 
     <Style x:Key="CheckRadioFocusVisual">
 
@@ -265,7 +264,8 @@
 
                     <ControlTemplate.Triggers>
 
-                        <Trigger Property="HasContent" Value="true">
+                        <Trigger Property="HasContent"
+                                 Value="true">
 
                             <Setter Property="FocusVisualStyle"
                                     Value="{StaticResource CheckRadioFocusVisual}" />
@@ -275,13 +275,15 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsEnabled" Value="false">
+                        <Trigger Property="IsEnabled"
+                                 Value="false">
 
                             <Setter Property="Foreground"
                                     Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
                         </Trigger>
 
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked"
+                                 Value="True">
 
                             <Setter TargetName="ForegroundPanel"
                                     Property="Background"
@@ -295,7 +297,8 @@
 
                         </Trigger>
 
-                        <Trigger Property="IsChecked" Value="False">
+                        <Trigger Property="IsChecked"
+                                 Value="False">
 
                             <Setter TargetName="ForegroundPanel"
                                     Property="Background"

@@ -5,9 +5,11 @@ using Lekco.Promissum.View.Sync;
 using Lekco.Wpf.MVVM;
 using Lekco.Wpf.MVVM.Command;
 using Lekco.Wpf.MVVM.Filter;
+using Lekco.Wpf.MVVM.Sorter;
 using Lekco.Wpf.Utility;
 using Lekco.Wpf.Utility.Filter;
 using Lekco.Wpf.Utility.Helper;
+using Lekco.Wpf.Utility.Sorter;
 using Microsoft.EntityFrameworkCore;
 using MiniExcelLibs;
 using PropertyChanged;
@@ -70,6 +72,8 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         protected IPropertyFilterVM? RootFilterVM;
 
+        protected IPropertySorterGroupVM? SorterGroupVM;
+
         protected SyncTask SyncTask;
 
         protected SyncDbContext SyncDbContext;
@@ -82,23 +86,28 @@ namespace Lekco.Promissum.ViewModel.Sync
             SyncDbContext = dbContext;
         }
 
-        protected async Task LoadData<T>(IQueryable<T> dataSet, PropertyFilter<T>? filter)
+        protected async Task LoadData<T>(IQueryable<T> query, PropertyFilter<T>? filter, PropertySorterGroup<T>? sorter)
         {
             IsBusy = true;
 
             if (filter != null)
             {
-                dataSet = dataSet.Where(filter.GetExpression());
+                query = query.Where(filter.GetExpression());
+            }
+            if (sorter != null)
+            {
+                var exp = sorter.AddQueryExpression(query.Expression);
+                query = query.Provider.CreateQuery<T>(exp);
             }
 
-            RecordsCount = await dataSet.CountAsync();
+            RecordsCount = await query.CountAsync();
             PageCount = (int)Math.Ceiling((double)RecordsCount / PageSize);
             if (PageIndex > PageCount)
             {
                 ChangePageIndexInternal(1);
             }
 
-            var records = await dataSet
+            var records = await query
                 .Skip((PageIndex - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
@@ -117,6 +126,7 @@ namespace Lekco.Promissum.ViewModel.Sync
 
             CurrentView = null;
             RootFilterVM = null;
+            SorterGroupVM = null;
             ChangePageIndexInternal(1);
             await Task.Run(LoadPage);
         }
@@ -153,11 +163,12 @@ namespace Lekco.Promissum.ViewModel.Sync
 
         protected async void FilterAndSort()
         {
-            var dialog = new SyncRecordsFilterDialog(DataSetType, RootFilterVM);
+            var dialog = new SyncRecordsFilterDialog(DataSetType, RootFilterVM, SorterGroupVM);
             dialog.ShowDialog();
             if (dialog.IsOK)
             {
                 RootFilterVM = dialog.PropertyFilterVM;
+                SorterGroupVM = dialog.PropertySorterGroupVM;
                 ChangePageIndexInternal(1);
             }
 
@@ -171,24 +182,27 @@ namespace Lekco.Promissum.ViewModel.Sync
             case 0:
                 DataSetType = SyncDataSetType.FileRecordDataSet;
                 var filter1 = RootFilterVM?.GetFilter() as PropertyFilter<FileRecord>;
+                var sorter1 = ((IPropertySorterGroupVM<FileRecord>?)SorterGroupVM)?.GetSorters();
                 var dataSet1 = SyncDbContext.FileRecords.AsNoTracking();
-                await Task.Run(() => LoadData(dataSet1, filter1));
+                await LoadData(dataSet1, filter1, sorter1);
                 break;
 
             case 1:
                 DataSetType = SyncDataSetType.CleanUpDataSet;
                 var filter2 = RootFilterVM?.GetFilter() as PropertyFilter<CleanUpRecord>;
+                var sorter2 = ((IPropertySorterGroupVM<CleanUpRecord>?)SorterGroupVM)?.GetSorters();
                 var dataSet2 = SyncDbContext.CleanUpRecords.AsNoTracking();
-                await Task.Run(() => LoadData(dataSet2, filter2));
+                await LoadData(dataSet2, filter2, sorter2);
                 break;
 
             case 2:
                 DataSetType = SyncDataSetType.ExecutionDataSet;
                 var filter3 = RootFilterVM?.GetFilter() as PropertyFilter<ExecutionRecord>;
+                var sorter3 = ((IPropertySorterGroupVM<ExecutionRecord>?)SorterGroupVM)?.GetSorters();
                 var dataSet3 = SyncDbContext.ExecutionRecords
                     .AsNoTracking()
                     .Include(record => record.ExceptionRecords);
-                await Task.Run(() => LoadData(dataSet3, filter3));
+                await LoadData(dataSet3, filter3, sorter3);
                 break;
 
             default:
